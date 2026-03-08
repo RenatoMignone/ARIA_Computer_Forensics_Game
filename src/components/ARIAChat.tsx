@@ -322,17 +322,17 @@ export function ARIAChat() {
                         <span className="font-bold">⚠ NO EVIDENCE SELECTED:</span> Select a file to enable ARIA analysis
                     </div>
                 )}
-                
+                {isGenerating && (
+                    <div className="flex items-center gap-1.5 mb-2 px-3 py-1.5 rounded bg-violet-900/20 border border-violet-500/30 text-violet-400 text-[10px] font-mono animate-pulse">
+                        ⏳ ARIA is processing…
+                    </div>
+                )}
+
                 <div className="flex gap-2 relative">
                     <div className={`flex-1 relative aria-input-wrap ${input.length === 0 ? 'is-empty' : ''}`}>
                         {inlineWarning && (
                             <div className="absolute -top-10 left-0 right-0 p-2 bg-amber-900/30 border border-amber-500/50 rounded text-[10px] text-amber-500 italic shadow-lg animate-[fadeIn_0.2s_ease-out]">
                                 ⚠️ {inlineWarning}
-                            </div>
-                        )}
-                        {isGenerating && (
-                            <div className="absolute -top-8 left-0 right-0 p-1.5 bg-violet-900/30 border border-violet-500/40 rounded text-[10px] text-violet-400 font-mono animate-pulse">
-                                ⏳ ARIA is processing…
                             </div>
                         )}
                         <input

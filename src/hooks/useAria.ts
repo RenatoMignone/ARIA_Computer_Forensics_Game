@@ -594,6 +594,9 @@ export function useAria() {
                 } else {
                     dispatch({ type: 'ADD_CHAT_MESSAGE', message: { id: `${msgId}-fb`, role: 'aria', text: data.fallback, timestamp: new Date(), streaming: true } });
                 }
+            } finally {
+                isGeneratingRef.current = false;
+                setIsGenerating(false);
             }
 
         } else {
