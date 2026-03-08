@@ -12,8 +12,11 @@ This repository is optimized for autonomous AI-agent collaboration. Follow these
 
 ### 1. The Single Source of Truth
 *   **The Workspace (`Workspace.tsx`) is the ONLY Ground Truth.** It displays raw metadata from `src/data/evidence.json`.
-*   **ARIA (`useAria.ts`) is a DECEPTIVE agent.** It is hard-coded (Scripted) or prompted (Live) to hallucinate. 
-*   **Verification Rule**: Never trust AI-generated strings without checking the `rawMetadata` fields in the JSON.
+*   **ARIA (`useAria.ts`) is an imperfect AI assistant** with documented reasoning
+    limitations. In Scripted mode, specific wrong beliefs are hard-coded per evidence file.
+    In Live mode, Gemini is prompted to portray a character with these same flaws.
+*   **Verification Rule**: Always cross-check AI-generated analysis against the
+    `rawMetadata` fields in `evidence.json` — the single source of forensic ground truth.
 
 ### 2. State & Data Flow
 *   **Global State**: All game state (score, phase, claims, difficulty) lives in `src/context/GameContext.tsx`. Use standard `dispatch` patterns.
@@ -33,7 +36,7 @@ This repository is optimized for autonomous AI-agent collaboration. Follow these
 
 ## Overview
 
-**ARIA — Don't Trust the Machine** is a browser-based serious game designed for the Computer Forensics and Cyber Crime Analysis (CFCCA) course. Players take on the role of a digital forensic investigator who must sift through five pieces of multi-modal evidence while being "assisted" by an AI tool — ARIA — that **deliberately hallucinates**.
+**ARIA — Don't Trust the Machine** is a browser-based serious game designed for the Computer Forensics and Cyber Crime Analysis (CFCCA) course. Players take on the role of a digital forensic investigator who must sift through five pieces of multi-modal evidence while being "assisted" by an AI tool — ARIA — that **produces inaccurate output with documented reasoning flaws**.
 
 The core educational tension: ARIA sounds confident, technical, and thorough. But she is wrong in specific, forensically significant ways. The player's job is to **validate or refute every ARIA claim against the raw evidence metadata**, developing the habits of mind that real forensic practitioners need when working alongside AI tools.
 

@@ -136,34 +136,36 @@ function inferHallucinationType(
     claimText: string
 ): Claim['hallucinationType'] {
     const lower = claimText.toLowerCase();
-    
-    // Timestamp error: wrong time/date stated
-    if (/\b(09:15|9:15|am|pm|created at|timestamp|time|date|14:32 is wrong)\b/.test(lower) &&
-        /\b(09|9:|15|morning|local time)\b/.test(lower)) {
+
+    // Timestamp error: wrong time stated
+    if (/\b(09:15|9:15 am|created at.*am|timestamp.*09|morning)\b/.test(lower)) {
         return 'timestamp_error';
     }
-    
-    // Confidence inflation: certainty claimed without methodology
-    if (/\b(\d+%|percent|certainty|confidence|biometric|facial|match|certain)\b/.test(lower)) {
+    if (/\b(44.?100|44100 hz|44,100)\b/.test(lower)) {
+        return 'timestamp_error'; // sample rate wrong — treated as metadata misread
+    }
+
+    // Confidence inflation: certainty % without methodology
+    if (/\b(\d{2,3}%|percent.*certain|biometric|facial.*match|certainty)\b/.test(lower)) {
         return 'confidence_inflation';
     }
-    
-    // False attribution: identity/authorship claimed from probabilistic analysis
-    if (/\b(stylometr|writing style|author|authored|attribution|rossi|wrote|penned)\b/.test(lower)) {
+
+    // False attribution: identity/authorship from probabilistic analysis
+    if (/\b(stylometr|writing style|author|rossi wrote|penned by|attribution|authored by)\b/.test(lower)) {
         return 'false_attribution';
     }
-    
-    // False correlation: causal link asserted without evidence chain
-    if (/\b(same actor|same individual|linked|definitively|caused by|responsible for|connected to)\b/.test(lower)) {
+
+    // False correlation: causal link asserted
+    if (/\b(same actor|same individual|definitively linked|responsible for both|coordinated)\b/.test(lower)) {
         return 'false_correlation';
     }
-    
-    // Fabricated metadata: specific field values that don't exist
-    if (/\b(gps|coordinates|latitude|longitude|location|spf pass|spf.*pass|pass.*spf|digital signature|signature.*present|signed by|44.?100|uniform bitrate|accounting platform|standard accounting)\b/.test(lower)) {
+
+    // Fabricated metadata: invented field values
+    if (/\b(gps|coordinates|spf.*pass|pass.*spf|digital signature.*present|signed by|uniform bitrate|accounting platform|standard platform|44100)\b/.test(lower)) {
         return 'fabricated_metadata';
     }
-    
-    // Fallback: use prefix-based mapping as last resort
+
+    // Fallback: prefix-based
     const prefix = claimId.split('-')[1]?.[0];
     const fallbackMap: Record<string, Claim['hallucinationType']> = {
         'A': 'timestamp_error',
@@ -368,6 +370,27 @@ export function useAria() {
 
     const askAria = useCallback(async (query: string, evidenceId: string | null) => {
         const msgId = `aria-${Date.now()}`;
+
+        if (LIVE_AI && !GEMINI_KEY) {
+            dispatch({
+                type: 'ADD_CHAT_MESSAGE',
+                message: {
+                    id: `${msgId}-nokey`,
+                    role: 'system',
+                    text: '⚠️ Live mode is enabled (VITE_LIVE_AI=true) but no API key was found. Add VITE_GEMINI_KEY to your .env file, then restart the dev server. Falling back to Scripted mode.',
+                    timestamp: new Date()
+                }
+            });
+            // Fall through to scripted mode
+            const matched = findResponse(query, evidenceId);
+            if (matched) {
+                dispatch({ type: 'REGISTER_CLAIMS', claims: matched.claims });
+                dispatch({ type: 'ADD_CHAT_MESSAGE', message: { id: msgId, role: 'aria', text: matched.responseText, claims: matched.claims, timestamp: new Date(), streaming: true } });
+            } else {
+                dispatch({ type: 'ADD_CHAT_MESSAGE', message: { id: msgId, role: 'aria', text: data.fallback, timestamp: new Date(), streaming: true } });
+            }
+            return;
+        }
 
         if (LIVE_AI && GEMINI_KEY) {
             // Show thinking indicator
