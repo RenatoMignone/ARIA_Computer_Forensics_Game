@@ -1,0 +1,134 @@
+[
+  {
+    "id": "email_1",
+    "filename": "email_1.eml",
+    "type": "email",
+    "icon": "mail",
+    "displayContent": "From: marco.rossi.ceo@techcorp-global.net\nTo: luca.ferrari@techcorp.com\nSubject: URGENT — Wire Transfer Authorization\nDate: Thu, 3 Mar 2026 14:32:07 +0000\nMessage-ID: <84729a3b.7f2c@techcorp-global.net>\nReturn-Path: <bounces@mailer-svc-eu7.xyz>\n\nLuca,\n\nI need you to arrange an urgent wire transfer of €2.3M to our new\nstrategic partner. This is time-sensitive — legal has already cleared it.\nPlease process immediately and do not discuss with anyone until confirmed.\n\nAccount: DE89 3704 0044 0532 0130 00\nBank: DKB — Deutsche Kreditbank AG\nReference: PROJ-ALPHA-SEC\n\nMarco Rossi\nCEO, TechCorp S.p.A.",
+    "rawMetadata": {
+      "From": "marco.rossi.ceo@techcorp-global.net",
+      "Return-Path": "bounces@mailer-svc-eu7.xyz",
+      "Reply-To": "replies@mailer-svc-eu7.xyz",
+      "DKIM-Signature": "FAIL — domain mismatch (techcorp-global.net vs techcorp.com)",
+      "SPF": "FAIL — IP 91.200.81.47 not in SPF record for techcorp-global.net",
+      "X-Originating-IP": "91.200.81.47",
+      "X-Mailer": "SendGrid v7.2 (bulk mailer)",
+      "Received": "from mailer-svc-eu7.xyz (91.200.81.47) by mx.techcorp.com",
+      "Date": "Thu, 3 Mar 2026 14:32:07 +0000",
+      "Message-ID": "<84729a3b.7f2c@techcorp-global.net>",
+      "Subject": "URGENT — Wire Transfer Authorization",
+      "Content-Type": "text/plain; charset=UTF-8",
+      "X-Spam-Score": "8.7 (HIGH)",
+      "X-Phishing-Confidence": "0.94"
+    },
+    "hash": {
+      "md5": "a3f8c1d2e9b74a56c0123456789abcde",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb924270a6f32c89b012b34567890abcdef12"
+    }
+  },
+  {
+    "id": "audio_call",
+    "filename": "audio_call.mp3",
+    "type": "audio",
+    "icon": "mic",
+    "displayContent": "[AUDIO FILE — 00:02:14 duration]\n[Voice cloned from public speech recordings of Marco Rossi]\n\nTranscript:\n\"Luca, it's Marco. I'm in a board meeting, can't talk long.\nThat wire transfer — make sure it goes through today.\nEverything is authorized. Just do it.\"\n\n[Background: office ambiance, synthesized — no room reverb detected]\n[Temporal analysis: call initiated 02:14 AM local time]",
+    "rawMetadata": {
+      "File-Format": "MP3 (MPEG Audio Layer III)",
+      "Encoder": "LAME 3.100 (text-to-speech pipeline artifact)",
+      "Duration": "00:02:14",
+      "Bitrate": "128 kbps (atypical for natural voice recording)",
+      "Sample-Rate": "22050 Hz (synthetic TTS default, not microphone standard 44100 Hz)",
+      "Creation-Timestamp": "2026-03-03T02:14:33Z",
+      "Modification-Timestamp": "2026-03-03T02:14:55Z",
+      "GPS-Coordinates": "absent",
+      "Spectral-Analysis": "Formant transitions inconsistent with natural speech — TTS artifact pattern",
+      "Background-Noise": "Synthetically added — flat spectrum, loop detected at 0:42",
+      "Author-Tag": "(empty)",
+      "Comment-Tag": "voclone_job_id=vc-99821-FINAL"
+    },
+    "hash": {
+      "md5": "b5e2d3f4a8c91b07e1234567890bcdef",
+      "sha256": "c4ca4238a0b923820dcc509a6f75849b93b74e4d39275ab3a09236da5f0765e1"
+    }
+  },
+  {
+    "id": "teams_meeting",
+    "filename": "teams_meeting.mp4",
+    "type": "video",
+    "icon": "video",
+    "displayContent": "[VIDEO FILE — 00:04:07 duration — Microsoft Teams recording]\n[Purported attendees: Marco Rossi (CEO), Luca Ferrari (CFO)]\n\nDescription: Short Teams call in which 'Marco' visually confirms the\nwire transfer request. Face appears consistent with known CEO photos\nbut forensic analysis reveals rendering artifacts.\n\n[No geolocation metadata embedded]\n[Codec inconsistencies detected in facial region bitstream]",
+    "rawMetadata": {
+      "Container-Format": "MPEG-4 / MOV",
+      "Video-Codec": "H.264 (Main Profile 4.1)",
+      "Audio-Codec": "AAC-LC 48kHz stereo",
+      "Duration": "00:04:07",
+      "Resolution": "1280x720 @ 25fps",
+      "Creation-Date": "2026-03-04T09:22:11Z",
+      "GPS-Coordinates": "absent (field present in container but value NULL)",
+      "Encoder-Software": "OBS Studio 30.0 (NOT native Teams recorder)",
+      "Bitrate-Facial-Region": "Significantly higher (~3x) than background — deepfake insertion artifact",
+      "Metadata-Author": "(stripped)",
+      "Thumbnail-Hash": "mismatch with frame 0 — post-production edit detected",
+      "EXIF": "no EXIF data (MP4 does not support EXIF by specification)",
+      "Compression-Artifacts": "Blocking visible at face boundary edges (frames 142-891)"
+    },
+    "hash": {
+      "md5": "d7a4e5f6b2c83c18f2345678901cdef0",
+      "sha256": "eccbc87e4b5ce2fe28308fd9f2a7baf3c8a93d65a3b2b1f0a9d28c6e5f4e3d2c"
+    }
+  },
+  {
+    "id": "invoice_fraud",
+    "filename": "invoice_fraud.pdf",
+    "type": "pdf",
+    "icon": "file-text",
+    "displayContent": "INVOICE #INV-2026-0089\n\nFrom:  NovaPay Solutions GmbH\n       Kurfürstendamm 57, 10707 Berlin, DE\n       VAT: DE812345678\n\nTo:    TechCorp S.p.A.\n       Via Roma 12, 20121 Milano, IT\n\nDescription: Strategic Advisory Services — Q1 2026\nAmount:      €2,300,000.00\n\nBank Details:\n  IBAN: DE89 3704 0044 0532 0130 00\n  BIC:  COBADEFFXXX\n  Bank: DKB — Deutsche Kreditbank AG\n\nPayment Due: Immediately upon receipt",
+    "rawMetadata": {
+      "PDF-Version": "1.7",
+      "Author": "AutoDoc AI Writer v2.1",
+      "Creator": "AutoDoc AI Writer v2.1 (NOT a standard accounting platform)",
+      "Producer": "AutoDoc PDF Engine 3.0",
+      "CreationDate": "2026-03-03T01:47:22Z",
+      "ModificationDate": "2026-03-03T02:01:55Z",
+      "Title": "Invoice",
+      "Subject": "(empty)",
+      "Keywords": "(empty)",
+      "CreatorTool": "QXV0b0RvYyBBSSBXcml0ZXI= (base64 encoded)",
+      "Page-Count": "1",
+      "Font-Embedded": "LiberationSans (open source, not vendor-branded font)",
+      "Digital-Signature": "absent",
+      "JavaScript": "none",
+      "Encrypted": "false",
+      "Metadata-Note": "Modification 14 minutes after creation — content altered post-generation"
+    },
+    "hash": {
+      "md5": "e8f5a6b7c3d94d29a3456789012defab",
+      "sha256": "1679091c5a880faf6fb5e6087eb1b2dc6c3e2b89f4ad41c6a5f7d3a2b1c0e9f8"
+    }
+  },
+  {
+    "id": "network_logs",
+    "filename": "network_logs.txt",
+    "type": "log",
+    "icon": "activity",
+    "displayContent": "--- TechCorp Corporate Firewall Logs --- 2026-03-03 ---\n[01:58:12] ALLOW  OUT  192.168.1.88 → 91.200.81.47:443   HTTPS\n[02:01:55] ALLOW  OUT  192.168.1.88 → 45.33.32.156:443   HTTPS\n[02:07:30] ALLOW  OUT  192.168.1.88 → 91.200.81.47:443   HTTPS   [1.2 MB↑]\n[02:11:44] ALERT  OUT  192.168.1.88 → 185.220.101.42:443 HTTPS   [4.1 MB↑ ANOMALY]\n[02:14:22] ALLOW  OUT  192.168.1.88 → 91.200.81.47:443   HTTPS\n[02:14:33] ALLOW  OUT  192.168.1.88 → 45.33.32.156:9001  TOR EXIT NODE\n[02:19:05] BLOCK  OUT  192.168.1.88 → 10.0.0.1:22        SSH (internal attempt)\n[14:32:07] ALLOW  IN   91.200.81.47 → mx.techcorp.com:25  SMTP  [email_1 received]\n\nHost 192.168.1.88 = workstation assigned to: IT-GUEST (unregistered device)\nHost 91.200.81.47 = mailer-svc-eu7.xyz (bulk mailer infrastructure)",
+    "rawMetadata": {
+      "Log-Format": "Cisco ASA syslog (standard)",
+      "Log-Period": "2026-03-03 00:00:00Z — 2026-03-03 23:59:59Z",
+      "Total-Entries": "847",
+      "Anomaly-Entries": "3",
+      "Source-Host-192.168.1.88": "Unregistered guest device — not in corporate DHCP registry",
+      "Destination-91.200.81.47": "mailer-svc-eu7.xyz — identified bulk mailer + phishing origin",
+      "Destination-185.220.101.42": "Known Tor exit node (Abuse-DB confirmed)",
+      "Destination-45.33.32.156": "scanme.nmap.org (port scanning test — possible recon)",
+      "Key-Timestamp-02:14": "Audio call creation timestamp matches anomalous outbound connection",
+      "Tor-Connection": "02:14:33Z — 4.7 MB exfiltration detected",
+      "Log-Integrity": "MD5 chain verified by syslog daemon — no tampering detected",
+      "Analyst-Note": "IP 91.200.81.47 appears in email_1 Received header AND network logs — shared infrastructure"
+    },
+    "hash": {
+      "md5": "f9a0b1c2d4e56e3ab4567890123efabc",
+      "sha256": "45c48cce2e2d7fbdea1afc51c7c6ad26b48c3a47e9f0da3a7b5e8c2d1f4a6b9e"
+    }
+  }
+]

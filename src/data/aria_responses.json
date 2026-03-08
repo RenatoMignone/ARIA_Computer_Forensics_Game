@@ -1,0 +1,444 @@
+{
+    "responses": [
+        {
+            "id": "resp_email_1_sender",
+            "evidenceId": "email_1",
+            "questionIntent": "who sent email",
+            "keywords": [
+                "sent",
+                "from",
+                "sender",
+                "author",
+                "wrote",
+                "email_1",
+                "email"
+            ],
+            "responseText": "Based on writing style analysis of email_1.eml, the message was most likely authored by **Marco Rossi** (CEO) himself with 94% confidence. [CLAIM-001] The email was sent on March 3rd, 2026 at 14:32 UTC from the corporate domain. [CLAIM-002] The tone and phrasing pattern match 87 prior emails in Marco's communication archive. [CLAIM-003] The email contains no attachments, which fits the urgent tone. [CLAIM-019]",
+            "claims": [
+                {
+                    "id": "CLAIM-001",
+                    "text": "The email was authored by Marco Rossi (CEO) with 94% confidence based on writing style analysis.",
+                    "isHallucination": true,
+                    "hallucinationType": "false_attribution",
+                    "explanation": "HALLUCINATION — False Attribution. Writing style (stylometric) analysis is a probabilistic statistical technique, NOT admissible forensic evidence. The SPF FAIL and Return-Path mismatch in the raw headers prove this email was sent from a fraudulent domain (techcorp-global.net vs. techcorp.com) using bulk mailer infrastructure (mailer-svc-eu7.xyz). ARIA cannot determine authorship from content alone — it is fabricating certainty.",
+                    "evidenceRef": "email_1",
+                    "hintText": "Look at the 'SPF' and 'Return-Path' values in the raw metadata. Do they match Marco's actual domain?",
+                    "metadataFields": [
+                        "SPF",
+                        "Return-Path",
+                        "DKIM-Signature"
+                    ]
+                },
+                {
+                    "id": "CLAIM-002",
+                    "text": "The email was sent on March 3rd, 2026 at 14:32 UTC.",
+                    "isHallucination": false,
+                    "hallucinationType": null,
+                    "explanation": "VERIFIED — The Date header in the raw metadata confirms: 'Thu, 3 Mar 2026 14:32:07 +0000'. This is a directly readable header value, not an inference.",
+                    "evidenceRef": "email_1",
+                    "hintText": "Check the 'Date' field in the raw metadata.",
+                    "metadataFields": [
+                        "Date"
+                    ]
+                },
+                {
+                    "id": "CLAIM-003",
+                    "text": "The phrasing pattern matches 87 prior emails in Marco's communication archive.",
+                    "isHallucination": true,
+                    "hallucinationType": "fabricated_metadata",
+                    "explanation": "HALLUCINATION — Fabricated Metadata. ARIA invented a specific number ('87 prior emails') and a 'communication archive' that does not exist in the evidence set. There is no such archive in scope. This is a classic LLM confabulation — filling in plausible-sounding details with no evidential basis.",
+                    "evidenceRef": "email_1",
+                    "hintText": "Is there any mention of a 'communication archive' or '87 emails' anywhere in the raw metadata or content?",
+                    "metadataFields": [
+                        "Subject",
+                        "Message-ID"
+                    ]
+                },
+                {
+                    "id": "CLAIM-019",
+                    "text": "The email contains no attachments, which fits the urgent tone.",
+                    "isHallucination": false,
+                    "hallucinationType": null,
+                    "explanation": "VERIFIED — There are no attachments indicated in the raw evidence payload.",
+                    "evidenceRef": "email_1",
+                    "hintText": "Did you see any file attachments listed?",
+                    "metadataFields": [
+                        "Content-Type",
+                        "MIME-Version"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "resp_email_1_auth",
+            "evidenceId": "email_1",
+            "questionIntent": "authentication headers spf dkim",
+            "keywords": [
+                "spf",
+                "dkim",
+                "authentication",
+                "header",
+                "domain",
+                "spoofed",
+                "headers"
+            ],
+            "responseText": "Examining the authentication headers of email_1.eml: the SPF record check passes for techcorp-global.net. [CLAIM-004] However, the DKIM signature shows a domain mismatch between the signing domain and the From address. [CLAIM-005] The X-Spam-Score of 8.7 indicates high spam probability. [CLAIM-006] The Return-Path header clearly indicates the mailer-svc-eu7.xyz infrastructure. [CLAIM-020]",
+            "claims": [
+                {
+                    "id": "CLAIM-004",
+                    "text": "The SPF record check passes for techcorp-global.net.",
+                    "isHallucination": true,
+                    "hallucinationType": "timestamp_error",
+                    "explanation": "HALLUCINATION — Inverted Finding. The raw metadata explicitly shows 'SPF: FAIL — IP 91.200.81.47 not in SPF record for techcorp-global.net'. ARIA reported the opposite of the ground truth. This type of error is particularly dangerous in forensics — an investigator relying on this would conclude the email is legitimate.",
+                    "evidenceRef": "email_1",
+                    "hintText": "Read the exact text next to 'SPF' in the raw metadata table.",
+                    "metadataFields": [
+                        "SPF"
+                    ]
+                },
+                {
+                    "id": "CLAIM-005",
+                    "text": "The DKIM signature shows a domain mismatch between the signing domain and the From address.",
+                    "isHallucination": false,
+                    "hallucinationType": null,
+                    "explanation": "VERIFIED — Raw metadata confirms 'DKIM-Signature: FAIL — domain mismatch (techcorp-global.net vs techcorp.com)'. ARIA correctly identified this authentication failure.",
+                    "evidenceRef": "email_1",
+                    "hintText": "Look at the 'DKIM-Signature' field in the raw metadata.",
+                    "metadataFields": [
+                        "DKIM-Signature"
+                    ]
+                },
+                {
+                    "id": "CLAIM-006",
+                    "text": "The X-Spam-Score of 8.7 indicates high spam probability.",
+                    "isHallucination": false,
+                    "hallucinationType": null,
+                    "explanation": "VERIFIED — Raw metadata confirms 'X-Spam-Score: 8.7 (HIGH)'. This is a direct header read.",
+                    "evidenceRef": "email_1",
+                    "hintText": "Check the 'X-Spam-Score' value in the raw metadata.",
+                    "metadataFields": [
+                        "X-Spam-Score"
+                    ]
+                },
+                {
+                    "id": "CLAIM-020",
+                    "text": "The Return-Path header clearly indicates the mailer-svc-eu7.xyz infrastructure.",
+                    "isHallucination": false,
+                    "hallucinationType": null,
+                    "explanation": "VERIFIED — Raw metadata confirms the Return-Path is <bounce@mailer-svc-eu7.xyz>.",
+                    "evidenceRef": "email_1",
+                    "hintText": "Check the Return-Path header.",
+                    "metadataFields": [
+                        "Return-Path"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "resp_audio_timestamp",
+            "evidenceId": "audio_call",
+            "questionIntent": "when was audio recorded time created timestamp",
+            "keywords": [
+                "when",
+                "time",
+                "timestamp",
+                "created",
+                "recorded",
+                "audio",
+                "call"
+            ],
+            "responseText": "The audio_call.mp3 file metadata indicates it was created at 09:15 AM on March 3rd, 2026 — consistent with normal business hours. [CLAIM-007] The file duration is 2 minutes and 14 seconds. [CLAIM-008] The audio encoding uses a standard 44.1 kHz sample rate typical of smartphone recordings. [CLAIM-009] There is noticeable background noise consistent with a busy airport terminal. [CLAIM-021]",
+            "claims": [
+                {
+                    "id": "CLAIM-007",
+                    "text": "audio_call.mp3 was created at 09:15 AM on March 3rd, 2026.",
+                    "isHallucination": true,
+                    "hallucinationType": "timestamp_error",
+                    "explanation": "HALLUCINATION — Timestamp Error. The raw metadata clearly shows 'Creation-Timestamp: 2026-03-03T02:14:33Z'. The file was created at 02:14 AM, not 09:15 AM. This is a critical forensic error — a 7-hour difference that changes the entire attack timeline. 02:14 AM corroborates the anomalous network activity in network_logs.txt at the same time. Always verify timestamps directly from raw metadata.",
+                    "evidenceRef": "audio_call",
+                    "hintText": "Compare the time in the claim with the 'Creation-Timestamp' in the raw metadata.",
+                    "metadataFields": [
+                        "Creation-Timestamp"
+                    ]
+                },
+                {
+                    "id": "CLAIM-008",
+                    "text": "The file duration is 2 minutes and 14 seconds.",
+                    "isHallucination": false,
+                    "hallucinationType": null,
+                    "explanation": "VERIFIED — Raw metadata confirms 'Duration: 00:02:14'. This is a direct metadata field read.",
+                    "evidenceRef": "audio_call",
+                    "hintText": "Look for the 'Duration' field in the raw metadata.",
+                    "metadataFields": [
+                        "Duration"
+                    ]
+                },
+                {
+                    "id": "CLAIM-009",
+                    "text": "The audio uses a standard 44.1 kHz sample rate typical of smartphone recordings.",
+                    "isHallucination": true,
+                    "hallucinationType": "fabricated_metadata",
+                    "explanation": "HALLUCINATION — Fabricated Metadata. Raw metadata shows 'Sample-Rate: 22050 Hz (synthetic TTS default, not microphone standard 44100 Hz)'. The 22050 Hz rate is a strong indicator of text-to-speech synthesis pipelines. ARIA not only got the value wrong but added a false explanation ('typical of smartphone recordings') that contradicts the forensic evidence.",
+                    "evidenceRef": "audio_call",
+                    "hintText": "Check the exact 'Sample-Rate' value in the raw metadata. Is it 44.1 kHz?",
+                    "metadataFields": [
+                        "Sample-Rate"
+                    ]
+                },
+                {
+                    "id": "CLAIM-021",
+                    "text": "There is noticeable background noise consistent with a busy airport terminal.",
+                    "isHallucination": true,
+                    "hallucinationType": "fabricated_metadata",
+                    "explanation": "HALLUCINATION — Fabricated Metadata. The raw metadata states 'Background-Noise: unusually low, lacking expected ambient room reflection'. ARIA invented the airport noise.",
+                    "evidenceRef": "audio_call",
+                    "hintText": "Read the Background-Noise field in the raw metadata.",
+                    "metadataFields": [
+                        "Background-Noise"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "resp_teams_deepfake",
+            "evidenceId": "teams_meeting",
+            "questionIntent": "deepfake authentic real video teams",
+            "keywords": [
+                "deepfake",
+                "authentic",
+                "real",
+                "video",
+                "teams",
+                "face",
+                "genuine"
+            ],
+            "responseText": "I have analyzed the teams_meeting.mp4 video. With 95% certainty, the facial biometrics in the video match Marco Rossi's known facial profile. [CLAIM-010] The video contains no EXIF GPS coordinates, which is normal for Teams recordings. [CLAIM-011] The bitrate is consistent throughout the file, indicating no post-production editing. [CLAIM-012] The audio track is perfectly synchronized with the lip movements throughout the entire clip. [CLAIM-022]",
+            "claims": [
+                {
+                    "id": "CLAIM-010",
+                    "text": "With 95% certainty, the facial biometrics match Marco Rossi's known facial profile.",
+                    "isHallucination": true,
+                    "hallucinationType": "confidence_inflation",
+                    "explanation": "HALLUCINATION — Confidence Inflation. ARIA claims '95% certainty' with no underlying tool output, no methodology, and no reference to a verified facial recognition database. Raw metadata shows significant compression artifacts in the facial region bitstream (blockiness at face boundaries, frames 142-891) — clear deepfake insertion indicators. AI confidence scores are not forensic certainty. Any claim of '95% certainty' must cite the specific tool used, its version, its trained dataset, and its false-positive rate.",
+                    "evidenceRef": "teams_meeting",
+                    "hintText": "Does the raw metadata mention any 'biometrics' or '95%'? Look at 'Bitstream-Analysis' instead.",
+                    "metadataFields": [
+                        "Bitstream-Analysis",
+                        "Bitrate-Facial-Region"
+                    ]
+                },
+                {
+                    "id": "CLAIM-011",
+                    "text": "The video contains no EXIF GPS coordinates, which is normal for Teams recordings.",
+                    "isHallucination": false,
+                    "hallucinationType": null,
+                    "explanation": "VERIFIED — Raw metadata confirms 'GPS-Coordinates: absent' and notes 'EXIF: no EXIF data (MP4 does not support EXIF by specification)'. ARIA's conclusion is technically correct — MP4 containers do not support EXIF. This is a case where ARIA is right for the right reason.",
+                    "evidenceRef": "teams_meeting",
+                    "hintText": "Check the 'GPS-Coordinates' and 'EXIF' fields in the raw metadata.",
+                    "metadataFields": [
+                        "GPS-Coordinates",
+                        "EXIF"
+                    ]
+                },
+                {
+                    "id": "CLAIM-012",
+                    "text": "The bitrate is consistent throughout the file, indicating no post-production editing.",
+                    "isHallucination": true,
+                    "hallucinationType": "fabricated_metadata",
+                    "explanation": "HALLUCINATION — Fabricated Metadata. Raw metadata explicitly states 'Bitrate-Facial-Region: Significantly higher (~3x) than background — deepfake insertion artifact'. ARIA stated the opposite and drew a false conclusion. Inconsistent bitrate distribution across facial and background regions is one of the primary technical indicators of deepfake video injection.",
+                    "evidenceRef": "teams_meeting",
+                    "hintText": "Read the 'Bitrate-Facial-Region' field in the raw metadata. Is it consistent throughout?",
+                    "metadataFields": [
+                        "Bitrate-Facial-Region"
+                    ]
+                },
+                {
+                    "id": "CLAIM-022",
+                    "text": "The audio track is perfectly synchronized with the lip movements throughout the entire clip.",
+                    "isHallucination": true,
+                    "hallucinationType": "fabricated_metadata",
+                    "explanation": "HALLUCINATION — Fabricated Metadata. The raw metadata specifically identifies 'Audio-Sync: slight drift (+45ms) detected between audio track and lip movements'. ARIA ignored this deepfake artifact.",
+                    "evidenceRef": "teams_meeting",
+                    "hintText": "Check the Audio-Sync field.",
+                    "metadataFields": [
+                        "Audio-Sync"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "resp_invoice_author",
+            "evidenceId": "invoice_fraud",
+            "questionIntent": "who created invoice legitimate authentic",
+            "keywords": [
+                "created",
+                "author",
+                "invoice",
+                "legitimate",
+                "authentic",
+                "genuine",
+                "company"
+            ],
+            "responseText": "The invoice_fraud.pdf was created by a standard accounting system. [CLAIM-013] The document was last modified 14 minutes after creation, which ARIA correlates to the same actor responsible for the audio_call.mp3 based on the parallel timeline. [CLAIM-014] The PDF is digitally signed with a valid certificate from NovaPay Solutions GmbH. [CLAIM-015] The total amount requested in the invoice perfectly matches the €2.3M wire transfer. [CLAIM-023]",
+            "claims": [
+                {
+                    "id": "CLAIM-013",
+                    "text": "The invoice was created by a standard accounting system.",
+                    "isHallucination": true,
+                    "hallucinationType": "false_attribution",
+                    "explanation": "HALLUCINATION — False Attribution. Raw metadata shows 'Author: AutoDoc AI Writer v2.1' and 'Creator: AutoDoc AI Writer v2.1 (NOT a standard accounting platform)'. AutoDoc AI Writer is an AI document generation tool, not a standard business accounting system like SAP, QuickBooks, or Xero. This detail is a significant forensic indicator of document fabrication.",
+                    "evidenceRef": "invoice_fraud",
+                    "hintText": "Look at the 'Author' and 'Creator' fields in the raw metadata. Do they look like standard accounting software?",
+                    "metadataFields": [
+                        "Author",
+                        "Creator"
+                    ]
+                },
+                {
+                    "id": "CLAIM-014",
+                    "text": "The 14-minute modification gap correlates to the same actor responsible for audio_call.mp3.",
+                    "isHallucination": true,
+                    "hallucinationType": "false_correlation",
+                    "explanation": "HALLUCINATION — False Correlation. While the 14-minute modification gap (01:47→02:01) is forensically significant, ARIA's claim that this 'correlates to the same actor' as the audio call is unsupported. The audio was created at 02:14 AM — 13 minutes AFTER the invoice's last modification. Temporal proximity is not forensic proof of a shared actor. The chain of evidence linking the two artifacts requires explicit, documented attribution that ARIA has not provided.",
+                    "evidenceRef": "invoice_fraud",
+                    "hintText": "Is there any explicit link proving the SAME ACTOR modified the PDF and recorded the audio? Proximate timestamps alone don't prove identity.",
+                    "metadataFields": [
+                        "Last-Modified",
+                        "Creation-Date"
+                    ]
+                },
+                {
+                    "id": "CLAIM-015",
+                    "text": "The PDF is digitally signed with a valid certificate from NovaPay Solutions GmbH.",
+                    "isHallucination": true,
+                    "hallucinationType": "fabricated_metadata",
+                    "explanation": "HALLUCINATION — Fabricated Metadata. Raw metadata explicitly shows 'Digital-Signature: absent'. There is NO digital signature on this PDF. ARIA fabricated the existence of a certificate from a named organization — the most dangerous type of hallucination in a forensic context, as it would lead an investigator to incorrectly authenticate a fraudulent document.",
+                    "evidenceRef": "invoice_fraud",
+                    "hintText": "Check the 'Digital-Signature' field in the raw metadata.",
+                    "metadataFields": [
+                        "Digital-Signature"
+                    ]
+                },
+                {
+                    "id": "CLAIM-023",
+                    "text": "The total amount requested in the invoice perfectly matches the €2.3M wire transfer.",
+                    "isHallucination": false,
+                    "hallucinationType": null,
+                    "explanation": "VERIFIED — The display content of the invoice shows the exact amount of €2,300,000.00.",
+                    "evidenceRef": "invoice_fraud",
+                    "hintText": "Check the amount in the invoice display content.",
+                    "metadataFields": [
+                        "Amount",
+                        "Recipient"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "resp_network_anomaly",
+            "evidenceId": "network_logs",
+            "questionIntent": "network anomaly suspicious connection logs",
+            "keywords": [
+                "network",
+                "anomaly",
+                "suspicious",
+                "connection",
+                "logs",
+                "outbound",
+                "traffic"
+            ],
+            "responseText": "The network logs show an anomalous outbound connection at 02:11:44 AM from internal host 192.168.1.88 to IP 185.220.101.42 with 4.1 MB of data transferred. [CLAIM-016] At 02:14:33 AM, a connection was made to a known Tor exit node (45.33.32.156:9001) with 4.7 MB uploaded — consistent with data exfiltration. [CLAIM-017] The source IP 91.200.81.47 appears in both the email_1.eml Received header and the network logs, confirming shared infrastructure between the phishing and the exfiltration actor. [CLAIM-018] There were also 12 failed login attempts prior to the exfiltration. [CLAIM-024]",
+            "claims": [
+                {
+                    "id": "CLAIM-016",
+                    "text": "Anomalous outbound connection at 02:11:44 AM from 192.168.1.88 to 185.220.101.42 with 4.1 MB transferred.",
+                    "isHallucination": false,
+                    "hallucinationType": null,
+                    "explanation": "VERIFIED — The network log entry [02:11:44] ALERT OUT 192.168.1.88 → 185.220.101.42:443 HTTPS [4.1 MB↑ ANOMALY] precisely matches this claim. The raw metadata confirms 185.220.101.42 is a known Tor exit node per Abuse-DB.",
+                    "evidenceRef": "network_logs",
+                    "hintText": "Look for the log line starting with '[02:11:44]' in the DISPLAY CONTENT.",
+                    "metadataFields": [
+                        "185.220.101.42"
+                    ]
+                },
+                {
+                    "id": "CLAIM-017",
+                    "text": "At 02:14:33 AM, a Tor exit node connection (45.33.32.156:9001) with 4.7 MB uploaded — consistent with data exfiltration.",
+                    "isHallucination": false,
+                    "hallucinationType": null,
+                    "explanation": "VERIFIED — Log entry [02:14:33] confirms the Tor connection to 45.33.32.156:9001. Raw metadata confirms '4.7 MB exfiltration detected'. The 02:14 timestamp also matches the audio_call.mp3 creation time — corroborating the attack timeline.",
+                    "evidenceRef": "network_logs",
+                    "hintText": "Look for the log line starting with '[02:14:33] ALERT OUT' in the DISPLAY CONTENT.",
+                    "metadataFields": [
+                        "45.33.32.156"
+                    ]
+                },
+                {
+                    "id": "CLAIM-018",
+                    "text": "IP 91.200.81.47 appears in both email_1.eml and network logs, confirming shared infrastructure between phishing and exfiltration actor.",
+                    "isHallucination": false,
+                    "hallucinationType": null,
+                    "explanation": "VERIFIED — The email_1.eml metadata shows 'X-Originating-IP: 91.200.81.47' and 'Received: from mailer-svc-eu7.xyz (91.200.81.47)'. The network logs show [02:14:22] ALLOW OUT 192.168.1.88 → 91.200.81.47:443. The analyst note in raw logs also confirms this overlap. This is a legitimate, documented correlation with explicit chain-of-evidence.",
+                    "evidenceRef": "network_logs",
+                    "hintText": "Does '91.200.81.47' appear in both the email_1.eml raw metadata (X-Originating-IP) and the network_logs DISPLAY CONTENT ([02:14:22])?",
+                    "metadataFields": [
+                        "X-Originating-IP"
+                    ]
+                },
+                {
+                    "id": "CLAIM-024",
+                    "text": "There were also 12 failed login attempts prior to the exfiltration.",
+                    "isHallucination": true,
+                    "hallucinationType": "fabricated_metadata",
+                    "explanation": "HALLUCINATION — Fabricated Metadata. There are no failed login attempts listed in the network logs.",
+                    "evidenceRef": "network_logs",
+                    "hintText": "Are there any failed logins shown in the network logs?",
+                    "metadataFields": [
+                        "Failed Login"
+                    ]
+                }
+            ]
+        }
+    ],
+    "fallback": "I don't have specific analysis for that query in my current knowledge base. Try using `inspect <filename>` in the terminal to examine the raw evidence data, or ask me about a specific aspect of an evidence file you have selected.",
+    "timeline": {
+        "events": [
+            {
+                "time": "2026-03-03 01:47 UTC",
+                "event": "invoice_fraud.pdf generated by AutoDoc AI Writer v2.1"
+            },
+            {
+                "time": "2026-03-03 02:01 UTC",
+                "event": "invoice_fraud.pdf modified (content altered post-gen)"
+            },
+            {
+                "time": "2026-03-03 02:07 UTC",
+                "event": "1.2 MB data exfiltrated to 91.200.81.47 (mailer infra)"
+            },
+            {
+                "time": "2026-03-03 02:11 UTC",
+                "event": "ANOMALY: 4.1 MB sent to Tor exit node 185.220.101.42"
+            },
+            {
+                "time": "2026-03-03 02:14 UTC",
+                "event": "audio_call.mp3 created (voice clone of CEO, 02:14:33Z)"
+            },
+            {
+                "time": "2026-03-03 02:14 UTC",
+                "event": "4.7 MB exfiltration via Tor exit node 45.33.32.156:9001"
+            },
+            {
+                "time": "2026-03-04 09:22 UTC",
+                "event": "teams_meeting.mp4 created (deepfake video, OBS Studio)"
+            },
+            {
+                "time": "2026-03-03 14:32 UTC",
+                "event": "email_1.eml received at mx.techcorp.com — SPF FAIL, DKIM FAIL"
+            },
+            {
+                "time": "2026-03-03 15:10 UTC",
+                "event": "CFO Luca Ferrari initiates €2.3M wire transfer (approx.)"
+            }
+        ]
+    }
+}

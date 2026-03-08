@@ -1,0 +1,26 @@
+[
+  {
+    "id": "conn_1",
+    "files": ["email_1", "network_logs"],
+    "keywords": ["91.200.81.47", "IP", "mailer", "bulk"],
+    "reward": 15,
+    "description": "IP 91.200.81.47 appears in email_1 X-Originating-IP header AND network_logs outbound at 02:11 AM — same bulk mailer infrastructure. This is a valid cross-evidence link.",
+    "forensicLesson": "IP address correlation across evidence sources strengthens attribution — but requires timestamps to confirm simultaneity."
+  },
+  {
+    "id": "conn_2",
+    "files": ["audio_call", "network_logs"],
+    "keywords": ["02:14", "timestamp", "time", "2:14"],
+    "reward": 15,
+    "description": "audio_call.mp3 creation timestamp 02:14 AM matches the Tor exit node connection in network_logs at 02:14 AM — strong temporal co-occurrence.",
+    "forensicLesson": "Timestamp alignment across unrelated evidence types (audio metadata + firewall logs) creates a strong temporal chain — but correlation alone does not prove causation."
+  },
+  {
+    "id": "conn_3",
+    "files": ["invoice_fraud", "network_logs"],
+    "keywords": ["exfiltration", "4.7", "MB", "data", "transfer"],
+    "reward": 15,
+    "description": "invoice_fraud.pdf was modified at 14:15. The 4.7 MB exfiltration in network_logs occurred 8 hours earlier at 02:14 AM — temporal proximity exists but is insufficient to prove same actor.",
+    "forensicLesson": "Temporal proximity is weak evidence. Without a direct data artifact linking the invoice file to the exfiltrated payload, this connection is circumstantial."
+  }
+]

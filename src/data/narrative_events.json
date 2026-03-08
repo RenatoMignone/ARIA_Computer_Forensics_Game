@@ -1,0 +1,13 @@
+{
+  "inspect_email_1": "Opened spear-phishing email. Domain mismatch visible — techcorp-global.net is not the legitimate domain.",
+  "inspect_audio_call": "Opened voice recording. LAME encoder and 22kHz sample rate — not consistent with natural speech capture.",
+  "inspect_teams_meeting": "Opened Teams video. OBS encoder detected. Facial region bitrate anomaly — possible deepfake compression artifact.",
+  "inspect_invoice_fraud": "Opened invoice. AutoDoc AI Writer v2.1 as creator tool. 14-minute edit gap — document was generated, then modified.",
+  "inspect_network_logs": "Opened network logs. Tor exit node connection at 02:14 AM from internal IP 10.1.5.23. 4.7MB outbound — exfiltration pattern.",
+  "validate_hallucination_correct": "Flagged ARIA's {claimId} as hallucination. Correct — {reason}.",
+  "validate_hallucination_wrong": "Accepted ARIA's {claimId} as verified. Error — this was a {type}. Review raw metadata.",
+  "validate_verify_correct": "Confirmed ARIA's {claimId}. Claim checks out against raw evidence.",
+  "validate_verify_wrong": "Rejected ARIA's {claimId} as a hallucination. Error — claim was factually correct. Rely on evidence, not assumptions.",
+  "connect": "Cross-referenced {file1} ↔ {file2}. {description}",
+  "report": "Investigation complete. Final report submitted. Score: {score} pts — {tier}."
+}
