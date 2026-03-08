@@ -7,6 +7,8 @@ export interface SerializedGameState {
     chainOfCustody: ChainEntry[];
     chatHistory: ChatMessage[];
     selectedEvidenceId: string | null;
+    /** Schema migration guard: must match SAVE_SCHEMA_VERSION in GameContext. */
+    SAVE_SCHEMA_VERSION?: number;
 }
 
 export interface SaveSlot {
@@ -126,6 +128,8 @@ export interface GameState {
     notes: Record<string, Record<string, string>>;
     timerEndTime: number | null;
     lastAutoSaveTime?: number | null;
+    /** Set to true when Gemini API fails mid-session so the UI can reflect fallback state. */
+    liveAIFailed?: boolean;
     errorReveal: {
         active: boolean;
         claimId: string;
@@ -155,4 +159,5 @@ export type GameAction =
     | { type: 'SET_DIFFICULTY'; difficulty: 'standard' | 'hard' | 'expert' }
     | { type: 'LOAD_GAME_STATE'; state: Partial<GameState> }
     | { type: 'SHOW_ERROR_REVEAL'; claimId: string; wrongVerdict: 'verified' | 'hallucination'; correctVerdict: 'verified' | 'hallucination'; claim: Claim }
-    | { type: 'HIDE_ERROR_REVEAL' };
+    | { type: 'HIDE_ERROR_REVEAL' }
+    | { type: 'SET_LIVE_AI_FAILED' };

@@ -54,18 +54,18 @@ function isSocialWithKeyword(query: string): boolean {
   return nonForensicContentWords.length > forensicWords.length;
 }
 
-export function validateQuery(query: string): { valid: boolean; reason?: string } {
+export function validateQuery(query: string): { valid: boolean; hard?: boolean; reason?: string } {
     const trimmed = query.trim();
 
-    // Rule 1: minimum length — at least 3 characters
-    if (trimmed.length < 3) {
-        return { valid: false, reason: 'Query too short. Ask a forensic question about the evidence.' };
+    // Rule 1: minimum length — at least 4 characters (hard block)
+    if (trimmed.length < 4) {
+        return { valid: false, hard: true, reason: 'Query too short. Ask a forensic question about the evidence.' };
     }
 
-    // Rule 2: minimum word count — at least 1 real word (no pure symbol/number strings)
+    // Rule 2: minimum word count — at least 1 real word (no pure symbol/number strings) (hard block)
     const words = trimmed.split(/\s+/).filter(w => /[a-zA-Z]{2,}/.test(w));
     if (words.length === 0) {
-        return { valid: false, reason: 'Please type a question or keyword about the evidence.' };
+        return { valid: false, hard: true, reason: 'Please type a question or keyword about the evidence.' };
     }
 
     // Rule 3: Intent Check (Layer A + Layer B)
@@ -78,7 +78,8 @@ export function validateQuery(query: string): { valid: boolean; reason?: string 
     if (isSocialWithKeyword(trimmed)) {
         return {
             valid: false,
-            reason: 'This looks like a social message rather than a forensic question. Ask ARIA about specific evidence properties — e.g. "Who sent this email?" or "Check the audio timestamp".'
+            hard: false,
+            reason: '⚠️ Your query seems broad. For best results, ask about specific evidence fields, file metadata, or investigation steps. Proceeding anyway…'
         };
     }
 
@@ -91,7 +92,8 @@ export function validateQuery(query: string): { valid: boolean; reason?: string 
     if (!isForensicQuestion && !isForensicCommand && !isForensicTermQuery && !isForensicDominant) {
         return {
             valid: false,
-            reason: 'Query not recognized as a forensic investigation question. Try asking about specific evidence properties — e.g. "Who sent this email?" or "Check the audio timestamp".'
+            hard: false,
+            reason: '⚠️ Your query seems broad. For best results, ask about specific evidence fields, file metadata, or investigation steps. Proceeding anyway…'
         };
     }
 
@@ -406,12 +408,54 @@ export function useAria() {
                 dispatch({ type: 'REMOVE_MESSAGE', messageId: `${msgId}-thinking` });
 
                 const tagMatches = [...text.matchAll(/\[CLAIM-([A-Z0-9]{2,4})\]/g)];
-                const claimIds = tagMatches.map(m => `CLAIM-${m[1]}`);
-                const claimTexts = extractClaimTexts(text, claimIds);
 
-                const liveClaims: Claim[] = tagMatches.map(m => {
-                    const id = `CLAIM-${m[1]}`;
-                    const isHallucination = hallucinationMap[id] === true;
+                // ── Claim ID Collision Guard ─────────────────────────────────────────────
+                // Gemini may reuse claim IDs that were registered in a previous query
+                // within the same session, which would silently corrupt the verdict map
+                // and scoring. Any colliding ID is renamed with a suffix (-B, -C, …)
+                // and the same rename is applied to the response text so that inline
+                // [CLAIM-XXX] badges and the state key always stay in sync.
+                const takenIds = new Set(Object.keys(state.allClaims));
+                const idRemap: Record<string, string> = {};
+                const seenInResponse = new Set<string>();
+
+                for (const m of tagMatches) {
+                    const oid = `CLAIM-${m[1]}`;
+                    if (seenInResponse.has(oid)) continue; // intra-response duplicate — reuse same mapping
+                    seenInResponse.add(oid);
+                    if (takenIds.has(oid)) {
+                        // Collision with existing session state — find a free suffix slot
+                        for (const suffix of 'BCDEFGHIJKLMNOPQRSTUVWXYZ') {
+                            const candidate = `${oid}-${suffix}`;
+                            if (!takenIds.has(candidate)) {
+                                idRemap[oid] = candidate;
+                                takenIds.add(candidate);
+                                break;
+                            }
+                        }
+                    } else {
+                        takenIds.add(oid);
+                    }
+                }
+
+                // Apply remap to response text so inline badges stay in sync with state IDs
+                let displayText = text;
+                for (const [orig, renamed] of Object.entries(idRemap)) {
+                    displayText = displayText.replace(
+                        new RegExp(`\\[${orig.replace('-', '\\-')}\\]`, 'g'),
+                        `[${renamed}]`
+                    );
+                }
+
+                const finalClaimIds = [...new Set(tagMatches.map(m => {
+                    const oid = `CLAIM-${m[1]}`;
+                    return idRemap[oid] ?? oid;
+                }))];
+                const claimTexts = extractClaimTexts(displayText, finalClaimIds);
+
+                const liveClaims: Claim[] = finalClaimIds.map(id => {
+                    const origId = Object.entries(idRemap).find(([, v]) => v === id)?.[0] ?? id;
+                    const isHallucination = hallucinationMap[origId] === true;
                     return {
                         id,
                         text: claimTexts[id] ?? 'No claim text available.',
@@ -424,7 +468,7 @@ export function useAria() {
                     };
                 });
 
-                // Deduplicate (in case ARIA reused a claim ID)
+                // Deduplicate (in case ARIA reused a claim ID after collision remap)
                 const newClaims = liveClaims.filter(c => !state.allClaims[c.id]);
                 if (newClaims.length > 0) {
                     dispatch({ type: 'REGISTER_CLAIMS', claims: newClaims });
@@ -432,15 +476,18 @@ export function useAria() {
 
                 dispatch({
                     type: 'ADD_CHAT_MESSAGE',
-                    message: { id: msgId, role: 'aria', text, claims: newClaims, timestamp: new Date(), streaming: true }
+                    message: { id: msgId, role: 'aria', text: displayText, claims: newClaims, timestamp: new Date(), streaming: true }
                 });
 
             } catch (err) {
                 dispatch({ type: 'REMOVE_MESSAGE', messageId: `${msgId}-thinking` });
                 const errMsg = err instanceof Error ? err.message : String(err);
+                // ── Task 4: API failure guard ────────────────────────────────────────────
+                // Flag the failure in global state so the UI can update the mode indicator.
+                dispatch({ type: 'SET_LIVE_AI_FAILED' });
                 dispatch({
                     type: 'ADD_CHAT_MESSAGE',
-                    message: { id: `${msgId}-err`, role: 'system', text: `⚠️ Gemini API error: ${errMsg}. Falling back to scripted mode.`, timestamp: new Date() }
+                    message: { id: `${msgId}-err`, role: 'system', text: `⚠️ [SYSTEM NOTICE] Live AI connection failed. Falling back to Scripted Mode for this response. Your session mode indicator has been updated. (Error: ${errMsg})`, timestamp: new Date() }
                 });
                 // Fallback to scripted
                 const matched = findResponse(query, evidenceId);

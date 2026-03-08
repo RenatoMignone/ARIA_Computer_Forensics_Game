@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import { getTier, countHallucinationsFound, countTotalHallucinations } from '../lib/scoring';
 import { Claim, LeaderboardEntry } from '../types/game';
-import { Trophy, CheckCircle, XCircle, AlertCircle, BookOpen, RefreshCw, Download, Trash2, List } from 'lucide-react';
+import { Trophy, CheckCircle, XCircle, AlertCircle, BookOpen, RefreshCw, Download, Trash2, List, Clipboard } from 'lucide-react';
 import { motion } from 'framer-motion';
 import connectionsData from '../data/connections.json';
 
@@ -28,6 +28,8 @@ export function DebriefScreen() {
     
     const [activeTab, setActiveTab] = useState<'report' | 'leaderboard'>('report');
     const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+
+    const [scoreCodeCopied, setScoreCodeCopied] = useState(false);
 
     useEffect(() => {
         try {
@@ -88,6 +90,64 @@ export function DebriefScreen() {
             }
         }
     });
+
+    // Task 8 — shareable score code
+    const scorePayload = btoa(JSON.stringify({
+        type: 'score_share',
+        finalScore,
+        difficulty,
+        tier: tierInfo.label,
+        halluFound,
+        halluTotal,
+        mode: import.meta.env.VITE_LIVE_AI && !state.liveAIFailed ? 'Live AI' : 'Scripted',
+        date: new Date().toISOString().split('T')[0],
+    }));
+
+    const handleCopyScoreCode = () => {
+        navigator.clipboard.writeText(scorePayload).then(() => {
+            setScoreCodeCopied(true);
+            setTimeout(() => setScoreCodeCopied(false), 2000);
+        });
+    };
+
+    // Task 7 — JSON export
+    const handleExportJSON = () => {
+        const isoDate = new Date().toISOString().split('T')[0];
+        const payload = {
+            caseReference: 'TECHCORP-FRAUD-26',
+            dateGenerated: new Date().toISOString(),
+            investigatorTier: tierInfo.label,
+            finalScore,
+            difficulty,
+            mode: import.meta.env.VITE_LIVE_AI && !state.liveAIFailed ? 'Live AI' : 'Scripted',
+            claimBreakdown: allClaimsArr.map(c => {
+                const v = verdicts[c.id];
+                const isPending = v === 'pending' || !v;
+                return {
+                    id: c.id,
+                    text: c.text,
+                    isHallucination: c.isHallucination,
+                    hallucinationType: c.hallucinationType ?? null,
+                    verdict: isPending ? 'pending' : v.verdict,
+                    confidence: isPending ? null : v.confidence,
+                    correct: isPending ? null : (c.isHallucination ? v.verdict === 'hallucination' : v.verdict === 'verified'),
+                    explanation: c.explanation,
+                };
+            }),
+            connectionsFound: state.foundConnections,
+            chainOfCustody: state.chainOfCustody,
+            calibration: { wellCalibrated: wellCalibratedCount, total: totalCalibrated },
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `aria_report_${isoDate}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
 
     const handleExport = () => {
         const lines: string[] = [];
@@ -200,6 +260,19 @@ export function DebriefScreen() {
                     animate={{ opacity: 1, y: 0 }}
                     className="text-center mb-10"
                 >
+                    {/* Task 11 — Mode badge */}
+                    {(() => {
+                        const isLive = import.meta.env.VITE_LIVE_AI && !state.liveAIFailed;
+                        return (
+                            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold tracking-widest uppercase border mb-4 ${
+                                isLive
+                                    ? 'bg-emerald-900/30 border-emerald-700/50 text-emerald-400'
+                                    : 'bg-amber-900/30 border-amber-700/50 text-amber-400'
+                            }`}>
+                                {isLive ? '⚡ Completed in Live Gemini Mode' : '📋 Completed in Scripted Mode'}
+                            </div>
+                        );
+                    })()}
                     <div className="text-5xl mb-4">{tierInfo.emoji}</div>
                     <h1 className="text-3xl font-bold font-mono text-white mb-2">Investigation Complete</h1>
                     <div className="text-xl font-mono" style={{ color: tierInfo.color }}>{tierInfo.label}</div>
@@ -389,7 +462,14 @@ export function DebriefScreen() {
                                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-cyan-900/40 border border-cyan-800/50 text-sm font-mono text-cyan-200 hover:bg-cyan-900/60 hover:text-cyan-100 hover:border-cyan-700 transition-colors shadow-lg shadow-cyan-900/20"
                             >
                                 <Download className="w-4 h-4" />
-                                Export Full Forensic Report (.txt)
+                                Export Report (.txt)
+                            </button>
+                            <button
+                                onClick={handleExportJSON}
+                                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-cyan-900/40 border border-cyan-800/50 text-sm font-mono text-cyan-200 hover:bg-cyan-900/60 hover:text-cyan-100 hover:border-cyan-700 transition-colors shadow-lg shadow-cyan-900/20"
+                            >
+                                <Download className="w-4 h-4" />
+                                Export Report (.json)
                             </button>
                             <button
                                 onClick={() => dispatch({ type: 'RESET_GAME' })}
@@ -398,6 +478,28 @@ export function DebriefScreen() {
                                 <RefreshCw className="w-4 h-4" />
                                 Restart Investigation
                             </button>
+                        </div>
+
+                        {/* Task 8 — Share score code */}
+                        <div className="pt-4 border-t border-[#1f2937] mt-4">
+                            <h3 className="text-xs font-mono text-slate-500 uppercase tracking-widest mb-3 text-center">Share Your Score</h3>
+                            <div className="bg-[#0a0e17] border border-[#1f2937] rounded-xl p-4 max-w-lg mx-auto">
+                                <p className="text-[10px] font-mono text-slate-500 mb-3">Copy this code and share it. Paste it at the start screen to show a classmate your results.</p>
+                                <div className="flex gap-2">
+                                    <input
+                                        readOnly
+                                        value={scorePayload}
+                                        className="flex-1 bg-[#111827] border border-[#1f2937] rounded px-3 py-2 text-[10px] font-mono text-slate-400 truncate focus:outline-none"
+                                    />
+                                    <button
+                                        onClick={handleCopyScoreCode}
+                                        className="px-4 py-2 flex items-center gap-1.5 bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white rounded text-xs font-mono transition-colors"
+                                    >
+                                        <Clipboard className="w-3.5 h-3.5" />
+                                        {scoreCodeCopied ? 'Copied!' : 'Copy'}
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </motion.div>
                 )}

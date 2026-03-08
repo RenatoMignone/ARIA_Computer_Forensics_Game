@@ -6,6 +6,34 @@
 
 ---
 
+## Changelog — 2026-03-08
+
+This update ships 12 targeted fixes and features across gameplay, accessibility, and instructor tooling.
+
+### Bug Fixes
+
+| # | Area | What changed |
+|---|---|---|
+| 1 | **Claim ID collision (Live mode)** | In Live Gemini mode, if the model reuses a Claim ID already present in the session (e.g. re-sends `[CLAIM-E01]`), the incoming claim is automatically remapped to a unique `-B`/`-C` suffix before touching the verdict map. The `parseAriaText` regex was also corrected from `\d{3}` (only matched scripted numeric IDs) to `[A-Z0-9]{2,6}`, so alphanumeric Live IDs like `[CLAIM-A03]` are now correctly parsed and rendered. |
+| 2 | **SVG connection lines on panel resize** | The Evidence Board SVG overlay now attaches a `ResizeObserver` (100 ms debounce) to the container div. When the container changes size, a React `key` bump forces a full SVG remount so connection lines re-draw at the correct coordinates. Lines no longer drift off their nodes after dragging a panel splitter. |
+| 3 | **Save-code schema migration guard** | Save codes and save-slot files are now stamped with `SAVE_SCHEMA_VERSION = 1`. Loading a save made with a different schema version shows a clear error — *"This save file was created with an older version of ARIA and cannot be loaded. Please start a new investigation."* — instead of silently loading potentially broken state. |
+| 4 | **Silent AI fallback in Expert mode** | When the Live Gemini API fails (network error, quota, etc.), the app now dispatches a `SET_LIVE_AI_FAILED` flag and posts an inline `⚠️ [SYSTEM NOTICE]` banner in the chat explaining the fallback to Scripted Mode. The mode indicator in the ARIA header also shifts from green to amber. Previously the swap was silent, which was particularly misleading in Expert-mode assessments. |
+| 5 | **Semantic input validator too aggressive** | Rules 1 + 2 (query too short, no recognisable words) remain **hard blocks**. Rules 3 + 4 (keyword/intent heuristics) are now **soft warnings**: the system message `⚠️ Your query seems broad…` is posted to chat and the query is sent regardless, preventing false rejections of legitimately phrased forensic questions. |
+| 6 | **Scoring exploit — blanket scepticism** | Analysis showed that voting *hallucination* on every single claim scored **145 pts** (Senior Analyst tier) under the old −15 false-rejection penalty. The penalty has been raised to **−25**. A blanket-sceptic run now scores **35 pts** (AI-Dependent), eliminating the strategy without penalising careful legitimate play. |
+
+### New Features
+
+| # | Feature | Details |
+|---|---|---|
+| 7 | **JSON export for instructors** | A second export button on the Debrief screen downloads `aria_report_<date>.json` — machine-readable, ready for automated marking scripts or LMS ingestion. Contains per-claim verdict vs. ground truth, connections found, calibration stats, mode, and the full chain-of-custody log. |
+| 8 | **Shareable score code** | The Debrief screen shows a *Share Your Score* panel with a compact Base64 payload and a one-click Copy button. On the start screen a new *View a Classmate's Score* section decodes these codes into a readable summary (score, tier, difficulty, hallucinations found, mode). |
+| 9 | **ARIA confidence meter** | When ARIA expresses a numerical confidence in a response (e.g. *"95% confidence"*, *"74% certainty match"*), a thin coloured bar renders beneath the message bubble. Green = low confidence (< 50 %), amber = moderate (50–85 %), red = inflated (> 85 %). This visual cue directly reinforces the *Confidence Inflation* hallucination lesson. |
+| 10 | **`help <command>` detailed mode** | `help validate`, `help connect`, `help inspect`, `help hint`, and `help report` now each print a detailed usage card with full syntax, examples, and forensic tips. The base `help` output now also shows a tip line directing students to this feature. |
+| 11 | **Mode badge on Debrief screen** | A pill badge above the score hero shows whether the session was completed in **⚡ Live Gemini Mode** (green) or **📋 Scripted Mode** (amber — including sessions where Live AI failed mid-run). Makes the per-student context visible at a glance for instructor review. |
+| 12 | **Accessibility — keyboard navigation for ClaimBadge** | Full-size Claim Badge cards are now keyboard-focusable (`tabIndex=0`). **Enter** or **Space** toggles the expanded state. Cards expose `aria-expanded` and a descriptive `aria-label` for screen readers. A visible focus ring (`ring-2 ring-cyan-400/60`) is shown on keyboard focus. |
+
+---
+
 ## 🤖 AI Agent System Manual — Context Optimization
 
 This repository is optimized for autonomous AI-agent collaboration. Follow these core architectural rules:
@@ -88,7 +116,7 @@ Contains three main tabs:
 - **⚡ Attack Timeline**: A chronological reconstruction of the attack chain that dynamically reveals cross-evidence connections as you discover them in the terminal.
 
 ### 3. ARIA Chat (right panel)
-Type any natural language query. ARIA responds in 3–5 sentences, dynamically embedding `[CLAIM-XXX]` badges inline. These badges can be clicked to validate the factual basis of the claim. A top status strip indicates your active evidence context, and a corner indicator specifies whether ARIA is running in **⚡ Live Gemini** or **Scripted** mode.
+Type any natural language query. ARIA responds in 3–5 sentences, dynamically embedding `[CLAIM-XXX]` badges inline. When ARIA self-reports a numerical confidence or certainty (e.g. *"95% confidence"*, *"74% certainty match"*), a **colour-coded confidence meter** bar renders beneath the message — green for low (< 50 %), amber for moderate (50–85 %), red for inflated (> 85 %) — directly reinforcing the Confidence Inflation hallucination lesson. A top status strip shows your active evidence context. A corner indicator shows whether ARIA is running in **⚡ Live Gemini** (green) or **📋 Scripted** mode (amber if Live AI failed during the session).
 
 ### 4. Terminal (bottom panel)
 A fully functional `xterm.js` emulator. It features a context-aware prompt (e.g. `forensic@ARIA [email_1.eml]:~$`) and Tab autocomplete. All interactions (validations, inspecting files, cross-referencing connections) can be executed here. See the **Terminal Commands Reference** section.
@@ -103,7 +131,7 @@ Accessible via the **Gear icon** in the HUD. Players can toggle:
 - **Hard Reset**: Purge all session data and start over.
 
 ### 7. Boot Sequence & Difficulty Selection
-An immersive ASCII art boot terminal animation sets the forensic workstation tone on first load. Once booted, you select a **Difficulty Level** (Standard, Hard, or Expert) which controls UI helpers, hints, and score multipliers. You can also view your **Best Scores** on the local leaderboard, and paste a Base64 save code here to **Resume a previous investigation**.
+An immersive ASCII art boot terminal animation sets the forensic workstation tone on first load. Once booted, you select a **Difficulty Level** (Standard, Hard, or Expert) which controls UI helpers, hints, and score multipliers. You can also view your **Best Scores** on the local leaderboard, paste a Base64 save code to **Resume a previous investigation** (schema version is validated to prevent loading incompatible saves), or paste a **classmate's score code** under *View a Classmate's Score* to see their result summary.
 
 ### 8. Tutorial (Expanded)
 A comprehensive **8-stage guided walkthrough** that highlights the Evidence Vault, ARIA Chat, Workspace Metadata, the Evidence Board, and Terminal functions. Use this to onboard new investigators.
@@ -113,12 +141,15 @@ A collapsible narrative feed located in the Evidence Vault. It auto-generates ti
 
 ### 9. Debrief Screen
 After successfully validating every claim and submitting the report, a comprehensive post-game screen appears:
+- **Mode Badge**: A pill indicator above the score hero shows whether the session ran in ⚡ Live Gemini Mode (green) or 📋 Scripted Mode (amber — also shown when Live AI failed mid-session).
 - **Score Tier**: Your final rank (from 🥇 Expert Investigator to ⚠️ AI-Dependent) calculated using your difficulty multiplier.
 - **Claim-by-claim Breakdown Table**: A full table mapping your verdicts against ground truth.
 - **Confidence Calibration Table**: Displays whether your High/Low confidence ratings appropriately matched your accuracy.
 - **Per-Hallucination Lessons**: Specific forensic lessons for the exact hallucination types you found (or missed!).
 - **All-Time Leaderboard**: A persistent table ranking your historically best investigations by final score, difficulty tier, and calibration.
-- **Export Button**: Download the entire investigation report as a structured `.txt` academic report, encompassing an executive summary, ARIA's performance, claim-by-claim analysis vs. ground truth, discovered connections, and the full chain of custody log.
+- **Export as .txt**: Download the full investigation as a structured plain-text academic report (executive summary, ARIA performance, claim-by-claim analysis, discovered connections, chain of custody log).
+- **Export as .json**: Same data in machine-readable JSON for automated marking scripts or LMS ingestion.
+- **Share Your Score**: Copy a compact Base64 score code to share with classmates or submit to an instructor. Recipients paste it on the start screen to view a decoded result summary.
 - **Restart Investigation**: A button to wipe the session state and return to the startup interface.
 
 ---
@@ -146,7 +177,7 @@ The grading focuses on correctly doubting the AI.
 | Correctly identify a hallucination | **+20** |
 | Correctly verify a true claim | **+10** |
 | Cross-evidence connection found (3 max) | **+15** |
-| Reject a true claim as a hallucination | **−15** |
+| Reject a true claim as a hallucination | **−25** |
 | Accept a hallucination as verified | **−30** |
 | Use a hint | **−5** (per hint) |
 | Speed Bonus (Submit report before timer hits 00:00) | **+50** |
@@ -194,7 +225,7 @@ The grading focuses on correctly doubting the AI.
 ## Interactive Features
 
 Beyond the core validation loop, the game includes:
-- **Semantic Input Validation**: Querying ARIA (via chat or terminal) triggers a robust two-layer intent check that rejects social spam or irrelevant short strings (e.g., "hello model how is it going email"), forcing users to ask meaningful forensic questions using specific investigatory heuristics (`isForensicQuestion`, `isForensicCommand`, etc.).
+- **Semantic Input Validation**: Querying ARIA (chat or terminal) runs a two-layer intent check. Rules 1 & 2 are **hard blocks** — queries under 4 characters or containing no recognisable words are rejected with an inline error. Rules 3 & 4 (intent/keyword heuristics: `isForensicQuestion`, `isForensicCommand`, etc.) are **soft warnings** — a `⚠️ Your query seems broad…` system message is posted and the query proceeds, preventing false rejections of legitimately phrased questions.
 - **Dynamic Difficulty Scaling**: 
   - *Standard*: Claim text is visible immediately.
   - *Hard (1.25x Score)*: Claim formulations are redacted from badges until you validate them; you must read the AI's actual textual response to understand the claim.
@@ -206,7 +237,7 @@ Beyond the core validation loop, the game includes:
 - **Narrative Case Log**: A side-panel feed that organically builds a story log of your actions as you work.
 - **Flexible Workspace Layout**: All three secondary panels (Evidence Vault, ARIA Chat, and Terminal) are individually **resizable** and **togglable**, allowing players to focus on the workspace metadata when needed.
 - **Investigation Timer**: An optional 15-minute speedrun timer.
-- **Exportable Report**: The Debrief screen allows you to download a comprehensive `.txt` forensic report file.
+- **Exportable Report**: The Debrief screen exports a structured `.txt` academic report or a machine-readable `.json` for automated marking. A shareable Base64 score code is generated for peer comparison or instructor submission.
 
 ---
 
@@ -257,7 +288,7 @@ Uses `gemini-2.5-flash` to dynamically generate responses. It relies on a heavy 
 - **Evidence Context**: The full raw metadata of the selected file is injected into every user turn, giving the AI the ground truth to selectively misrepresent.
 - **Claim Extraction**: The model is prompted to wrap every factual statement in a `[CLAIM-XXX]` tag. The app uses regex to extract the sentence containing that tag and places it directly onto the claim cards in the UI. Predictable ID prefixes (e.g. `[CLAIM-EXX]` for Email) help the app infer the hallucination type.
 - **Ground Truth Payload**: The model appends a `---CLAIM_METADATA---` JSON payload to the end of every response declaring which of its generated claims were intentionally hallucinated vs factually correct.
-- **Error Handling**: If the API errors or hits a rate limit, the game gracefully falls back to catching the error, showing a toast, and returning the most relevant Scripted Mode response.
+- **Error Handling**: If the API errors or hits a rate limit, the game sets a `liveAIFailed` session flag, posts an inline `⚠️ [SYSTEM NOTICE]` message in the chat explaining the fallback to Scripted Mode, and shifts the mode indicator amber. The most relevant Scripted Mode response is then returned. This replaces a previous silent fallback that gave students no indication the mode had changed — a meaningful omission in Expert-mode assessments.
 
 ---
 
@@ -281,6 +312,7 @@ Uses `gemini-2.5-flash` to dynamically generate responses. It relies on a heavy 
 | `timer off` | Disable the active timer | `timer off` |
 | Unix Aliases | `ls`, `cat`, `grep`, `pwd`, `history`, `clear` | `grep SPF email_1.eml` |
 | `help` | Show all available commands | `help` |
+| `help <command>` | Detailed usage, syntax and tips for one command | `help validate`, `help connect` |
 
 > *Tip: The Terminal supports Tab autocomplete for commands and filenames!*
 

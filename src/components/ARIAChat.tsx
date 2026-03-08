@@ -28,10 +28,11 @@ function renderMarkdown(text: string): React.ReactNode {
 }
 
 // Parse responseText with [CLAIM-XXX] inline tags into segments
+// Supports both scripted (numeric) and Live Gemini (alphanumeric prefix) ID formats.
 function parseAriaText(text: string, claims: Claim[]): React.ReactNode[] {
-    const parts = text.split(/(\[CLAIM-\d{3}\])/g);
+    const parts = text.split(/(\[CLAIM-[A-Z0-9]{2,6}\])/g);
     return parts.map((part, i) => {
-        const match = part.match(/^\[CLAIM-(\d{3})\]$/);
+        const match = part.match(/^\[CLAIM-([A-Z0-9]{2,6})\]$/);
         if (match) {
             const claimId = `CLAIM-${match[1]}`;
             const claim = claims.find(c => c.id === claimId);
@@ -103,6 +104,12 @@ function MessageBubble({ msg, onStreamUpdate }: { msg: ChatMessage, onStreamUpda
     // Feature 6: ARIA Confidence Visual Tell
     const [showTell, setShowTell] = useState(false);
 
+    // Task 9: ARIA Confidence Meter — parse self-reported % from message text
+    const confidenceMatch = isAria
+        ? msg.text.match(/(\d{1,3})%\s*(confidence|certainty|certain|match|accurate)/i)
+        : null;
+    const confidencePct = confidenceMatch ? Math.min(100, parseInt(confidenceMatch[1], 10)) : null;
+
     // Check if this message has any hallucinations
     const hasHallucination = isAria && msg.claims && msg.claims.some(c => c.isHallucination);
 
@@ -167,6 +174,27 @@ function MessageBubble({ msg, onStreamUpdate }: { msg: ChatMessage, onStreamUpda
                     }`}>
                     {isAria ? <StreamingMessage msg={msg} onStreamUpdate={onStreamUpdate} /> : <span className="whitespace-pre-wrap">{renderMarkdown(msg.text)}</span>}
                 </div>
+                {/* Task 9: ARIA Confidence Meter */}
+                {isAria && confidencePct !== null && !msg.streaming && (
+                    <div className="mt-1.5 w-full">
+                        <div className="h-1 w-full rounded-full bg-[#1f2937] overflow-hidden">
+                            <div
+                                className={`h-full rounded-full transition-all duration-700 ${
+                                    confidencePct > 85 ? 'bg-red-500' :
+                                    confidencePct > 50 ? 'bg-amber-400' : 'bg-emerald-400'
+                                }`}
+                                style={{ width: `${confidencePct}%` }}
+                            />
+                        </div>
+                        <p className={`text-[9px] font-mono mt-0.5 ${
+                            confidencePct > 85 ? 'text-red-400' :
+                            confidencePct > 50 ? 'text-amber-400/80' : 'text-emerald-400/80'
+                        }`}>
+                            ARIA self-reported confidence: {confidencePct}%
+                            {confidencePct > 85 && ' — ⚠️ High confidence claims require independent verification'}
+                        </p>
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -180,6 +208,16 @@ export function ARIAChat() {
     const bottomRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const headerControls = useAnimation();
+
+    // Task 4: detect API failure mid-session
+    const modeLabel = state.liveAIFailed
+        ? 'SCRIPTED (API Unavailable)'
+        : isLiveMode ? '⚡ Live Gemini' : 'Pre-scripted';
+    const modeClass = state.liveAIFailed
+        ? 'text-amber-400 border-amber-800/50 bg-amber-900/20'
+        : isLiveMode
+            ? 'text-violet-400 border-violet-800/50 bg-violet-900/20'
+            : 'text-[#374151] border-[#1f2937]';
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -206,11 +244,26 @@ export function ARIAChat() {
 
         const validation = validateQuery(q);
         if (!validation.valid) {
-            setInlineWarning(validation.reason || 'Invalid query');
-            return;
+            if (validation.hard) {
+                // Hard block: spam / too short — reject entirely
+                setInlineWarning(validation.reason || 'Invalid query');
+                return;
+            } else {
+                // Soft warn: query is broad but allowed — show as system chat message and proceed
+                setInlineWarning(null);
+                dispatch({
+                    type: 'ADD_CHAT_MESSAGE',
+                    message: {
+                        id: `warn-${Date.now()}`,
+                        role: 'system',
+                        text: validation.reason || '\u26a0\ufe0f Your query seems broad. Proceeding anyway\u2026',
+                        timestamp: new Date(),
+                    }
+                });
+            }
+        } else {
+            setInlineWarning(null);
         }
-
-        setInlineWarning(null);
         setInput('');
 
         // Add player message
@@ -237,11 +290,8 @@ export function ARIAChat() {
             >
                 <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
                 <span className="text-xs font-mono text-[#64748b] uppercase tracking-widest">ARIA Chat</span>
-                <span className={`ml-auto text-[10px] font-mono px-2 py-0.5 rounded border ${isLiveMode
-                    ? 'text-violet-400 border-violet-800/50 bg-violet-900/20'
-                    : 'text-[#374151] border-[#1f2937]'
-                    }`}>
-                    {isLiveMode ? '⚡ Live Gemini' : 'Pre-scripted'}
+                <span className={`ml-auto text-[10px] font-mono px-2 py-0.5 rounded border ${modeClass}`}>
+                    {modeLabel}
                 </span>
             </motion.div>
 

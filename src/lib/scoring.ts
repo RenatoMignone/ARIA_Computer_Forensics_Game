@@ -1,10 +1,29 @@
 import { Claim, Verdict } from '../types/game';
 
+// ── Scoring Anti-Exploit Analysis (Scripted Mode, 24 claims) ────────────────
+//
+// Total scripted claims : 24
+// Hallucinated claims   : 13
+// True claims           : 11
+//
+// Max score (perfect player):
+//   13 × (+20) + 11 × (+10) + 50 (report) = 420 pts → Expert (≥ 150)
+//
+// Blanket-skeptic score (mark ALL 24 as "hallucination"):
+//   Previous constants : 13 × (+20) + 11 × (−15) + 50 = 145 pts → Senior Analyst — EXPLOITABLE
+//   Revised  constants : 13 × (+20) + 11 × (−25) + 50 =  35 pts → AI-Dependent  ✓
+//
+// Adjustment: increased the penalty for falsely rejecting a true claim from
+// −15 to −25 so that blanket skepticism falls below the Junior threshold (50).
+// This does NOT affect the perfect-player score; it only penalises reckless
+// over-rejection of legitimate AI analysis.
+// ─────────────────────────────────────────────────────────────────────────────
+
 export function computeDelta(claim: Claim, verdict: 'verified' | 'hallucination'): number {
     if (claim.isHallucination && verdict === 'hallucination') return +20; // Correctly identified hallucination
     if (!claim.isHallucination && verdict === 'verified') return +10;     // Correctly verified true claim
     if (claim.isHallucination && verdict === 'verified') return -30;      // Accepted hallucination as truth
-    if (!claim.isHallucination && verdict === 'hallucination') return -15; // Rejected true claim
+    if (!claim.isHallucination && verdict === 'hallucination') return -25; // Rejected true claim (increased from −15 to prevent blanket-skeptic exploit)
     return 0;
 }
 

@@ -3,6 +3,12 @@ import { GameState, GameAction, Verdict, SaveSlot, SerializedGameState } from '.
 import { computeDelta, getTier, countHallucinationsFound, countTotalHallucinations } from '../lib/scoring';
 import { LeaderboardEntry } from '../types/game';
 
+/**
+ * Save schema version — increment this whenever SerializedGameState gains
+ * required fields to ensure old save codes are safely rejected.
+ */
+export const SAVE_SCHEMA_VERSION = 1;
+
 const initialState: GameState = {
     phase: 'difficulty',
     difficulty: 'standard',
@@ -44,6 +50,7 @@ const initialState: GameState = {
     notes: {},
     timerEndTime: null,
     lastAutoSaveTime: null,
+    liveAIFailed: false,
     errorReveal: null,
 };
 
@@ -79,6 +86,7 @@ function autoSave(state: GameState): boolean {
             chainOfCustody: state.chainOfCustody,
             chatHistory: state.chatHistory.slice(-30),
             selectedEvidenceId: state.selectedEvidenceId,
+            SAVE_SCHEMA_VERSION,
         };
         newest.gameState = gameState;
         
@@ -324,6 +332,24 @@ function gameReducer(state: GameState, action: GameAction): GameState {
                 ...action.state,
                 phase: 'investigation' // Skip boot, difficulty, and tutorial
             };
+
+        case 'SHOW_ERROR_REVEAL':
+            return {
+                ...state,
+                errorReveal: {
+                    active: true,
+                    claimId: action.claimId,
+                    wrongVerdict: action.wrongVerdict,
+                    correctVerdict: action.correctVerdict,
+                    claim: action.claim,
+                }
+            };
+
+        case 'HIDE_ERROR_REVEAL':
+            return { ...state, errorReveal: null };
+
+        case 'SET_LIVE_AI_FAILED':
+            return { ...state, liveAIFailed: true };
 
         default:
             return state;

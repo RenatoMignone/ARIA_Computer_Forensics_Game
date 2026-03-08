@@ -571,6 +571,75 @@ export function Terminal() {
 
         // --- help ---
         else if (cmd === 'help') {
+            const parts = cmd.split(' ');
+            const sub = parts[1]?.toLowerCase();
+
+            // Detailed help entries
+            const detailedHelp: Record<string, string[]> = {
+                validate: [
+                    '\x1b[36mCOMMAND: validate <CLAIM-ID> <verdict>\x1b[0m',
+                    '',
+                    'Mark an ARIA claim as verified or a hallucination.',
+                    '',
+                    '  \x1b[33mvalidate CLAIM-001 verified\x1b[0m       — Confirm the claim is factually correct',
+                    '  \x1b[33mvalidate CLAIM-001 hallucination\x1b[0m   — Flag the claim as AI-fabricated',
+                    '',
+                    '\x1b[90mAfter running validate, you will be asked to select a confidence level.\x1b[0m',
+                    '\x1b[90mScore deltas: +10 correct, −25 falsely flagging real evidence, +5 correct hallucination.\x1b[0m',
+                ],
+                connect: [
+                    '\x1b[36mCOMMAND: connect <file1> <file2> "<reason>"\x1b[0m',
+                    '',
+                    'Cross-reference two evidence files and log the connection.',
+                    '',
+                    '  \x1b[33mconnect email_draft.txt network_log.pcap "Both show C2 domain exfil."\x1b[0m',
+                    '',
+                    '\x1b[90mConnections that match known forensic links award +15 pts.\x1b[0m',
+                    '\x1b[90mUse the Evidence Board panel to visualise discovered links.\x1b[0m',
+                ],
+                inspect: [
+                    '\x1b[36mCOMMAND: inspect <filename>\x1b[0m',
+                    '',
+                    'Display raw metadata and contents for a specific evidence file.',
+                    '',
+                    '  \x1b[33minspect malware_sample.exe\x1b[0m',
+                    '  \x1b[33minspect email_draft.txt\x1b[0m',
+                    '',
+                    '\x1b[90mAlways compare raw timestamps / hashes against ARIA\'s claims — it fabricates specific fields.\x1b[0m',
+                    '\x1b[90mAlias: cat <filename> shows file content. hash verify <filename> shows checksums.\x1b[0m',
+                ],
+                hint: [
+                    '\x1b[36mCOMMAND: hint <CLAIM-ID>\x1b[0m',
+                    '',
+                    'Request a guided hint for a pending claim. Costs −5 pts.',
+                    '',
+                    '  \x1b[33mhint CLAIM-007\x1b[0m',
+                    '',
+                    '\x1b[90mHints are disabled in Expert mode.\x1b[0m',
+                    '\x1b[90mUse hints sparingly — calibration matters as much as raw score.\x1b[0m',
+                ],
+                report: [
+                    '\x1b[36mCOMMAND: report\x1b[0m',
+                    '',
+                    'Submit your investigation and proceed to the Debrief screen.',
+                    '',
+                    '  \x1b[33mreport\x1b[0m',
+                    '',
+                    '\x1b[90mAll unvalidated claims are marked PENDING and score as 0.\x1b[0m',
+                    '\x1b[90mA +50 pt submission bonus applies to all completed reports.\x1b[0m',
+                    '\x1b[90mIf the speed timer is still running, an extra +50 speed bonus applies.\x1b[0m',
+                ],
+            };
+
+            if (sub && detailedHelp[sub]) {
+                writeLines(detailedHelp[sub]);
+            } else if (sub) {
+                writeLines([
+                    `\x1b[31mNo detailed help for: ${sub}\x1b[0m`,
+                    `\x1b[90mDetailed entries: ${Object.keys(detailedHelp).join(', ')}\x1b[0m`,
+                    `\x1b[90mType \x1b[0mhelp\x1b[90m for the full command list.\x1b[0m`,
+                ]);
+            } else {
             writeLines([
                 '\x1b[36m=== ARIA FORENSIC WORKSTATION — COMMAND REFERENCE ===\x1b[0m',
                 '',
@@ -595,8 +664,11 @@ export function Terminal() {
                 '',
                 '\x1b[90mRemember: Every ARIA claim tagged [CLAIM-XXX] must be validated.\x1b[0m',
                 '\x1b[90mAI assistants can hallucinate — always cross-check raw evidence.\x1b[0m',
+                '',
+                '\x1b[90mTip: Type \x1b[0mhelp <command>\x1b[90m for detailed usage (e.g. help validate).\x1b[0m',
             ]);
-        }
+            } // close else (full help list)
+        } // close else if (cmd === 'help')
 
         else {
             writeLines([

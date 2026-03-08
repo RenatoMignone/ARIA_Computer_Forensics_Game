@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useGame } from '../context/GameContext';
+import { useGame, SAVE_SCHEMA_VERSION } from '../context/GameContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SaveSlot, SerializedGameState } from '../types/game';
 import { countHallucinationsFound, countTotalHallucinations, countValidated } from '../lib/scoring';
@@ -49,6 +49,7 @@ export function SaveModal({ isOpen, onClose }: SaveModalProps) {
         }).length;
 
         const gameState: SerializedGameState = {
+            SAVE_SCHEMA_VERSION,
             score: state.score,
             verdicts: state.verdicts,
             allClaims: state.allClaims,

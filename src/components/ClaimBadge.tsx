@@ -68,7 +68,11 @@ export function ClaimBadge({ claim, compact = false }: ClaimBadgeProps) {
     return (
         <motion.div
             layout
-            className={`rounded-lg border p-3 mb-2 ${badgeClass}`}
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpanded(v => !v); } }}
+            aria-expanded={expanded}
+            aria-label={`Claim ${claim.id}, ${isPending ? 'unvalidated' : verdObj?.verdict ?? 'pending'}. Press Enter to expand.`}
+            className={`rounded-lg border p-3 mb-2 ${badgeClass} focus:outline-none focus:ring-2 focus:ring-cyan-400/60`}
         >
             <div className="flex items-start gap-2">
                 <Icon className="w-4 h-4 mt-0.5 flex-shrink-0" />

@@ -3,6 +3,7 @@ import { Evidence } from '../types/game';
 import connectionsData from '../data/connections.json';
 import { Mail, Mic, Video, FileText, Activity, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useState, useRef, useEffect } from 'react';
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
     mail: Mail,
@@ -32,6 +33,26 @@ export function EvidenceBoard({ evidenceList }: { evidenceList: Evidence[] }) {
     const { state, dispatch } = useGame();
     const { selectedEvidenceId, verdicts, allClaims, foundConnections } = state;
 
+    // Task 2: ResizeObserver — remount SVG when the container resizes so connection
+    // lines recompute from the updated card positions (debounced 100ms to avoid
+    // thrashing during panel drag).
+    const [boardKey, setBoardKey] = useState(0);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => {
+        if (!containerRef.current) return;
+        const ro = new ResizeObserver(() => {
+            if (debounceTimer.current) clearTimeout(debounceTimer.current);
+            debounceTimer.current = setTimeout(() => setBoardKey(k => k + 1), 100);
+        });
+        ro.observe(containerRef.current);
+        return () => {
+            ro.disconnect();
+            if (debounceTimer.current) clearTimeout(debounceTimer.current);
+        };
+    }, []);
+
     const claimsPerEvidence: Record<string, { total: number; validated: number }> = {};
     Object.values(allClaims).forEach(c => {
         if (!claimsPerEvidence[c.evidenceRef]) claimsPerEvidence[c.evidenceRef] = { total: 0, validated: 0 };
@@ -42,9 +63,9 @@ export function EvidenceBoard({ evidenceList }: { evidenceList: Evidence[] }) {
     });
 
     return (
-        <div className="relative w-full h-full bg-[#0a0e17] overflow-auto p-3">
-            {/* SVG Lines */}
-            <svg className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-visible">
+        <div ref={containerRef} className="relative w-full h-full bg-[#0a0e17] overflow-auto p-3">
+            {/* SVG Lines — key={boardKey} forces a full remount after panel resize */}
+            <svg key={boardKey} className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-visible">
                 {connectionsData.map(conn => {
                     const isFound = foundConnections.includes(conn.id);
                     if (!isFound) return null;
