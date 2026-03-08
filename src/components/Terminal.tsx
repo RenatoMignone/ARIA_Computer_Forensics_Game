@@ -6,7 +6,7 @@ import { useGame } from '../context/GameContext';
 import { useAria, validateQuery } from '../hooks/useAria';
 import { useToast } from '../hooks/useToast';
 import { useAudio } from '../hooks/useAudio';
-import { allValidated } from '../lib/scoring';
+import { allValidated, connectionReward } from '../lib/scoring';
 import evidenceData from '../data/evidence.json';
 import ariaData from '../data/aria_responses.json';
 import connectionsData from '../data/connections.json';
@@ -18,7 +18,7 @@ const connections = connectionsData as any[];
 
 export function Terminal() {
     const { state, dispatch } = useGame();
-    const { askAria } = useAria();
+    const { askAria, isGenerating } = useAria();
     const { showToast } = useToast();
     const { playKeystroke } = useAudio();
     const termRef = useRef<HTMLDivElement>(null);
@@ -28,11 +28,20 @@ export function Terminal() {
     const historyRef = useRef<string[]>([]);
     const stateRef = useRef(state);
     stateRef.current = state;
+    const isGeneratingRef = useRef(false);
+    isGeneratingRef.current = isGenerating;
+    // ARIA live region for screen readers
+    const liveRegionRef = useRef<HTMLDivElement>(null);
 
     const writeLines = useCallback((lines: string[]) => {
         const term = xtermRef.current;
         if (!term) return;
         lines.forEach(l => term.writeln(l));
+        // Update a11y live region (strip ANSI escape codes for screen reader)
+        if (liveRegionRef.current && lines.length > 0) {
+            const plain = lines.map(l => l.replace(/\x1b\[[0-9;]*m/g, '')).join(' ');
+            liveRegionRef.current.textContent = plain;
+        }
     }, []);
 
     const writePrompt = useCallback(() => {
@@ -289,7 +298,9 @@ export function Terminal() {
 
         // --- ask aria "..." ---
         else if (cmd.startsWith('ask aria ')) {
-            if (!s.selectedEvidenceId) {
+            if (isGeneratingRef.current) {
+                writeLines([`\x1b[33m\u23f3 ARIA is processing… Please wait before sending another query.\x1b[0m`]);
+            } else if (!s.selectedEvidenceId) {
                 writeLines([
                     `\x1b[33m[WARN] No evidence selected. Use 'inspect <filename>' first to set context.\x1b[0m`,
                     `       \x1b[33mExample: inspect email_1.eml\x1b[0m`
@@ -355,13 +366,14 @@ export function Terminal() {
                                 `\x1b[90mThe files may be related, but your justification is too vague. Specify the exact matching artifact (e.g. timestamp, IP, username).\x1b[0m`
                             ]);
                         } else {
+                            const reward = connectionReward(s.foundConnections.length);
                             dispatch({
                                 type: 'REGISTER_CONNECTION',
                                 connectionId: conn.id,
                                 file1: ev1.filename,
                                 file2: ev2.filename,
                                 description: conn.description,
-                                scoreDelta: conn.reward,
+                                scoreDelta: reward,
                                 timestamp: new Date().toISOString()
                             });
                             showToast({
@@ -370,7 +382,7 @@ export function Terminal() {
                                 message: `Linked ${ev1.filename} & ${ev2.filename}`
                             });
                             writeLines([
-                                `\x1b[32m✓ Valid connection established [+${conn.reward} pts]\x1b[0m`,
+                                `\x1b[32m✓ Valid connection established [+${reward} pts]\x1b[0m`,
                                 `\x1b[36m${conn.description}\x1b[0m`,
                                 `\x1b[90mLesson: ${conn.forensicLesson}\x1b[0m`
                             ]);
@@ -798,6 +810,15 @@ export function Terminal() {
     }, []);
 
     return (
-        <div className="h-full bg-[#0a0e17] overflow-hidden" ref={termRef} />
+        <div role="region" aria-label="Forensic Investigation Terminal" className="h-full bg-[#0a0e17] overflow-hidden relative" ref={termRef}>
+            {/* Screen-reader live region — mirrors key terminal output for accessibility */}
+            <div
+                ref={liveRegionRef}
+                aria-live="polite"
+                aria-atomic="false"
+                aria-label="Terminal output"
+                className="sr-only"
+            />
+        </div>
     );
 }

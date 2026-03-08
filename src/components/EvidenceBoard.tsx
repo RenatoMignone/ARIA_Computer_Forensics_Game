@@ -64,8 +64,27 @@ export function EvidenceBoard({ evidenceList }: { evidenceList: Evidence[] }) {
 
     return (
         <div ref={containerRef} className="relative w-full h-full bg-[#0a0e17] overflow-auto p-3">
+            {/* Visually-hidden list of connections for screen readers */}
+            <ul className="sr-only" aria-label="Discovered evidence connections">
+                {connectionsData
+                    .filter(conn => foundConnections.includes(conn.id))
+                    .map(conn => (
+                        <li key={conn.id}>{conn.files.join(' linked to ')}: {conn.description}</li>
+                    ))
+                }
+                {connectionsData.every(conn => !foundConnections.includes(conn.id)) && (
+                    <li>No connections discovered yet.</li>
+                )}
+            </ul>
+
             {/* SVG Lines — key={boardKey} forces a full remount after panel resize */}
-            <svg key={boardKey} className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-visible">
+            <svg
+                key={boardKey}
+                role="img"
+                aria-label="Evidence board showing discovered connections between files"
+                className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-visible"
+            >
+                <title>Evidence Board — Cross-file Connections</title>
                 {connectionsData.map(conn => {
                     const isFound = foundConnections.includes(conn.id);
                     if (!isFound) return null;
@@ -86,7 +105,8 @@ export function EvidenceBoard({ evidenceList }: { evidenceList: Evidence[] }) {
                     const midY = (top1 + top2) / 2;
 
                     return (
-                        <g key={conn.id}>
+                        <g key={conn.id} aria-label={`Connection: ${conn.files.join(' ↔ ')}`}>
+                            <title>{conn.description}</title>
                             <line
                                 x1={`${left1}%`}
                                 y1={`${top1}%`}

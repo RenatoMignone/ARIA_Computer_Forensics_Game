@@ -37,7 +37,7 @@ export function ClaimBadge({ claim, compact = false }: ClaimBadgeProps) {
         const timer = setTimeout(() => {
             dispatch({ type: 'VALIDATE_CLAIM', claimId: claim.id, verdict: stagedVerdict, confidence: 'medium', claim });
             setStagedVerdict(null);
-        }, 10000);
+        }, 4000);
         return () => clearTimeout(timer);
     }, [stagedVerdict, claim, dispatch, state.difficulty]);
 
@@ -139,7 +139,16 @@ export function ClaimBadge({ claim, compact = false }: ClaimBadgeProps) {
                             animate={{ opacity: 1, y: 0 }}
                             className="mt-3 p-3 bg-slate-900/50 rounded-lg border border-slate-700/50"
                         >
-                            <p className="text-[10px] font-mono text-slate-400 mb-2 uppercase tracking-wider">Select Confidence Level:</p>
+                            <div className="flex items-center justify-between mb-2">
+                                <p className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Select Confidence Level:</p>
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); setStagedVerdict(null); }}
+                                    className="text-[10px] font-mono px-2 py-0.5 rounded border border-slate-600/50 text-slate-400 hover:text-white hover:border-slate-400 transition-colors"
+                                    title="Undo verdict selection"
+                                >
+                                    Undo
+                                </button>
+                            </div>
                             <div className="flex gap-2 mb-2">
                                 <button onClick={() => confirmVerdict('low')} className="flex-1 py-1 text-xs font-mono rounded bg-blue-900/30 text-blue-300 hover:bg-blue-800/50 border border-blue-800/50 transition-colors">Low</button>
                                 <button onClick={() => confirmVerdict('medium')} className="flex-1 py-1 text-xs font-mono rounded bg-amber-900/30 text-amber-300 hover:bg-amber-800/50 border border-amber-800/50 transition-colors">Medium</button>
@@ -149,7 +158,7 @@ export function ClaimBadge({ claim, compact = false }: ClaimBadgeProps) {
                                 <motion.div 
                                     initial={{ width: '100%' }} 
                                     animate={{ width: 0 }} 
-                                    transition={{ duration: 10, ease: 'linear' }}
+                                    transition={{ duration: 4, ease: 'linear' }}
                                     className="h-full bg-slate-500"
                                 />
                             </div>

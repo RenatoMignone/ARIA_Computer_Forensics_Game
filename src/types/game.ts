@@ -126,6 +126,8 @@ export interface GameState {
     usedHints: Record<string, boolean>;
     foundConnections: string[];
     notes: Record<string, Record<string, string>>;
+    /** Shuffled claim display order per evidence file, populated by REGISTER_CLAIMS. */
+    claimDisplayOrder: Record<string, string[]>;
     timerEndTime: number | null;
     lastAutoSaveTime?: number | null;
     /** Set to true when Gemini API fails mid-session so the UI can reflect fallback state. */
@@ -160,4 +162,5 @@ export type GameAction =
     | { type: 'LOAD_GAME_STATE'; state: Partial<GameState> }
     | { type: 'SHOW_ERROR_REVEAL'; claimId: string; wrongVerdict: 'verified' | 'hallucination'; correctVerdict: 'verified' | 'hallucination'; claim: Claim }
     | { type: 'HIDE_ERROR_REVEAL' }
-    | { type: 'SET_LIVE_AI_FAILED' };
+    | { type: 'SET_LIVE_AI_FAILED' }
+    | { type: 'ATTEMPTED_MANIPULATION' };

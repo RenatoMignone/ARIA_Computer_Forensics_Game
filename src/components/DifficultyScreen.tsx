@@ -13,10 +13,24 @@ export function DifficultyScreen() {
     const [scoreCode, setScoreCode] = useState('');
     const [scoreDecoded, setScoreDecoded] = useState<Record<string, unknown> | null>(null);
     const [scoreCodeError, setScoreCodeError] = useState<string | null>(null);
+    // Task 3.3: Timer prompt state
+    const [pendingDifficulty, setPendingDifficulty] = useState<'standard' | 'hard' | 'expert' | null>(null);
+    // Task 3.5: Last debrief snapshot
+    const [lastDebrief, setLastDebrief] = useState<Record<string, unknown> | null>(null);
+    const [viewingLastDebrief, setViewingLastDebrief] = useState(false);
 
     const handleSelect = (diff: 'standard' | 'hard' | 'expert') => {
+        setPendingDifficulty(diff); // open timer prompt
+    };
+
+    const confirmDifficulty = (timerMs: number | null) => {
+        if (!pendingDifficulty) return;
         playBootSequence();
-        dispatch({ type: 'SET_DIFFICULTY', difficulty: diff });
+        dispatch({ type: 'SET_DIFFICULTY', difficulty: pendingDifficulty });
+        if (timerMs !== null) {
+            dispatch({ type: 'START_TIMER', durationMs: timerMs });
+        }
+        setPendingDifficulty(null);
     };
 
     const [saves, setSaves] = useState<SaveSlot[]>([]);
@@ -36,6 +50,16 @@ export function DifficultyScreen() {
         if (rawLb) {
             try {
                 setLeaderboard(JSON.parse(rawLb));
+            } catch {
+                // ignore
+            }
+        }
+
+        // Task 3.5: Load last debrief snapshot
+        const rawDebrief = localStorage.getItem('aria_last_debrief');
+        if (rawDebrief) {
+            try {
+                setLastDebrief(JSON.parse(rawDebrief));
             } catch {
                 // ignore
             }
@@ -98,6 +122,75 @@ export function DifficultyScreen() {
 
     return (
         <AnimatePresence>
+            {/* Task 3.3: Timer prompt modal */}
+            {pendingDifficulty && (
+                <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-[#0d1420] border border-[#1f2937] rounded-xl p-6 max-w-sm w-full shadow-2xl"
+                    >
+                        <h3 className="text-lg font-mono font-bold text-cyan-400 mb-2">⏱️ Enable Investigation Timer?</h3>
+                        <p className="text-xs text-slate-400 font-mono mb-5">
+                            A countdown timer adds a speed bonus (+50 pts) if you submit before time runs out.
+                        </p>
+                        <div className="space-y-2 mb-4">
+                            <button onClick={() => confirmDifficulty(45 * 60 * 1000)}
+                                className="w-full py-2 rounded border border-cyan-700/50 bg-cyan-900/20 text-cyan-300 font-mono text-sm hover:bg-cyan-800/30 transition-colors">
+                                ⏱ 45 minutes
+                            </button>
+                            <button onClick={() => confirmDifficulty(30 * 60 * 1000)}
+                                className="w-full py-2 rounded border border-amber-700/50 bg-amber-900/20 text-amber-300 font-mono text-sm hover:bg-amber-800/30 transition-colors">
+                                ⏱ 30 minutes
+                            </button>
+                            <button onClick={() => confirmDifficulty(null)}
+                                className="w-full py-2 rounded border border-slate-700/50 bg-slate-800/30 text-slate-400 font-mono text-sm hover:bg-slate-700/30 transition-colors">
+                                No Timer — Untimed Investigation
+                            </button>
+                        </div>
+                        <button
+                            onClick={() => setPendingDifficulty(null)}
+                            className="text-[10px] text-slate-500 hover:text-slate-300 font-mono w-full text-center"
+                        >
+                            ← Back
+                        </button>
+                    </motion.div>
+                </div>
+            )}
+
+            {/* Task 3.5: View Last Debrief overlay */}
+            {viewingLastDebrief && lastDebrief && (
+                <div className="fixed inset-0 z-[60] bg-black/80 flex items-center justify-center p-4 overflow-y-auto">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="bg-[#0d1420] border border-[#1f2937] rounded-xl p-6 max-w-md w-full shadow-2xl"
+                    >
+                        <div className="text-center mb-6">
+                            <div className="text-3xl mb-2">{String(lastDebrief.tierEmoji)}</div>
+                            <h3 className="text-xl font-mono font-bold text-white">{String(lastDebrief.tier)}</h3>
+                            <div className="text-3xl font-mono font-bold text-cyan-400 mt-1">{String(lastDebrief.finalScore)} <span className="text-sm text-slate-500">pts</span></div>
+                            <div className="text-xs text-slate-500 font-mono mt-1">{String(lastDebrief.difficulty).toUpperCase()} • {new Date(String(lastDebrief.date)).toLocaleDateString()}</div>
+                        </div>
+                        <div className="bg-[#111827] rounded-lg p-4 font-mono text-xs grid grid-cols-2 gap-2 mb-4">
+                            <span className="text-slate-500">Hallucinations:</span>
+                            <span className="text-white">{String(lastDebrief.halluFound)}/{String(lastDebrief.halluTotal)}</span>
+                            <span className="text-slate-500">Connections:</span>
+                            <span className="text-white">{String(lastDebrief.connectionsFound)}</span>
+                            <span className="text-slate-500">Calibration:</span>
+                            <span className="text-white">{String(lastDebrief.calibrationRating)}</span>
+                            <span className="text-slate-500">Speed Bonus:</span>
+                            <span className={lastDebrief.speedBonusEarned ? 'text-emerald-400' : 'text-slate-500'}>{lastDebrief.speedBonusEarned ? '+50 earned' : 'Not earned'}</span>
+                        </div>
+                        <button
+                            onClick={() => setViewingLastDebrief(false)}
+                            className="w-full py-2 rounded border border-slate-700/50 text-slate-400 hover:text-white font-mono text-sm transition-colors"
+                        >
+                            Close
+                        </button>
+                    </motion.div>
+                </div>
+            )}
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -117,6 +210,17 @@ export function DifficultyScreen() {
                     </div>
                     
                     <div className="p-6 space-y-4">
+                        {/* Task 3.5: View Last Debrief button */}
+                        {lastDebrief && (
+                            <div className="flex justify-center mb-2">
+                                <button
+                                    onClick={() => setViewingLastDebrief(true)}
+                                    className="flex items-center gap-2 px-4 py-1.5 rounded border border-slate-700/50 text-slate-400 hover:text-cyan-400 hover:border-cyan-700/50 font-mono text-[11px] transition-colors"
+                                >
+                                    📋 View Last Debrief
+                                </button>
+                            </div>
+                        )}
                         {/* Standard */}
                         <button
                             onClick={() => handleSelect('standard')}

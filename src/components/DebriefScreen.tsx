@@ -137,6 +137,9 @@ export function DebriefScreen() {
             connectionsFound: state.foundConnections,
             chainOfCustody: state.chainOfCustody,
             calibration: { wellCalibrated: wellCalibratedCount, total: totalCalibrated },
+            studentNotes: Object.entries(state.notes).flatMap(([evId, fields]) =>
+                Object.entries(fields).map(([field, note]) => ({ evidenceId: evId, field, note }))
+            ),
         };
         const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -239,6 +242,18 @@ export function DebriefScreen() {
         lines.push('================================================================================');
         lines.push('                              END OF REPORT                                     ');
         lines.push('================================================================================');
+
+        // --- Student Annotations ---
+        const notesEntries = Object.entries(state.notes).flatMap(([evId, fields]) =>
+            Object.entries(fields).map(([field, note]) => ({ evId, field, note }))
+        ).filter(n => n.note.trim());
+        if (notesEntries.length > 0) {
+            lines.push('');
+            lines.push('--- STUDENT ANNOTATIONS ---');
+            notesEntries.forEach(({ evId, field, note }) => {
+                lines.push(`[${evId}] ${field}: ${note}`);
+            });
+        }
 
         const blob = new Blob([lines.join('\\n')], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);

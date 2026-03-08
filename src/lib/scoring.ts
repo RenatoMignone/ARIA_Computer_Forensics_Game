@@ -93,3 +93,13 @@ export function allValidated(
     if (total === 0) return false;
     return countValidated(verdicts) >= total;
 }
+
+/**
+ * Diminishing-returns reward for cross-evidence connections.
+ * First 3 connections: +15 pts (full reward).
+ * Connections 4 and beyond: +5 pts (reduced reward to prevent point farming
+ * if new connection data is added in future scenarios).
+ */
+export function connectionReward(alreadyFound: number): number {
+    return alreadyFound < 3 ? 15 : 5;
+}

@@ -48,6 +48,7 @@ const initialState: GameState = {
     usedHints: {},
     foundConnections: [],
     notes: {},
+    claimDisplayOrder: {},
     timerEndTime: null,
     lastAutoSaveTime: null,
     liveAIFailed: false,
@@ -116,11 +117,27 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         case 'REGISTER_CLAIMS': {
             const newClaims = { ...state.allClaims };
             const newVerdicts = { ...state.verdicts };
+            const newOrder = { ...state.claimDisplayOrder };
             action.claims.forEach(c => {
                 newClaims[c.id] = c;
                 if (!newVerdicts[c.id]) newVerdicts[c.id] = 'pending';
             });
-            return { ...state, allClaims: newClaims, verdicts: newVerdicts };
+            // Fisher-Yates shuffle new claims into per-evidence display order
+            const byEvidence: Record<string, string[]> = {};
+            action.claims.forEach(c => {
+                if (!byEvidence[c.evidenceRef]) byEvidence[c.evidenceRef] = [];
+                byEvidence[c.evidenceRef].push(c.id);
+            });
+            Object.entries(byEvidence).forEach(([evId, ids]) => {
+                const existing = newOrder[evId] || [];
+                const combined = [...existing, ...ids];
+                for (let i = combined.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [combined[i], combined[j]] = [combined[j], combined[i]];
+                }
+                newOrder[evId] = combined;
+            });
+            return { ...state, allClaims: newClaims, verdicts: newVerdicts, claimDisplayOrder: newOrder };
         }
 
         case 'VALIDATE_CLAIM': {
@@ -242,6 +259,26 @@ function gameReducer(state: GameState, action: GameAction): GameState {
                 console.error('Failed to save leaderboard', e);
             }
 
+            // ── Task 3.5: Persist last debrief for "View Last Debrief" on restart ────
+            try {
+                const debriefSnapshot = {
+                    date: new Date().toISOString(),
+                    difficulty: state.difficulty,
+                    finalScore,
+                    tier: tierInfo.label,
+                    tierEmoji: tierInfo.emoji,
+                    halluFound,
+                    halluTotal,
+                    connectionsFound: state.foundConnections.length,
+                    calibrationRating: calibRating,
+                    timerUsed: state.timerEndTime !== null,
+                    speedBonusEarned: speedBonus > 0,
+                };
+                localStorage.setItem('aria_last_debrief', JSON.stringify(debriefSnapshot));
+            } catch {
+                // ignore storage errors
+            }
+
             return {
                 ...state,
                 phase: 'debrief',
@@ -350,6 +387,21 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 
         case 'SET_LIVE_AI_FAILED':
             return { ...state, liveAIFailed: true };
+
+        case 'ATTEMPTED_MANIPULATION':
+            return {
+                ...state,
+                score: state.score - 10,
+                lastScoreDelta: -10,
+                chainOfCustody: [
+                    ...state.chainOfCustody,
+                    {
+                        timestamp: new Date(),
+                        action: 'SECURITY_VIOLATION',
+                        detail: 'Prompt injection attempt detected and blocked. Penalty: -10 points.',
+                    }
+                ]
+            };
 
         default:
             return state;

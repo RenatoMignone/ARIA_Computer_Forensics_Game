@@ -10,6 +10,17 @@ import { useEffect, useState } from 'react';
 export function AppShell() {
     const { state, dispatch } = useGame();
     const [glitching, setGlitching] = useState(false);
+    // Task 4.3: Mobile width warning
+    const [mobileWarningDismissed, setMobileWarningDismissed] = useState(
+        () => localStorage.getItem('aria_mobile_acknowledged') === 'true'
+    );
+    const [isMobileWidth, setIsMobileWidth] = useState(() => window.innerWidth < 1024);
+
+    useEffect(() => {
+        const check = () => setIsMobileWidth(window.innerWidth < 1024);
+        window.addEventListener('resize', check);
+        return () => window.removeEventListener('resize', check);
+    }, []);
     
     // Resizer State
     const [terminalHeight, setTerminalHeight] = useState(220);
@@ -91,6 +102,36 @@ export function AppShell() {
     return (
         <div className={`flex flex-col h-screen bg-[#0a0e17] overflow-hidden transition-all duration-75 ${glitching ? 'hue-rotate-[-30deg] saturate-150 brightness-110' : ''
             }`}>
+            {/* Task 4.3: Mobile viewport warning overlay */}
+            {isMobileWidth && !mobileWarningDismissed && (
+                <div className="fixed inset-0 z-[200] bg-[#0a0e17] flex flex-col items-center justify-center p-6 text-center font-mono">
+                    <div className="text-4xl mb-4">💻</div>
+                    <h2 className="text-lg font-bold text-cyan-400 mb-2">Screen Too Narrow</h2>
+                    <p className="text-sm text-slate-400 mb-1 max-w-xs">
+                        ARIA Forensic Workstation is designed for screens wider than 1024px.
+                    </p>
+                    <p className="text-xs text-slate-500 mb-6 max-w-xs">
+                        For the best experience, use a desktop or laptop computer.
+                    </p>
+                    <div className="flex flex-col gap-3 w-full max-w-xs">
+                        <button
+                            onClick={() => {
+                                localStorage.setItem('aria_mobile_acknowledged', 'true');
+                                setMobileWarningDismissed(true);
+                            }}
+                            className="py-2 rounded border border-slate-600 text-slate-400 text-xs hover:border-slate-400 hover:text-white transition-colors"
+                        >
+                            Continue Anyway
+                        </button>
+                        <button
+                            onClick={() => window.history.back()}
+                            className="py-2 rounded border border-red-800/50 text-red-400 text-xs hover:bg-red-900/20 transition-colors"
+                        >
+                            Exit
+                        </button>
+                    </div>
+                </div>
+            )}
             <ForensicErrorModal />
             {/* Top HUD */}
             <HUD 

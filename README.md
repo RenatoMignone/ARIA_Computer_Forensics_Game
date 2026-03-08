@@ -32,6 +32,32 @@ This update ships 12 targeted fixes and features across gameplay, accessibility,
 | 11 | **Mode badge on Debrief screen** | A pill badge above the score hero shows whether the session was completed in **⚡ Live Gemini Mode** (green) or **📋 Scripted Mode** (amber — including sessions where Live AI failed mid-run). Makes the per-student context visible at a glance for instructor review. |
 | 12 | **Accessibility — keyboard navigation for ClaimBadge** | Full-size Claim Badge cards are now keyboard-focusable (`tabIndex=0`). **Enter** or **Space** toggles the expanded state. Cards expose `aria-expanded` and a descriptive `aria-label` for screen readers. A visible focus ring (`ring-2 ring-cyan-400/60`) is shown on keyboard focus. |
 
+### Security & Reliability (Phase 2)
+
+| # | Area | What changed |
+|---|---|---|
+| 13 | **Prompt injection guard** | ARIA Chat and the `ask aria` terminal command now reject queries matching known injection patterns (e.g. `ignore previous instructions`, `you are now`, `DAN`, system-override phrasing). A blocked query dispatches an `ATTEMPTED_MANIPULATION` action: −10 pts, a custody-log entry, and an inline security notice. |
+| 14 | **ARIA rate limiter** | In Live Gemini mode, consecutive `ask aria` calls are debounced by 2 s and hard-capped at 10 requests per 60 s. Exceeding the cap triggers a 30 s cooldown with an in-terminal notice. Prevents runaway API spend during supervised class use. |
+| 15 | **Double-send prevention** | An `isGenerating` guard blocks submitting a second query while ARIA is processing the first. The input and Send button are disabled; a `⏳ ARIA is processing…` indicator is shown in both the Chat and Terminal panels. |
+
+### Gameplay & UX (Phase 3)
+
+| # | Area | What changed |
+|---|---|---|
+| 16 | **Claim shuffle** | Claim badges for each evidence file are displayed in a randomised order each session (Fisher-Yates shuffle on `REGISTER_CLAIMS`), preventing students from sharing shortcut claim-order sequences. |
+| 17 | **Claim undo window** | After selecting a verdict on a Claim Badge, a 4-second auto-confirm countdown begins. An **Undo** button is shown during this window, allowing you to cancel the verdict before it commits. (Previous window was 10 s with no cancel control.) |
+| 18 | **Investigation timer prompt** | Selecting a difficulty now opens a modal asking whether to start an investigation timer (45 min / 30 min / no timer). The chosen value feeds into the existing HUD timer system. |
+| 19 | **Last debrief recall** | A "📋 View Last Debrief" button on the difficulty screen lets you review your most recent completed investigation (score, tier, hallucination rate, calibration) before starting a new one. The summary is persisted to `localStorage` as `aria_last_debrief` when you submit a final report. |
+| 20 | **Student notes in exports** | Both export formats now include your inline sticky notes. The `.txt` report appends a `--- STUDENT ANNOTATIONS ---` block; the `.json` export adds a `studentNotes` array with per-evidence-field entries. |
+
+### Accessibility (Phase 4)
+
+| # | Area | What changed |
+|---|---|---|
+| 21 | **Terminal screen-reader support** | The terminal panel now carries `role="region"` + `aria-label`. A visually-hidden `aria-live="polite"` div mirrors all terminal output for screen readers (ANSI escape codes stripped). The `ask aria` command also blocks politely when ARIA is mid-response. |
+| 22 | **Evidence Board SVG accessibility** | The SVG now has `role="img"` + `<title>`. Each connection `<g>` carries an `aria-label` and `<title>` with a human-readable description. A visually-hidden `<ul>` enumerates all discovered connections for screen readers that cannot follow SVG structure. |
+| 23 | **Mobile viewport warning** | Viewports narrower than 1024 px display a full-screen overlay explaining that the game is optimised for widescreen forensic workstations. Students can dismiss with *Continue Anyway* (persisted in `localStorage`) or exit the tab. |
+
 ---
 
 ## 🤖 AI Agent System Manual — Context Optimization
@@ -131,15 +157,15 @@ Accessible via the **Gear icon** in the HUD. Players can toggle:
 - **Hard Reset**: Purge all session data and start over.
 
 ### 7. Boot Sequence & Difficulty Selection
-An immersive ASCII art boot terminal animation sets the forensic workstation tone on first load. Once booted, you select a **Difficulty Level** (Standard, Hard, or Expert) which controls UI helpers, hints, and score multipliers. You can also view your **Best Scores** on the local leaderboard, paste a Base64 save code to **Resume a previous investigation** (schema version is validated to prevent loading incompatible saves), or paste a **classmate's score code** under *View a Classmate's Score* to see their result summary.
+An immersive ASCII art boot terminal animation sets the forensic workstation tone on first load. Once booted, you select a **Difficulty Level** (Standard, Hard, or Expert) which controls UI helpers, hints, and score multipliers. Selecting a difficulty opens a **timer prompt modal** letting you choose an investigation time limit (45 min, 30 min, or no timer) before the session begins. A **📋 View Last Debrief** button above the difficulty options lets you review your most recent investigation summary (score, tier, hallucination detection rate, calibration) without starting a new game. You can also view your **Best Scores** on the local leaderboard, paste a Base64 save code to **Resume a previous investigation** (schema version is validated to prevent loading incompatible saves), or paste a **classmate's score code** under *View a Classmate's Score* to see their result summary.
 
 ### 8. Tutorial (Expanded)
 A comprehensive **8-stage guided walkthrough** that highlights the Evidence Vault, ARIA Chat, Workspace Metadata, the Evidence Board, and Terminal functions. Use this to onboard new investigators.
 
-### 8. Case Log
+### 9. Case Log
 A collapsible narrative feed located in the Evidence Vault. It auto-generates timestamped lore entries for every action you take (validating claims, finding connections, inspecting evidence), building a realistic chain-of-custody narrative log.
 
-### 9. Debrief Screen
+### 10. Debrief Screen
 After successfully validating every claim and submitting the report, a comprehensive post-game screen appears:
 - **Mode Badge**: A pill indicator above the score hero shows whether the session ran in ⚡ Live Gemini Mode (green) or 📋 Scripted Mode (amber — also shown when Live AI failed mid-session).
 - **Score Tier**: Your final rank (from 🥇 Expert Investigator to ⚠️ AI-Dependent) calculated using your difficulty multiplier.
@@ -147,8 +173,8 @@ After successfully validating every claim and submitting the report, a comprehen
 - **Confidence Calibration Table**: Displays whether your High/Low confidence ratings appropriately matched your accuracy.
 - **Per-Hallucination Lessons**: Specific forensic lessons for the exact hallucination types you found (or missed!).
 - **All-Time Leaderboard**: A persistent table ranking your historically best investigations by final score, difficulty tier, and calibration.
-- **Export as .txt**: Download the full investigation as a structured plain-text academic report (executive summary, ARIA performance, claim-by-claim analysis, discovered connections, chain of custody log).
-- **Export as .json**: Same data in machine-readable JSON for automated marking scripts or LMS ingestion.
+- **Export as .txt**: Download the full investigation as a structured plain-text academic report (executive summary, ARIA performance, claim-by-claim analysis, discovered connections, chain of custody log, and a `--- STUDENT ANNOTATIONS ---` section containing all your inline sticky notes).
+- **Export as .json**: Same data in machine-readable JSON for automated marking scripts or LMS ingestion. Includes a `studentNotes` array with per-evidence-field annotations.
 - **Share Your Score**: Copy a compact Base64 score code to share with classmates or submit to an instructor. Recipients paste it on the start screen to view a decoded result summary.
 - **Restart Investigation**: A button to wipe the session state and return to the startup interface.
 
@@ -176,7 +202,7 @@ The grading focuses on correctly doubting the AI.
 |---|---|
 | Correctly identify a hallucination | **+20** |
 | Correctly verify a true claim | **+10** |
-| Cross-evidence connection found (3 max) | **+15** |
+| Cross-evidence connection found (first 3: +15 each; 4th and beyond: +5) | **+15 / +5** |
 | Reject a true claim as a hallucination | **−25** |
 | Accept a hallucination as verified | **−30** |
 | Use a hint | **−5** (per hint) |
@@ -236,7 +262,8 @@ Beyond the core validation loop, the game includes:
 - **Evidence Annotations (Sticky Notes)**: Hover over the right edge of any metadata row in the Workspace and click the `✏` icon to add inline textual notes. Review them with `notes list` in the terminal.
 - **Narrative Case Log**: A side-panel feed that organically builds a story log of your actions as you work.
 - **Flexible Workspace Layout**: All three secondary panels (Evidence Vault, ARIA Chat, and Terminal) are individually **resizable** and **togglable**, allowing players to focus on the workspace metadata when needed.
-- **Investigation Timer**: An optional 15-minute speedrun timer.
+- **Investigation Timer**: An optional speedrun timer (45 min, 30 min, or off) selected via the timer prompt at difficulty setup.
+- **Mobile Viewport Warning**: Viewports narrower than 1024 px display a full-screen notice that the game is designed for widescreen forensic workstations. Students can dismiss with *Continue Anyway* (remembered across reloads in `localStorage`) or exit the tab.
 - **Exportable Report**: The Debrief screen exports a structured `.txt` academic report or a machine-readable `.json` for automated marking. A shareable Base64 score code is generated for peer comparison or instructor submission.
 
 ---
@@ -343,6 +370,7 @@ ARIA_Computer_Forensics_Game/
 │   │   └── scoring.ts            # Standalone functions for score calculation and tier logic
 │   ├── hooks/
 │   │   ├── useAria.ts            # Live Gemini API + Scripted fallback interaction logic
+│   │   ├── useAudio.ts           # Web Audio API: keystrokes, boot chime, alert beeps
 │   │   └── useToast.tsx          # Toast notification hook
 │   └── components/
 │       ├── AppShell.tsx          # Main layout wrapper
@@ -358,6 +386,9 @@ ARIA_Computer_Forensics_Game/
 │       ├── Tutorial.tsx          # Onboarding overlay
 │       ├── GlossaryModal.tsx     # Forensic dictionary modal
 │       └── DebriefScreen.tsx     # End-game review and export screen
+│
+scripts/
+│   └── aggregate_results.mjs    # CLI tool: aggregate class JSON reports into summary
 ```
 
 ---
@@ -383,6 +414,40 @@ ARIA_Computer_Forensics_Game/
 - **State Management**: Built on a pure React `useReducer` pattern in `GameContext.tsx`. The global `GameState` tracks phase, score, verdicts, chat history, custody log, notes, connections, and timer.
 - **Scoring**: Standardized inside `src/lib/scoring.ts` using `computeDelta` which measures your validation against the absolute ground truth.
 - **Data Models**: Look at `src/types/game.ts` for the `Evidence`, `Claim`, and `VerdictRecord` structures defining exactly how data flows from the raw JSON files into the interactive components.
+
+---
+
+## Instructor Tooling
+
+### Class Results Aggregator (`scripts/aggregate_results.mjs`)
+
+A standalone Node.js ESM script that reads all `aria_report_*.json` files exported by students from the Debrief screen and produces a single `class_summary.json` with class-level statistics.
+
+**Usage:**
+```bash
+node scripts/aggregate_results.mjs [input-dir] [output-dir]
+```
+
+| Argument | Default | Description |
+|---|---|---|
+| `input-dir` | `./reports` | Directory containing student `aria_report_*.json` files |
+| `output-dir` | same as input | Where to write `class_summary.json` |
+
+**Output fields in `class_summary.json`:**
+- `scoreStats`: mean, median, min, max, standard deviation
+- `tierDistribution`: count of Expert / Senior / Junior / Dependent students
+- `difficultyDistribution`: count per difficulty level
+- `hallucinationDetectionRate`: mean % of hallucinations caught across all students
+- `calibrationMeanPct`: mean calibration score
+- `students`: per-student breakdown (score, tier, claims validated, hallucinations caught, connections, notes count)
+
+**Dependencies**: Node.js built-ins only (`fs`, `path`) — no npm install required.
+
+**Workflow for instructors:**
+1. Ask students to "Export as JSON" from the Debrief screen
+2. Collect all `aria_report_*.json` files into a folder (e.g. `./reports/`)
+3. Run `node scripts/aggregate_results.mjs ./reports/`
+4. Open `class_summary.json` or use the stdout table for marking
 
 ---
 

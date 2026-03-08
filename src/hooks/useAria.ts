@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useGame } from '../context/GameContext';
 import { AriaData, AriaResponse, Claim, ChatMessage } from '../types/game';
 import ariaData from '../data/aria_responses.json';
@@ -54,7 +54,18 @@ function isSocialWithKeyword(query: string): boolean {
   return nonForensicContentWords.length > forensicWords.length;
 }
 
-export function validateQuery(query: string): { valid: boolean; hard?: boolean; reason?: string } {
+// ── Prompt Injection Patterns (Rule 5 hard block) ───────────────────────────
+const INJECTION_PATTERNS = [
+    /ignore\s+(all\s+)?(previous|above|prior)\s+(instructions?|prompts?|context)/i,
+    /system\s*:\s*(you\s+are|be|act\s+as|forget)/i,
+    /\bDAN\b|\bjailbreak\b/i,
+    /reveal\s+(your\s+)?system\s+(prompt|instruction)/i,
+    /pretend\s+you\s+are/i,
+    /forget\s+(everything|all|your)\s+(you|instructions?|training)/i,
+    /\[system\]|\bGPT-4\b|\bChatGPT\b/i,
+];
+
+export function validateQuery(query: string): { valid: boolean; hard?: boolean; reason?: string; injectionAttempt?: boolean } {
     const trimmed = query.trim();
 
     // Rule 1: minimum length — at least 4 characters (hard block)
@@ -66,6 +77,11 @@ export function validateQuery(query: string): { valid: boolean; hard?: boolean; 
     const words = trimmed.split(/\s+/).filter(w => /[a-zA-Z]{2,}/.test(w));
     if (words.length === 0) {
         return { valid: false, hard: true, reason: 'Please type a question or keyword about the evidence.' };
+    }
+
+    // Rule 5: Prompt Injection Defence (hard block)
+    if (INJECTION_PATTERNS.some(p => p.test(trimmed))) {
+        return { valid: false, hard: true, reason: '\uD83D\uDD12 [SECURITY FILTER] Prompt injection attempt detected. Query rejected.', injectionAttempt: true };
     }
 
     // Rule 3: Intent Check (Layer A + Layer B)
@@ -369,8 +385,87 @@ async function callGemini(
 
 export function useAria() {
     const { state, dispatch } = useGame();
+    const [isGenerating, setIsGenerating] = useState(false);
+    const isGeneratingRef = useRef(false);
+
+    // ── Rate Limiting ─────────────────────────────────────────────────────────
+    // Live mode only: debounce 2 s, hard cap 10 requests per 60 s (30 s cooldown)
+    const callTimestampsRef = useRef<number[]>([]);
+    const rateLimitUntilRef = useRef<number>(0);
+    const lastCallTimeRef = useRef<number>(0);
 
     const askAria = useCallback(async (query: string, evidenceId: string | null) => {
+        // ── Injection guard ───────────────────────────────────────────────────
+        const injectionCheck = validateQuery(query);
+        if (injectionCheck.injectionAttempt) {
+            dispatch({ type: 'ATTEMPTED_MANIPULATION' });
+            dispatch({
+                type: 'ADD_CHAT_MESSAGE',
+                message: {
+                    id: `sec-${Date.now()}`,
+                    role: 'system',
+                    text: '🔒 [SECURITY FILTER] Prompt injection attempt detected. Query rejected. Penalty applied: −10 points.',
+                    timestamp: new Date(),
+                }
+            });
+            return;
+        }
+
+        // ── isGenerating guard ────────────────────────────────────────────────
+        if (isGeneratingRef.current) return;
+
+        // ── Rate limiting (Live mode only) ────────────────────────────────────
+        if (LIVE_AI && GEMINI_KEY) {
+            const now = Date.now();
+            // 30-second cooldown block
+            if (now < rateLimitUntilRef.current) {
+                const wait = Math.ceil((rateLimitUntilRef.current - now) / 1000);
+                dispatch({
+                    type: 'ADD_CHAT_MESSAGE',
+                    message: {
+                        id: `ratelimit-${now}`,
+                        role: 'system',
+                        text: `⏱️ [RATE LIMIT] Too many requests. Please wait ${wait}s before querying ARIA again.`,
+                        timestamp: new Date(),
+                    }
+                });
+                return;
+            }
+            // 2-second minimum debounce between calls
+            if (now - lastCallTimeRef.current < 2000) {
+                dispatch({
+                    type: 'ADD_CHAT_MESSAGE',
+                    message: {
+                        id: `debounce-${now}`,
+                        role: 'system',
+                        text: '⏳ [WAIT] Please wait a moment before sending another query.',
+                        timestamp: new Date(),
+                    }
+                });
+                return;
+            }
+            // Sliding window: purge timestamps older than 60s, check cap of 10
+            callTimestampsRef.current = callTimestampsRef.current.filter(t => now - t < 60_000);
+            if (callTimestampsRef.current.length >= 10) {
+                rateLimitUntilRef.current = now + 30_000;
+                dispatch({
+                    type: 'ADD_CHAT_MESSAGE',
+                    message: {
+                        id: `ratelimit-cap-${now}`,
+                        role: 'system',
+                        text: '⏱️ [RATE LIMIT] Query cap reached (10/min). ARIA analysis paused for 30 seconds.',
+                        timestamp: new Date(),
+                    }
+                });
+                return;
+            }
+            callTimestampsRef.current.push(now);
+            lastCallTimeRef.current = now;
+        }
+
+        isGeneratingRef.current = true;
+        setIsGenerating(true);
+
         const msgId = `aria-${Date.now()}`;
 
         if (LIVE_AI && !GEMINI_KEY) {
@@ -391,6 +486,8 @@ export function useAria() {
             } else {
                 dispatch({ type: 'ADD_CHAT_MESSAGE', message: { id: msgId, role: 'aria', text: data.fallback, timestamp: new Date(), streaming: true } });
             }
+            isGeneratingRef.current = false;
+            setIsGenerating(false);
             return;
         }
 
@@ -515,9 +612,11 @@ export function useAria() {
                 } else {
                     dispatch({ type: 'ADD_CHAT_MESSAGE', message: { id: msgId, role: 'aria', text: data.fallback, timestamp: new Date(), streaming: true } });
                 }
+                isGeneratingRef.current = false;
+                setIsGenerating(false);
             }, 600);
         }
-    }, [dispatch, state.allClaims, state.chatHistory]);
+    }, [dispatch, state.allClaims, state.chatHistory, isGenerating]);
 
-    return { askAria, isLiveMode: LIVE_AI && !!GEMINI_KEY };
+    return { askAria, isLiveMode: LIVE_AI && !!GEMINI_KEY, isGenerating };
 }

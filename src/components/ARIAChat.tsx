@@ -202,7 +202,7 @@ function MessageBubble({ msg, onStreamUpdate }: { msg: ChatMessage, onStreamUpda
 
 export function ARIAChat() {
     const { state, dispatch } = useGame();
-    const { askAria, isLiveMode } = useAria();
+    const { askAria, isLiveMode, isGenerating } = useAria();
     const [input, setInput] = useState('');
     const [inlineWarning, setInlineWarning] = useState<string | null>(null);
     const bottomRef = useRef<HTMLDivElement>(null);
@@ -227,6 +227,7 @@ export function ARIAChat() {
     const handleSend = () => {
         const q = input.trim();
         if (!q) return;
+        if (isGenerating) return; // guard: one request at a time
         
         if (!state.selectedEvidenceId) {
             dispatch({
@@ -329,6 +330,11 @@ export function ARIAChat() {
                                 ⚠️ {inlineWarning}
                             </div>
                         )}
+                        {isGenerating && (
+                            <div className="absolute -top-8 left-0 right-0 p-1.5 bg-violet-900/30 border border-violet-500/40 rounded text-[10px] text-violet-400 font-mono animate-pulse">
+                                ⏳ ARIA is processing…
+                            </div>
+                        )}
                         <input
                             ref={inputRef}
                             type="text"
@@ -340,15 +346,16 @@ export function ARIAChat() {
                             onKeyDown={e => {
                                 if (e.key === 'Enter') handleSend();
                             }}
-                            placeholder="Ask ARIA about the evidence…"
-                            className="w-full bg-[#111827] border border-[#1f2937] rounded px-3 py-2 text-xs font-mono text-slate-300 placeholder-[#374151] focus:outline-none focus:border-cyan-400/50 focus:ring-0 transition-colors custom-cursor-input"
+                            disabled={isGenerating}
+                            placeholder={isGenerating ? 'ARIA is processing…' : 'Ask ARIA about the evidence…'}
+                            className={`w-full bg-[#111827] border border-[#1f2937] rounded px-3 py-2 text-xs font-mono text-slate-300 placeholder-[#374151] focus:outline-none focus:border-cyan-400/50 focus:ring-0 transition-colors custom-cursor-input ${isGenerating ? 'opacity-50 cursor-not-allowed' : ''}`}
                             aria-label="Ask ARIA"
                         />
                     </div>
                     <button
                         onClick={handleSend}
-                        disabled={!state.selectedEvidenceId}
-                        title={!state.selectedEvidenceId ? "Select an evidence file first" : ""}
+                        disabled={!state.selectedEvidenceId || isGenerating}
+                        title={!state.selectedEvidenceId ? "Select an evidence file first" : isGenerating ? "ARIA is processing" : ""}
                         className="p-2 rounded bg-cyan-400/10 border border-cyan-400/30 text-cyan-400 hover:bg-cyan-400/20 disabled:opacity-30 disabled:cursor-not-allowed disabled:bg-transparent disabled:border-gray-600 disabled:text-gray-500 transition-colors"
                         aria-label="Send message"
                     >
