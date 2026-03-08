@@ -90,10 +90,10 @@ export function ClaimBadge({ claim, compact = false }: ClaimBadgeProps) {
                         </button>
                     </div>
                     <div className="cursor-pointer" onClick={() => setExpanded(!expanded)}>
-                        <p className={`text-xs leading-relaxed ${isPending && (state.difficulty === 'hard' || state.difficulty === 'expert') ? 'text-slate-500 italic' : 'text-current opacity-90'}`}>
+                        <p className={`text-xs leading-relaxed ${isPending && (state.difficulty === 'hard' || state.difficulty === 'expert') ? 'text-slate-500 italic' : 'text-current opacity-90'} ${!expanded ? 'line-clamp-2' : ''}`}>
                             {isPending && (state.difficulty === 'hard' || state.difficulty === 'expert') 
                                 ? '[Claim formulation redacted. Read ARIA\'s analysis below.]'
-                                : (isPending && !expanded && claim.text.length > 55 ? claim.text.slice(0, 55) + '...' : claim.text)
+                                : (isPending && !expanded && claim.text.length > 160 ? claim.text.slice(0, 160) + '...' : claim.text)
                             }
                         </p>
                     </div>
