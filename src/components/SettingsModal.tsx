@@ -116,7 +116,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
                             <div className="pt-4 border-t border-[#1f2937] space-y-3">
                                 <button
-                                    onClick={() => window.open('https://github.com', '_blank')}
+                                    onClick={() => window.open('https://github.com/RenatoMignone/ARIA_Computer_Forensics_Game', '_blank')}
                                     className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-[#1f2937] hover:bg-[#334155] text-[#94a3b8] text-xs font-mono rounded transition-colors"
                                 >
                                     <Github className="w-3.5 h-3.5" />

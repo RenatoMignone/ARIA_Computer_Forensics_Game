@@ -215,9 +215,8 @@ Beyond the core validation loop, the game includes:
 
 ### Installation
 ```bash
-# Replace YOUR_USERNAME with your actual GitHub username before submission.
-git clone https://github.com/YOUR_USERNAME/AI_Game
-cd AI_Game
+git clone https://github.com/RenatoMignone/ARIA_Computer_Forensics_Game
+cd ARIA_Computer_Forensics_Game
 npm install
 npm run dev
 ```
@@ -287,7 +286,7 @@ Uses `gemini-2.5-flash` to dynamically generate responses. It relies on a heavy 
 ## Repository Structure
 
 ```
-AI_Game/
+ARIA_Computer_Forensics_Game/
 ├── index.html                    # Root entry point
 ├── vite.config.ts                # Vite config
 ├── tsconfig.json                 # TS config
