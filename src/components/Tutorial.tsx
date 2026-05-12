@@ -1,62 +1,62 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGame } from '../context/GameContext';
-import { ChevronRight, SkipForward, MousePointer, MessageSquare, ShieldCheck, Info, FileText, Share2, Terminal as TerminalIcon, Award, Search, Bot } from 'lucide-react';
+import { ChevronRight, SkipForward, ShieldCheck, Info, FileText, Share2, Terminal as TerminalIcon, Award, Search, Bot } from 'lucide-react';
 
 const TUTORIAL_STEPS = [
     {
         icon: <Info className="w-6 h-6 text-cyan-400" />,
         title: 'Investigation Brief',
         description:
-            'Welcome to **ARIA — Don\'t Trust the Machine**.\n\nYou are a forensic investigator examining a **€2.3M wire fraud** at TechCorp. Your mission is to analyze 5 pieces of digital evidence and catch the attacker.\n\n*Note: You can review game mechanics anytime by clicking the **?** (Help) button in the top bar.*',
+            'Welcome to **ARIA: Don\'t Trust the Machine**.\n\nYou are a forensic investigator examining a **EUR 2.3M wire fraud** at TechCorp. ARIA can help you analyze the case, but some of its claims are false.\n\nYour mission is simple: trust the evidence, verify every AI claim, and submit a defensible report.',
         highlight: null,
     },
     {
         icon: <Search className="w-6 h-6 text-cyan-400" />,
         title: '1. The Evidence Vault',
         description:
-            'All recovered files are stored in the **Evidence Vault** (left panel). Click any file to select it.\n\nFiles are write-protected and hash-verified to maintain the chain of custody. You cannot modify them, only analyze them.',
+            'All recovered files are stored in the **Evidence Vault** on the left. Click any file to select it.\n\nFiles are write-protected and hash-verified. You cannot modify them, only analyze them.',
         highlight: 'vault',
     },
     {
         icon: <FileText className="w-6 h-6 text-cyan-400" />,
         title: '2. Ground Truth Metadata',
         description:
-            'When a file is selected, its **Raw Metadata** appears in the center Workspace. This is the **Ground Truth**.\n\nCompare timestamps, IP addresses, and headers in this panel against what ARIA tells you later. If they don\'t match, ARIA is lying.',
+            'When a file is selected, its **Raw Metadata** appears in the center Workspace. This is your ground truth.\n\nCompare timestamps, IP addresses, headers, hashes, and file details here against what ARIA tells you later.',
         highlight: 'workspace',
     },
     {
         icon: <Bot className="w-6 h-6 text-cyan-400" />,
         title: '3. Consulting ARIA',
         description:
-            'ARIA is your AI assistant. Ask it questions in the Chat panel (right).\n\nARIA will try to help by analyzing the evidence and generating specific diagnostic claims. Look for Claim Badges like `[CLAIM-001]` in its responses.',
+            'Ask ARIA questions in the Chat panel on the right.\n\nA good loop is: **ask ARIA**, **inspect evidence**, **validate claims**, **connect related files**, then **submit report**.\n\nLook for claim badges like `[CLAIM-001]` in ARIA responses.',
         highlight: 'chat',
     },
     {
         icon: <ShieldCheck className="w-6 h-6 text-amber-500" />,
         title: '4. Catching Hallucinations',
         description:
-            'ARIA **will hallucinate**. Every `[CLAIM-XXX]` badge must be validated.\n\nClick a badge and cross-reference it with the Workspace metadata. Catching a hallucination earns you points, but blindly accepting one will penalize your score.',
+            'ARIA **will hallucinate**. Every `[CLAIM-XXX]` badge must be validated as either **verified** or **hallucination**.\n\nCatching false AI output is worth the most. Trusting a hallucination is the biggest mistake.',
         highlight: 'claims',
     },
     {
         icon: <Share2 className="w-6 h-6 text-cyan-400" />,
-        title: '5. Evidence Board',
+        title: '5. Board And Panel Controls',
         description:
-            'Switch to the **Board** tab in the Vault to see connections. You can link evidence files together (using the terminal) if they share common attributes (like an IP address).\n\nConnecting files earns bonus points and builds the logic for your final report.',
+            'Switch to the **Board** tab in the Vault to review cross-evidence links. Use the terminal command `connect` when two files share a meaningful forensic relationship.\n\nUse the **Panels** controls in the top-right corner to temporarily hide the Vault, Terminal, or ARIA Chat when you need extra space in the Workspace.',
         highlight: 'board',
     },
     {
         icon: <TerminalIcon className="w-6 h-6 text-cyan-400" />,
         title: '6. Forensic Terminal',
         description:
-            'Access low-level tools in the **Terminal** (bottom). Type `help` to see commands.\n\nYou can `connect` evidence, `trace` network routes, `decode` hidden base64 strings, or `hash verify` files.',
+            'Use the **Terminal** at the bottom for forensic commands. Type `help` anytime.\n\nUseful commands include `inspect`, `hash verify`, `validate`, `connect`, `trace`, `decode`, and `report`.',
         highlight: 'terminal',
     },
     {
         icon: <Award className="w-6 h-6 text-emerald-400" />,
         title: 'Final Submission',
         description:
-            'Once all ARIA claims are validated, type `report` in the terminal to finish the investigation.\n\nYour final score depends on accuracy, caught hallucinations, and investigation speed.\n\nGood luck, Investigator. Trust the evidence—not the machine.',
+            'Start by selecting `email_1.eml`, then ask ARIA what happened.\n\nOnce all ARIA claims are validated, type `report` in the terminal to finish the investigation.\n\nYou can reopen these instructions from the **?** button in the top bar.',
         highlight: null,
     },
 ];
@@ -85,22 +85,27 @@ export function Tutorial() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 30 }}
                     transition={{ type: 'spring', stiffness: 260, damping: 24 }}
-                    className="bg-[#0d1420] border border-cyan-400/30 rounded-2xl p-8 max-w-lg w-full shadow-2xl pointer-events-auto"
+                    className="bg-[#0d1420] border border-cyan-400/30 rounded-lg p-8 max-w-lg w-full shadow-2xl pointer-events-auto"
                     style={{ boxShadow: '0 0 40px rgba(6,182,212,0.15)' }}
                 >
                     {/* Progress dots */}
-                    <div className="flex gap-2 mb-6">
-                        {TUTORIAL_STEPS.map((_, i) => (
-                            <div
-                                key={i}
-                                className={`h-1 rounded-full transition-all duration-300 ${i === state.tutorialStep
-                                    ? 'w-6 bg-cyan-400'
-                                    : i < state.tutorialStep
-                                        ? 'w-2 bg-cyan-400/50'
-                                        : 'w-2 bg-[#1f2937]'
-                                    }`}
-                            />
-                        ))}
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex gap-2">
+                            {TUTORIAL_STEPS.map((_, i) => (
+                                <div
+                                    key={i}
+                                    className={`h-1 rounded-full transition-all duration-300 ${i === state.tutorialStep
+                                        ? 'w-6 bg-cyan-400'
+                                        : i < state.tutorialStep
+                                            ? 'w-2 bg-cyan-400/50'
+                                            : 'w-2 bg-[#1f2937]'
+                                        }`}
+                                />
+                            ))}
+                        </div>
+                        <span className="text-[10px] font-mono uppercase tracking-widest text-slate-500">
+                            Step {state.tutorialStep + 1} / {TUTORIAL_STEPS.length}
+                        </span>
                     </div>
 
                     {/* Icon */}

@@ -77,6 +77,40 @@ body,
   box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
 }
 
+body.high-contrast {
+  color: #f8fafc;
+}
+
+body.high-contrast [class*="border-[#1f2937]"],
+body.high-contrast [class*="border-slate-700"] {
+  border-color: #475569 !important;
+}
+
+body.high-contrast [class*="text-[#475569]"],
+body.high-contrast [class*="text-[#64748b]"],
+body.high-contrast [class*="text-slate-500"] {
+  color: #94a3b8 !important;
+}
+
+body.high-contrast [class*="text-slate-400"] {
+  color: #cbd5e1 !important;
+}
+
+body.reduced-effects *,
+body.reduced-effects *::before,
+body.reduced-effects *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+body.reduced-effects .glow-accent,
+body.reduced-effects .glow-success,
+body.reduced-effects .glow-danger {
+  box-shadow: none !important;
+}
+
 /* Scanline overlay for terminal aesthetic */
 .scanlines::after {
   content: '';

@@ -4,7 +4,7 @@ import { computeDelta, getTier, countHallucinationsFound, countTotalHallucinatio
 import { LeaderboardEntry } from '../types/game';
 
 /**
- * Save schema version — increment this whenever SerializedGameState gains
+ * Save schema version: increment this whenever SerializedGameState gains
  * required fields to ensure old save codes are safely rejected.
  */
 export const SAVE_SCHEMA_VERSION = 1;
@@ -30,7 +30,7 @@ const initialState: GameState = {
         {
             id: 'aria-intro',
             role: 'aria',
-            text: "Good morning, Investigator. I am **ARIA** — AI-assisted Research & Investigation Assistant.\n\nI have been briefed on the TechCorp financial fraud case involving a **€2.3M unauthorized wire transfer**. I will assist you in analyzing the available evidence.\n\n⚠️ *Note from your supervisor: ARIA is a powerful tool, but AI systems can produce inaccurate outputs. All ARIA claims tagged with* `[CLAIM-XXX]` *must be independently verified against raw evidence.*\n\nSelect an evidence file from the vault and ask me anything about it.",
+            text: "Good morning, Investigator. I am **ARIA**, your AI-assisted Research and Investigation Assistant.\n\nI have been briefed on the TechCorp financial fraud case involving a **EUR 2.3M unauthorized wire transfer**. I will assist you in analyzing the available evidence.\n\n*Supervisor note: ARIA is a powerful tool, but AI systems can produce inaccurate outputs. All ARIA claims tagged with* `[CLAIM-XXX]` *must be independently verified against raw evidence.*\n\nSelect an evidence file from the vault and ask me anything about it.",
             timestamp: new Date(),
         }
     ],
@@ -141,22 +141,27 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         }
 
         case 'VALIDATE_CLAIM': {
-            const { claimId, verdict, claim } = action;
+            const { claimId, verdict, confidence, claim } = action;
             const existing = state.verdicts[claimId];
             if (existing && existing !== 'pending') return state; // already validated
 
             const delta = computeDelta(claim, verdict);
+            const validationRecord: Verdict = {
+                verdict,
+                confidence,
+                timestamp: new Date().toISOString(),
+            };
             const newState = {
                 ...state,
                 score: state.score + delta,
                 lastScoreDelta: delta,
-                verdicts: { ...state.verdicts, [claimId]: verdict as Verdict },
+                verdicts: { ...state.verdicts, [claimId]: validationRecord },
                 chainOfCustody: [
                     ...state.chainOfCustody,
                     {
                         timestamp: new Date(),
                         action: 'CLAIM_VALIDATED',
-                        detail: `${claimId} → ${verdict.toUpperCase()} (Δ${delta > 0 ? '+' : ''}${delta})`,
+                        detail: `${claimId} -> ${verdict.toUpperCase()} (${confidence} confidence, ${delta > 0 ? '+' : ''}${delta})`,
                     }
                 ]
             };

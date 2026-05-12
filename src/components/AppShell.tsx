@@ -6,6 +6,7 @@ import { Terminal } from './Terminal';
 import { HUD } from './HUD';
 import { ForensicErrorModal } from './ForensicErrorModal';
 import { useEffect, useState } from 'react';
+import { Monitor } from 'lucide-react';
 
 export function AppShell() {
     const { state, dispatch } = useGame();
@@ -25,7 +26,7 @@ export function AppShell() {
     // Resizer State
     const [terminalHeight, setTerminalHeight] = useState(220);
     const [chatWidth, setChatWidth] = useState(320);
-    const [vaultWidth, setVaultWidth] = useState(208);
+    const [vaultWidth, setVaultWidth] = useState(260);
     const [showChat, setShowChat] = useState(true);
     const [showTerminal, setShowTerminal] = useState(true);
     const [showVault, setShowVault] = useState(true);
@@ -45,7 +46,7 @@ export function AppShell() {
             }
             if (isDraggingVault) {
                 const newWidth = e.clientX;
-                setVaultWidth(Math.min(Math.max(150, newWidth), window.innerWidth * 0.4));
+                setVaultWidth(Math.min(Math.max(240, newWidth), window.innerWidth * 0.4));
             }
         };
         const handlePointerUp = () => {
@@ -85,9 +86,13 @@ export function AppShell() {
 
     useEffect(() => {
         const savedCrt = localStorage.getItem('aria_settings_crt');
-        if (savedCrt === 'true') {
+        const savedHighContrast = localStorage.getItem('aria_settings_high_contrast');
+        const savedReducedEffects = localStorage.getItem('aria_settings_reduced_effects');
+        if (savedCrt === 'true' && savedReducedEffects !== 'true') {
             document.body.classList.add('crt-effect');
         }
+        document.body.classList.toggle('high-contrast', savedHighContrast === 'true');
+        document.body.classList.toggle('reduced-effects', savedReducedEffects === 'true');
     }, []);
 
     // Tutorial Spotlight Logic
@@ -96,6 +101,7 @@ export function AppShell() {
     const hlWorkspace = isTutorial && (state.tutorialStep === 2 || state.tutorialStep === 4);
     const hlChat = isTutorial && state.tutorialStep === 3;
     const hlTerminal = isTutorial && state.tutorialStep === 6;
+    const hlPanelToggles = isTutorial && state.tutorialStep === 5;
 
     const spotlightClasses = "z-[110] ring-4 ring-cyan-400 shadow-[0_0_50px_rgba(6,182,212,0.5)] relative pointer-events-none transition-all duration-300";
 
@@ -105,7 +111,7 @@ export function AppShell() {
             {/* Task 4.3: Mobile viewport warning overlay */}
             {isMobileWidth && !mobileWarningDismissed && (
                 <div className="fixed inset-0 z-[200] bg-[#0a0e17] flex flex-col items-center justify-center p-6 text-center font-mono">
-                    <div className="text-4xl mb-4">💻</div>
+                    <Monitor className="w-12 h-12 mb-4 text-cyan-400" aria-hidden="true" />
                     <h2 className="text-lg font-bold text-cyan-400 mb-2">Screen Too Narrow</h2>
                     <p className="text-sm text-slate-400 mb-1 max-w-xs">
                         ARIA Forensic Workstation is designed for screens wider than 1024px.
@@ -141,6 +147,7 @@ export function AppShell() {
                 setShowTerminal={setShowTerminal} 
                 showVault={showVault}
                 setShowVault={setShowVault}
+                highlightPanelToggles={hlPanelToggles}
             />
 
             {/* Main 3-panel area */}

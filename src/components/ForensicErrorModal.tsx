@@ -6,9 +6,9 @@ import { HallucinationType } from '../types/game';
 
 const HALLUCINATION_LESSONS: Record<string, string> = {
   timestamp_error: 'AI tools parse timestamps from multiple metadata layers and can misread timezone offsets, creation vs. modification fields, or Unix epoch conversions. Always read timestamps directly from the raw file.',
-  false_attribution: 'Stylometric and authorship analysis produces probabilistic similarity scores — never forensic identity proof. Attribution requires corroborating technical evidence.',
+  false_attribution: 'Stylometric and authorship analysis produces probabilistic similarity scores, never forensic identity proof. Attribution requires corroborating technical evidence.',
   fabricated_metadata: 'LLMs will generate plausible-sounding field values for metadata they cannot verify. If a field value is not present in the raw file, it does not exist forensically.',
-  false_correlation: 'Temporal proximity is not causation. Two events at the same timestamp may share an actor — or may not. Each link in an evidence chain requires independent verification.',
+  false_correlation: 'Temporal proximity is not causation. Two events at the same timestamp may share an actor, or may not. Each link in an evidence chain requires independent verification.',
   confidence_inflation: 'AI confidence percentages are outputs of probability distributions, not forensic measurements. A "95% match" without a disclosed methodology and reference dataset is not admissible evidence.',
 };
 
@@ -109,16 +109,16 @@ export function ForensicErrorModal() {
                             {isVariant1 ? 'WHY THIS MATTERS IN REAL INVESTIGATIONS:' : 'REMINDER:'}
                         </h3>
                         <p className="text-sm text-slate-300 leading-relaxed mb-6">
-                            {isVariant1 ? lesson : 'Not all AI output is wrong. The skill is knowing which claims require verification — and verifying them, not assuming they are false.'}
+                            {isVariant1 ? lesson : 'Not all AI output is wrong. The skill is knowing which claims require verification and verifying them, not assuming they are false.'}
                         </p>
                         
                         <div className="flex items-center justify-between">
-                            <p className="text-red-400 font-bold">Score impact: {isVariant1 ? '−30' : '−15'} pts</p>
+                            <p className="text-red-400 font-bold">Score impact: {isVariant1 ? '-30' : '-25'} pts</p>
                             <button
                                 onClick={() => dispatch({ type: 'HIDE_ERROR_REVEAL' })}
                                 className="px-6 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded font-bold transition-colors"
                             >
-                                {isVariant1 ? 'I understand — continue investigation' : 'Understood — continue investigation'}
+                                {isVariant1 ? 'I understand, continue investigation' : 'Understood, continue investigation'}
                             </button>
                         </div>
                     </div>

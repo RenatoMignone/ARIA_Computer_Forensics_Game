@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, X, Volume2, VolumeX, Monitor, Trash2, Github } from 'lucide-react';
+import { Settings, X, Volume2, VolumeX, Monitor, Trash2, Github, Eye, ZapOff } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 interface SettingsModalProps {
@@ -10,21 +10,35 @@ interface SettingsModalProps {
 export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     const [soundEnabled, setSoundEnabled] = useState(true);
     const [crtEnabled, setCrtEnabled] = useState(false);
+    const [highContrastEnabled, setHighContrastEnabled] = useState(false);
+    const [reducedEffectsEnabled, setReducedEffectsEnabled] = useState(false);
 
     useEffect(() => {
         const savedSound = localStorage.getItem('aria_settings_sound');
         const savedCrt = localStorage.getItem('aria_settings_crt');
+        const savedHighContrast = localStorage.getItem('aria_settings_high_contrast');
+        const savedReducedEffects = localStorage.getItem('aria_settings_reduced_effects');
         if (savedSound !== null) setSoundEnabled(savedSound === 'true');
         if (savedCrt !== null) setCrtEnabled(savedCrt === 'true');
+        if (savedHighContrast !== null) setHighContrastEnabled(savedHighContrast === 'true');
+        if (savedReducedEffects !== null) setReducedEffectsEnabled(savedReducedEffects === 'true');
     }, []);
 
     useEffect(() => {
-        if (crtEnabled) {
+        if (crtEnabled && !reducedEffectsEnabled) {
             document.body.classList.add('crt-effect');
         } else {
             document.body.classList.remove('crt-effect');
         }
-    }, [crtEnabled]);
+    }, [crtEnabled, reducedEffectsEnabled]);
+
+    useEffect(() => {
+        document.body.classList.toggle('high-contrast', highContrastEnabled);
+    }, [highContrastEnabled]);
+
+    useEffect(() => {
+        document.body.classList.toggle('reduced-effects', reducedEffectsEnabled);
+    }, [reducedEffectsEnabled]);
 
     const toggleSound = () => {
         const newVal = !soundEnabled;
@@ -37,6 +51,18 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         const newVal = !crtEnabled;
         setCrtEnabled(newVal);
         localStorage.setItem('aria_settings_crt', String(newVal));
+    };
+
+    const toggleHighContrast = () => {
+        const newVal = !highContrastEnabled;
+        setHighContrastEnabled(newVal);
+        localStorage.setItem('aria_settings_high_contrast', String(newVal));
+    };
+
+    const toggleReducedEffects = () => {
+        const newVal = !reducedEffectsEnabled;
+        setReducedEffectsEnabled(newVal);
+        localStorage.setItem('aria_settings_reduced_effects', String(newVal));
     };
 
     const handleReset = () => {
@@ -84,7 +110,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                                     </div>
                                     <div>
                                         <div className="text-xs font-bold text-slate-200 font-mono">Terminal Audio</div>
-                                        <div className="text-[10px] text-[#475569] font-mono">Mechanical keystroke & boot sounds</div>
+                                        <div className="text-[10px] text-[#475569] font-mono">Mechanical keystroke and boot sounds</div>
                                     </div>
                                 </div>
                                 <button
@@ -108,9 +134,51 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                                 </div>
                                 <button
                                     onClick={toggleCrt}
-                                    className={`w-12 h-6 rounded-full relative transition-colors ${crtEnabled ? 'bg-cyan-500' : 'bg-[#1f2937]'}`}
+                                    disabled={reducedEffectsEnabled}
+                                    className={`w-12 h-6 rounded-full relative transition-colors ${crtEnabled && !reducedEffectsEnabled ? 'bg-cyan-500' : 'bg-[#1f2937]'} ${reducedEffectsEnabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    aria-label="Toggle CRT scanlines"
                                 >
-                                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${crtEnabled ? 'left-7' : 'left-1'}`} />
+                                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${crtEnabled && !reducedEffectsEnabled ? 'left-7' : 'left-1'}`} />
+                                </button>
+                            </div>
+
+                            {/* High Contrast Toggle */}
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded bg-cyan-400/10 flex items-center justify-center">
+                                        <Eye className={`w-4 h-4 ${highContrastEnabled ? 'text-cyan-400' : 'text-[#475569]'}`} />
+                                    </div>
+                                    <div>
+                                        <div className="text-xs font-bold text-slate-200 font-mono">High Contrast</div>
+                                        <div className="text-[10px] text-[#475569] font-mono">Sharper borders and brighter text</div>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={toggleHighContrast}
+                                    className={`w-12 h-6 rounded-full relative transition-colors ${highContrastEnabled ? 'bg-cyan-500' : 'bg-[#1f2937]'}`}
+                                    aria-label="Toggle high contrast"
+                                >
+                                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${highContrastEnabled ? 'left-7' : 'left-1'}`} />
+                                </button>
+                            </div>
+
+                            {/* Reduced Effects Toggle */}
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded bg-cyan-400/10 flex items-center justify-center">
+                                        <ZapOff className={`w-4 h-4 ${reducedEffectsEnabled ? 'text-cyan-400' : 'text-[#475569]'}`} />
+                                    </div>
+                                    <div>
+                                        <div className="text-xs font-bold text-slate-200 font-mono">Reduced Effects</div>
+                                        <div className="text-[10px] text-[#475569] font-mono">Limit scanlines, glow, and motion</div>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={toggleReducedEffects}
+                                    className={`w-12 h-6 rounded-full relative transition-colors ${reducedEffectsEnabled ? 'bg-cyan-500' : 'bg-[#1f2937]'}`}
+                                    aria-label="Toggle reduced effects"
+                                >
+                                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${reducedEffectsEnabled ? 'left-7' : 'left-1'}`} />
                                 </button>
                             </div>
 
@@ -135,7 +203,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
                         {/* Footer */}
                         <div className="bg-[#0a0e17] p-3 text-center border-t border-[#1f2937]">
-                            <p className="text-[9px] font-mono text-[#374151]">ARIA OS v2.6.4 • CONFIDENTIAL</p>
+                            <p className="text-[9px] font-mono text-[#374151]">ARIA OS v2.6.4 / CONFIDENTIAL</p>
                         </div>
                     </motion.div>
                 </div>

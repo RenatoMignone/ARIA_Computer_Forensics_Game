@@ -13,9 +13,10 @@ interface HUDProps {
     setShowTerminal: (val: boolean) => void;
     showVault: boolean;
     setShowVault: (val: boolean) => void;
+    highlightPanelToggles?: boolean;
 }
 
-export function HUD({ showChat, setShowChat, showTerminal, setShowTerminal, showVault, setShowVault }: HUDProps) {
+export function HUD({ showChat, setShowChat, showTerminal, setShowTerminal, showVault, setShowVault, highlightPanelToggles = false }: HUDProps) {
     const { state, dispatch } = useGame();
     const { score, verdicts, allClaims, lastScoreDelta, lastAutoSaveTime } = state;
     const totalClaims = Object.keys(allClaims).length;
@@ -73,12 +74,14 @@ export function HUD({ showChat, setShowChat, showTerminal, setShowTerminal, show
 
     return (
         <>
-        <div className="flex items-center justify-between px-4 py-2 border-b border-[#1f2937] bg-[#0d1420] select-none z-30 relative">
+        <div className={`flex items-center justify-between px-4 py-2 border-b border-[#1f2937] bg-[#0d1420] select-none relative ${
+            highlightPanelToggles ? 'z-[120]' : 'z-30'
+        }`}>
             {/* Brand */}
             <div className="relative flex items-center gap-2">
                 <Shield className="w-5 h-5 text-cyan-400" />
                 <span className="font-mono text-sm font-bold text-cyan-400 tracking-widest">ARIA</span>
-                <span className="text-[#475569] text-xs font-mono ml-1 hidden sm:inline">— Don't Trust the Machine</span>
+                <span className="text-[#475569] text-xs font-mono ml-1 hidden sm:inline">Don't Trust the Machine</span>
 
                 <AnimatePresence>
                     {showAutoSave && (
@@ -147,7 +150,7 @@ export function HUD({ showChat, setShowChat, showTerminal, setShowTerminal, show
                     <span className="text-[#475569] text-xs font-mono uppercase tracking-wider">Hallucinations</span>
                     <span className="font-mono text-sm font-semibold">
                         {totalClaims === 0 ? (
-                            <span className="text-[#475569]">—/—</span>
+                            <span className="text-[#475569]">0/0</span>
                         ) : (
                             <>
                                 <span className="text-red-400">{halluFound}</span>
@@ -188,35 +191,46 @@ export function HUD({ showChat, setShowChat, showTerminal, setShowTerminal, show
 
                 <div className="w-px h-4 bg-[#1f2937]" />
 
-                {/* Vault Toggle */}
-                <button
-                    onClick={() => setShowVault(!showVault)}
-                    className={`p-1.5 rounded transition-colors ${showVault ? 'text-cyan-400 bg-[#0d1420]' : 'text-[#475569] hover:text-slate-300'}`}
-                    title={showVault ? "Hide Evidence Vault" : "Show Evidence Vault"}
-                    aria-label="Toggle Evidence Vault"
+                {/* Panel toggles */}
+                <div
+                    className={`flex items-center gap-1 rounded border px-1.5 py-1 transition-all duration-300 ${
+                        highlightPanelToggles
+                            ? 'z-[110] border-[#1f2937] bg-[#0a0e17] ring-4 ring-cyan-400 shadow-[0_0_50px_rgba(6,182,212,0.5)] relative pointer-events-none'
+                            : 'border-[#1f2937] bg-[#0a0e17]'
+                    }`}
+                    title="Toggle workstation panels"
                 >
-                    <Library className="w-4 h-4" />
-                </button>
+                    <span className="text-[9px] font-mono uppercase tracking-widest text-[#475569] hidden xl:inline mr-1">Panels</span>
+                    <button
+                        onClick={() => setShowVault(!showVault)}
+                        className={`p-1.5 rounded transition-colors ${showVault ? 'text-cyan-400 bg-[#111827]' : 'text-[#475569] hover:text-slate-300'}`}
+                        title={showVault ? "Hide Evidence Vault" : "Show Evidence Vault"}
+                        aria-label={showVault ? "Hide Evidence Vault" : "Show Evidence Vault"}
+                        aria-pressed={showVault}
+                    >
+                        <Library className="w-4 h-4" />
+                    </button>
 
-                {/* Terminal Toggle */}
-                <button
-                    onClick={() => setShowTerminal(!showTerminal)}
-                    className={`p-1.5 rounded transition-colors ${showTerminal ? 'text-cyan-400 bg-[#0d1420]' : 'text-[#475569] hover:text-slate-300'}`}
-                    title={showTerminal ? "Hide Terminal" : "Show Terminal"}
-                    aria-label="Toggle Terminal"
-                >
-                    <TerminalIcon className="w-4 h-4" />
-                </button>
+                    <button
+                        onClick={() => setShowTerminal(!showTerminal)}
+                        className={`p-1.5 rounded transition-colors ${showTerminal ? 'text-cyan-400 bg-[#111827]' : 'text-[#475569] hover:text-slate-300'}`}
+                        title={showTerminal ? "Hide Terminal" : "Show Terminal"}
+                        aria-label={showTerminal ? "Hide Terminal" : "Show Terminal"}
+                        aria-pressed={showTerminal}
+                    >
+                        <TerminalIcon className="w-4 h-4" />
+                    </button>
 
-                {/* Chat Toggle */}
-                <button
-                    onClick={() => setShowChat(!showChat)}
-                    className={`p-1.5 rounded transition-colors ${showChat ? 'text-cyan-400 bg-[#0d1420]' : 'text-[#475569] hover:text-slate-300'}`}
-                    title={showChat ? "Hide Chat" : "Show Chat"}
-                    aria-label="Toggle Chat"
-                >
-                    {showChat ? <MessageSquare className="w-4 h-4" /> : <MessageSquareOff className="w-4 h-4" />}
-                </button>
+                    <button
+                        onClick={() => setShowChat(!showChat)}
+                        className={`p-1.5 rounded transition-colors ${showChat ? 'text-cyan-400 bg-[#111827]' : 'text-[#475569] hover:text-slate-300'}`}
+                        title={showChat ? "Hide Chat" : "Show Chat"}
+                        aria-label={showChat ? "Hide Chat" : "Show Chat"}
+                        aria-pressed={showChat}
+                    >
+                        {showChat ? <MessageSquare className="w-4 h-4" /> : <MessageSquareOff className="w-4 h-4" />}
+                    </button>
+                </div>
 
                 {/* Settings button */}
                 <button

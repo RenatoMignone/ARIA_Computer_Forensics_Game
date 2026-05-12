@@ -2,7 +2,7 @@ import { useGame } from '../context/GameContext';
 import { Claim } from '../types/game';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, XCircle, AlertCircle, ChevronRight, ChevronDown } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 interface ClaimBadgeProps {
     claim: Claim;
@@ -15,31 +15,29 @@ export function ClaimBadge({ claim, compact = false }: ClaimBadgeProps) {
     const verdict = state.verdicts[claim.id] || 'pending';
 
     const isPending = verdict === 'pending';
-    const verdObj = isPending ? null : (verdict as import('../types/game').VerdictRecord);
+    const verdictValue = isPending
+        ? null
+        : typeof verdict === 'string'
+            ? verdict
+            : verdict.verdict;
+    const confidence = isPending
+        ? null
+        : typeof verdict === 'string'
+            ? 'medium'
+            : verdict.confidence;
 
     const badgeClass =
         isPending ? 'claim-badge-pending' :
-            verdObj?.verdict === 'verified' ? 'claim-badge-verified' :
+            verdictValue === 'verified' ? 'claim-badge-verified' :
                 'claim-badge-hallucination';
 
     const Icon =
         isPending ? AlertCircle :
-            verdObj?.verdict === 'verified' ? CheckCircle :
+            verdictValue === 'verified' ? CheckCircle :
                 XCircle;
 
     const [stagedVerdict, setStagedVerdict] = useState<'verified' | 'hallucination' | null>(null);
     const [expanded, setExpanded] = useState(false);
-
-    useEffect(() => {
-        if (!stagedVerdict) return;
-        if (state.difficulty === 'expert') return; // No auto-timer in expert mode
-
-        const timer = setTimeout(() => {
-            dispatch({ type: 'VALIDATE_CLAIM', claimId: claim.id, verdict: stagedVerdict, confidence: 'medium', claim });
-            setStagedVerdict(null);
-        }, 4000);
-        return () => clearTimeout(timer);
-    }, [stagedVerdict, claim, dispatch, state.difficulty]);
 
     const confirmVerdict = (conf: 'low' | 'medium' | 'high') => {
         if (!stagedVerdict) return;
@@ -71,7 +69,7 @@ export function ClaimBadge({ claim, compact = false }: ClaimBadgeProps) {
             tabIndex={0}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpanded(v => !v); } }}
             aria-expanded={expanded}
-            aria-label={`Claim ${claim.id}, ${isPending ? 'unvalidated' : verdObj?.verdict ?? 'pending'}. Press Enter to expand.`}
+            aria-label={`Claim ${claim.id}, ${isPending ? 'unvalidated' : verdictValue ?? 'pending'}. Press Enter to expand.`}
             className={`rounded-lg border p-3 mb-2 ${badgeClass} focus:outline-none focus:ring-2 focus:ring-cyan-400/60`}
         >
             <div className="flex items-start gap-2">
@@ -84,9 +82,9 @@ export function ClaimBadge({ claim, compact = false }: ClaimBadgeProps) {
                                 {claim.hallucinationType?.replace(/_/g, ' ')}
                             </span>
                         )}
-                        {!isPending && verdObj && (
+                        {!isPending && confidence && (
                             <span className="ml-auto text-[10px] font-mono px-1 py-0.5 border border-slate-700/50 text-slate-400 rounded bg-slate-800/50 capitalize">
-                                Conf: {verdObj.confidence}
+                                Conf: {confidence}
                             </span>
                         )}
                         <button onClick={() => setExpanded(!expanded)} className="ml-auto opacity-50 hover:opacity-100 p-1">
@@ -153,14 +151,6 @@ export function ClaimBadge({ claim, compact = false }: ClaimBadgeProps) {
                                 <button onClick={() => confirmVerdict('low')} className="flex-1 py-1 text-xs font-mono rounded bg-blue-900/30 text-blue-300 hover:bg-blue-800/50 border border-blue-800/50 transition-colors">Low</button>
                                 <button onClick={() => confirmVerdict('medium')} className="flex-1 py-1 text-xs font-mono rounded bg-amber-900/30 text-amber-300 hover:bg-amber-800/50 border border-amber-800/50 transition-colors">Medium</button>
                                 <button onClick={() => confirmVerdict('high')} className="flex-1 py-1 text-xs font-mono rounded bg-emerald-900/30 text-emerald-300 hover:bg-emerald-800/50 border border-emerald-800/50 transition-colors">High</button>
-                            </div>
-                            <div className="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
-                                <motion.div 
-                                    initial={{ width: '100%' }} 
-                                    animate={{ width: 0 }} 
-                                    transition={{ duration: 4, ease: 'linear' }}
-                                    className="h-full bg-slate-500"
-                                />
                             </div>
                         </motion.div>
                     )}

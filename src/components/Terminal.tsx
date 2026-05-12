@@ -6,7 +6,7 @@ import { useGame } from '../context/GameContext';
 import { useAria, validateQuery } from '../hooks/useAria';
 import { useToast } from '../hooks/useToast';
 import { useAudio } from '../hooks/useAudio';
-import { allValidated, connectionReward } from '../lib/scoring';
+import { allValidated, computeDelta, connectionReward } from '../lib/scoring';
 import evidenceData from '../data/evidence.json';
 import ariaData from '../data/aria_responses.json';
 import connectionsData from '../data/connections.json';
@@ -129,7 +129,7 @@ export function Terminal() {
         else if (cmd === 'ls -la' || cmd === 'ls -l' || cmd === 'ls -al') {
             runScan();
             writeLines([
-                '\x1b[90m[Note: write-protected evidence vault — use \'inspect <file>\' for full analysis]\x1b[0m'
+                '\x1b[90m[Note: write-protected evidence vault. Use \'inspect <file>\' for full analysis]\x1b[0m'
             ]);
         }
 
@@ -160,14 +160,14 @@ export function Terminal() {
             writeLines(['\x1b[37mforensic@ARIA:/evidence/vault/TechCorp-2026-03-03/\x1b[0m']);
         }
         else if (cmd === 'whoami') {
-            writeLines(['\x1b[37mforensic-investigator (read-only access — evidence vault sealed)\x1b[0m']);
+            writeLines(['\x1b[37mforensic-investigator (read-only access, evidence vault sealed)\x1b[0m']);
         }
         else if (cmd === 'history') {
             const hist = historyRef.current.slice(-10);
             writeLines(hist.map((h, i) => `  \x1b[36m${(i + 1).toString().padStart(3, ' ')}\x1b[0m  ${h}`));
         }
         else if (cmd === 'exit') {
-            writeLines(['\x1b[31m[WARN] Cannot exit — investigation in progress. Use \'report\' to submit findings.\x1b[0m']);
+            writeLines(['\x1b[31m[WARN] Cannot exit. Investigation in progress. Use \'report\' to submit findings.\x1b[0m']);
         }
         else if (cmd.startsWith('sudo ') || cmd === 'sudo') {
             writeLines(['\x1b[31m[DENIED] Elevated privileges not available. Evidence vault is read-only by forensic protocol.\x1b[0m']);
@@ -194,7 +194,7 @@ export function Terminal() {
         // --- timeline ---
         else if (cmd === 'timeline') {
             writeLines([
-                '\x1b[36m=== ARIA — RECONSTRUCTED ATTACK TIMELINE ===\x1b[0m',
+                '\x1b[36m=== ARIA: RECONSTRUCTED ATTACK TIMELINE ===\x1b[0m',
                 '\x1b[31m[WARNING] ARIA-generated content. Cross-check all timestamps against raw evidence.\x1b[0m',
                 '',
                 'TIMESTAMP (UTC)              EVENT',
@@ -225,15 +225,20 @@ export function Terminal() {
                         `\x1b[31mClaim not found: ${claimId}\x1b[0m`,
                         '\x1b[90mAsk ARIA about evidence files to generate claims first.\x1b[0m',
                     ]);
-                } else if (s.verdicts[claimId] !== 'pending') {
-                    writeLines([`\x1b[33m${claimId} already validated: ${(s.verdicts[claimId] as import('../types/game').VerdictRecord).verdict.toUpperCase()}\x1b[0m`]);
+                } else if (s.verdicts[claimId] && s.verdicts[claimId] !== 'pending') {
+                    const existing = s.verdicts[claimId];
+                    const existingVerdict = typeof existing === 'string'
+                        ? existing
+                        : (existing as import('../types/game').VerdictRecord).verdict;
+                    writeLines([`\x1b[33m${claimId} already validated: ${existingVerdict.toUpperCase()}\x1b[0m`]);
                 } else {
                     dispatch({ type: 'VALIDATE_CLAIM', claimId, verdict, confidence: 'medium', claim });
                     const isCorrect =
                         (claim.isHallucination && verdict === 'hallucination') ||
                         (!claim.isHallucination && verdict === 'verified');
                     const color = isCorrect ? '\x1b[32m' : '\x1b[31m';
-                    const delta = isCorrect ? (claim.isHallucination ? '+20' : '+10') : (claim.isHallucination ? '-30' : '-15');
+                    const scoreDelta = computeDelta(claim, verdict);
+                    const deltaLabel = `${scoreDelta > 0 ? '+' : ''}${scoreDelta}`;
 
                     // Show Toast Notification
                     // type: 'success-hallu' | 'success-verify' | 'error-hallu' | 'error-verify'
@@ -252,7 +257,7 @@ export function Terminal() {
                     });
 
                     writeLines([
-                        `${color}${isCorrect ? '✓' : '✗'} ${claimId} → ${verdict.toUpperCase()} [${delta} pts]\x1b[0m`,
+                        `${color}${isCorrect ? '✓' : '✗'} ${claimId} -> ${verdict.toUpperCase()} [${deltaLabel} pts]\x1b[0m`,
                         `\x1b[90mForensic note: ${claim.explanation.slice(0, 120)}...\x1b[0m`,
                     ]);
                 }
@@ -428,7 +433,7 @@ export function Terminal() {
             if (!allValidated(s.verdicts, s.allClaims)) {
                 const remaining = Object.values(s.allClaims).filter(c => !s.verdicts[c.id] || s.verdicts[c.id] === 'pending').length;
                 writeLines([
-                    `\x1b[31m[!] REPORT REJECTED — CHAIN OF CUSTODY INCOMPLETE\x1b[0m`,
+                    `\x1b[31m[!] REPORT REJECTED: CHAIN OF CUSTODY INCOMPLETE\x1b[0m`,
                     `\x1b[33mAwaiting investigator verification on ${remaining} AI-generated claim(s).\x1b[0m`,
                     '\x1b[90mSupervisory Protocol 402.B dictates that all ARIA outputs must be independently verified against raw evidence before a final verdict can be signed. AI outputs cannot be trusted inherently.\x1b[0m',
                     '\x1b[90mHint: Use \x1b[0mvalidate <CLAIM-ID> verified|hallucination\x1b[90m for each remaining claim.\x1b[0m',
@@ -582,7 +587,7 @@ export function Terminal() {
         }
 
         // --- help ---
-        else if (cmd === 'help') {
+        else if (cmd === 'help' || cmd.startsWith('help ')) {
             const parts = cmd.split(' ');
             const sub = parts[1]?.toLowerCase();
 
@@ -593,11 +598,11 @@ export function Terminal() {
                     '',
                     'Mark an ARIA claim as verified or a hallucination.',
                     '',
-                    '  \x1b[33mvalidate CLAIM-001 verified\x1b[0m       — Confirm the claim is factually correct',
-                    '  \x1b[33mvalidate CLAIM-001 hallucination\x1b[0m   — Flag the claim as AI-fabricated',
+                    '  \x1b[33mvalidate CLAIM-001 verified\x1b[0m       - Confirm the claim is factually correct',
+                    '  \x1b[33mvalidate CLAIM-001 hallucination\x1b[0m   - Flag the claim as AI-fabricated',
                     '',
-                    '\x1b[90mAfter running validate, you will be asked to select a confidence level.\x1b[0m',
-                    '\x1b[90mScore deltas: +10 correct, −25 falsely flagging real evidence, +5 correct hallucination.\x1b[0m',
+                    '\x1b[90mTerminal validation uses medium confidence by default.\x1b[0m',
+                    '\x1b[90mScore deltas: +20 correct hallucination, +10 correct true claim, -30 missed hallucination, -25 false rejection.\x1b[0m',
                 ],
                 connect: [
                     '\x1b[36mCOMMAND: connect <file1> <file2> "<reason>"\x1b[0m',
@@ -617,18 +622,18 @@ export function Terminal() {
                     '  \x1b[33minspect malware_sample.exe\x1b[0m',
                     '  \x1b[33minspect email_draft.txt\x1b[0m',
                     '',
-                    '\x1b[90mAlways compare raw timestamps / hashes against ARIA\'s claims — it fabricates specific fields.\x1b[0m',
+                    '\x1b[90mAlways compare raw timestamps and hashes against ARIA\'s claims. It fabricates specific fields.\x1b[0m',
                     '\x1b[90mAlias: cat <filename> shows file content. hash verify <filename> shows checksums.\x1b[0m',
                 ],
                 hint: [
                     '\x1b[36mCOMMAND: hint <CLAIM-ID>\x1b[0m',
                     '',
-                    'Request a guided hint for a pending claim. Costs −5 pts.',
+                    'Request a guided hint for a pending claim. Costs -5 pts.',
                     '',
                     '  \x1b[33mhint CLAIM-007\x1b[0m',
                     '',
                     '\x1b[90mHints are disabled in Expert mode.\x1b[0m',
-                    '\x1b[90mUse hints sparingly — calibration matters as much as raw score.\x1b[0m',
+                    '\x1b[90mUse hints sparingly. Calibration matters as much as raw score.\x1b[0m',
                 ],
                 report: [
                     '\x1b[36mCOMMAND: report\x1b[0m',
@@ -653,7 +658,7 @@ export function Terminal() {
                 ]);
             } else {
             writeLines([
-                '\x1b[36m=== ARIA FORENSIC WORKSTATION — COMMAND REFERENCE ===\x1b[0m',
+                '\x1b[36m=== ARIA FORENSIC WORKSTATION: COMMAND REFERENCE ===\x1b[0m',
                 '',
                 '  \x1b[33mscan\x1b[0m                                List all evidence files',
                 '  \x1b[33minspect <file>\x1b[0m                      Show raw metadata + content',
@@ -675,7 +680,7 @@ export function Terminal() {
                 '  \x1b[33mls, cat, grep, pwd, clear, history\x1b[0m      Standard CLI navigation aliases',
                 '',
                 '\x1b[90mRemember: Every ARIA claim tagged [CLAIM-XXX] must be validated.\x1b[0m',
-                '\x1b[90mAI assistants can hallucinate — always cross-check raw evidence.\x1b[0m',
+                '\x1b[90mAI assistants can hallucinate. Always cross-check raw evidence.\x1b[0m',
                 '',
                 '\x1b[90mTip: Type \x1b[0mhelp <command>\x1b[90m for detailed usage (e.g. help validate).\x1b[0m',
             ]);
@@ -780,12 +785,12 @@ export function Terminal() {
                 }
 
                 if (matches.length === 1) {
-                    // Exact match — complete it inline
+                    // Exact match: complete it inline
                     const completion = matches[0].slice(prefixLength);
                     lineRef.current += completion;
                     term.write(completion);
                 } else if (matches.length > 1) {
-                    // Multiple matches — print options
+                    // Multiple matches: print options
                     term.writeln('');
                     const displayMatches = matches.map(m => m.trim());
                     term.writeln(`\x1b[90m${displayMatches.join('  ')}\x1b[0m`);
@@ -811,7 +816,7 @@ export function Terminal() {
 
     return (
         <div role="region" aria-label="Forensic Investigation Terminal" className="h-full bg-[#0a0e17] overflow-hidden relative" ref={termRef}>
-            {/* Screen-reader live region — mirrors key terminal output for accessibility */}
+            {/* Screen-reader live region mirrors key terminal output for accessibility */}
             <div
                 ref={liveRegionRef}
                 aria-live="polite"
