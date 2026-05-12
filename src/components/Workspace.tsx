@@ -109,12 +109,30 @@ export function Workspace({ validationErrorPulse }: { validationErrorPulse?: boo
                 {activeTab === 'timeline' && <AttackTimeline />}
                 
                 {!evidence && activeTab !== 'timeline' && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 pointer-events-none">
-                        <FileSearch className="w-12 h-12 text-slate-600 mb-4" />
-                        <p className="text-slate-400 font-mono text-sm">No evidence selected</p>
-                        <p className="text-slate-500 text-xs mt-1 font-mono">
-                            Select a file from the Evidence Vault to begin analysis
-                        </p>
+                    <div className="absolute inset-0 flex items-center justify-center p-8 pointer-events-none">
+                        <div className="max-w-xl text-center">
+                            <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-xl border border-cyan-400/20 bg-cyan-400/10">
+                                <FileSearch className="w-7 h-7 text-cyan-300" />
+                            </div>
+                            <p className="text-white text-lg font-semibold">Start with the evidence vault</p>
+                            <p className="text-slate-400 text-sm mt-2 leading-relaxed">
+                                Pick one recovered file on the left. Its content, metadata, and related claims will appear here for review.
+                            </p>
+                            <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
+                                <div className="rounded-lg border border-slate-800 bg-[#0d1420] p-3">
+                                    <div className="text-xs font-semibold text-cyan-300">1. Inspect</div>
+                                    <div className="mt-1 text-xs text-slate-500">Read the raw evidence.</div>
+                                </div>
+                                <div className="rounded-lg border border-slate-800 bg-[#0d1420] p-3">
+                                    <div className="text-xs font-semibold text-cyan-300">2. Ask ARIA</div>
+                                    <div className="mt-1 text-xs text-slate-500">Generate claims to test.</div>
+                                </div>
+                                <div className="rounded-lg border border-slate-800 bg-[#0d1420] p-3">
+                                    <div className="text-xs font-semibold text-cyan-300">3. Verify</div>
+                                    <div className="mt-1 text-xs text-slate-500">Accept only what the files prove.</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 )}
 

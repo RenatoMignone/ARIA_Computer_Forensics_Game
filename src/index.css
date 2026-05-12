@@ -64,6 +64,15 @@ html {
   padding: 3px 9px !important;
 }
 
+.aria-chat-input {
+  font-size: 12px !important;
+  line-height: 16px !important;
+}
+
+.aria-chat-input::placeholder {
+  font-size: 12px;
+}
+
 /* xterm styles */
 .xterm-viewport::-webkit-scrollbar {
   width: 4px;

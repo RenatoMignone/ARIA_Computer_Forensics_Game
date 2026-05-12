@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useGame, SAVE_SCHEMA_VERSION } from '../context/GameContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SaveSlot, LeaderboardEntry } from '../types/game';
-import { ArrowLeft, ClipboardList, Clock, FolderOpen, Trophy } from 'lucide-react';
+import { ArrowLeft, BrainCircuit, CheckCircle2, ClipboardList, Clock, FileSearch, FolderOpen, MessageSquareText, ShieldCheck, Trophy, X } from 'lucide-react';
 import { useAudio } from '../hooks/useAudio';
 
 export function DifficultyScreen() {
@@ -13,6 +13,7 @@ export function DifficultyScreen() {
     // Task 3.5: Last debrief snapshot
     const [lastDebrief, setLastDebrief] = useState<Record<string, unknown> | null>(null);
     const [viewingLastDebrief, setViewingLastDebrief] = useState(false);
+    const [showHowToPlay, setShowHowToPlay] = useState(false);
 
     const handleSelect = (diff: 'standard' | 'hard' | 'expert') => {
         setPendingDifficulty(diff); // open timer prompt
@@ -131,6 +132,61 @@ export function DifficultyScreen() {
                 </div>
             )}
 
+            {showHowToPlay && (
+                <div className="fixed inset-0 z-[60] bg-black/75 flex items-center justify-center p-4">
+                    <motion.div
+                        initial={{ opacity: 0, y: 16, scale: 0.98 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        className="w-full max-w-lg overflow-hidden rounded-xl border border-[#263244] bg-[#0d1420] shadow-2xl"
+                    >
+                        <div className="flex items-start justify-between gap-4 border-b border-[#1f2937] bg-[#111827] px-5 py-4">
+                            <div>
+                                <div className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">How to play</div>
+                                <h3 className="mt-1 text-lg font-semibold text-white">Investigate, verify, report.</h3>
+                            </div>
+                            <button
+                                onClick={() => setShowHowToPlay(false)}
+                                className="rounded-md border border-slate-700 bg-slate-900/60 p-1.5 text-slate-400 hover:border-cyan-500/50 hover:text-cyan-200 transition-colors"
+                                aria-label="Close how to play"
+                            >
+                                <X className="h-4 w-4" aria-hidden="true" />
+                            </button>
+                        </div>
+                        <div className="space-y-4 p-5 text-sm text-slate-300">
+                            <div className="grid gap-3 sm:grid-cols-3">
+                                <div className="rounded-lg border border-slate-800 bg-[#0a0e17] p-3">
+                                    <FileSearch className="mb-2 h-4 w-4 text-cyan-300" aria-hidden="true" />
+                                    <div className="font-semibold text-white">Inspect</div>
+                                    <p className="mt-1 text-xs leading-relaxed text-slate-400">Open each file and compare content, metadata, and timing.</p>
+                                </div>
+                                <div className="rounded-lg border border-slate-800 bg-[#0a0e17] p-3">
+                                    <MessageSquareText className="mb-2 h-4 w-4 text-cyan-300" aria-hidden="true" />
+                                    <div className="font-semibold text-white">Question</div>
+                                    <p className="mt-1 text-xs leading-relaxed text-slate-400">Ask ARIA for help, but treat every claim as unproven.</p>
+                                </div>
+                                <div className="rounded-lg border border-slate-800 bg-[#0a0e17] p-3">
+                                    <CheckCircle2 className="mb-2 h-4 w-4 text-cyan-300" aria-hidden="true" />
+                                    <div className="font-semibold text-white">Verify</div>
+                                    <p className="mt-1 text-xs leading-relaxed text-slate-400">Validate claims and cross-references before submitting the report.</p>
+                                </div>
+                            </div>
+                            <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-4">
+                                <div className="font-semibold text-amber-200">Win condition</div>
+                                <p className="mt-1 leading-relaxed text-amber-100/80">
+                                    Finish when you can explain whether the transfer was legitimate, which artifacts prove it, and where ARIA exaggerated or hallucinated.
+                                </p>
+                            </div>
+                            <div className="rounded-lg border border-slate-700/70 bg-[#0a0e17] p-4">
+                                <div className="font-semibold text-slate-100">Keep the workspace clear</div>
+                                <p className="mt-1 leading-relaxed text-slate-400">
+                                    Use the panel buttons to hide the Vault, Terminal, or ARIA Chat when you are not using them, so the evidence stays larger and easier to compare.
+                                </p>
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+
             {/* Task 3.5: View Last Debrief overlay */}
             {viewingLastDebrief && lastDebrief && (
                 <div className="fixed inset-0 z-[60] bg-black/80 flex items-center justify-center p-4 overflow-y-auto">
@@ -168,73 +224,166 @@ export function DifficultyScreen() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 bg-[#0a0e17] text-slate-300 font-mono flex flex-col items-center justify-center p-4 sm:p-8 overflow-y-auto"
+                className="fixed inset-0 z-50 bg-[#0a0e17] text-slate-200 flex flex-col items-center justify-start px-4 py-8 sm:px-8 sm:py-10 overflow-y-auto"
             >
-                <div className="w-full max-w-2xl bg-[#0d1420] border border-[#1f2937] rounded-xl shadow-2xl overflow-hidden mt-8 mb-8">
-                    <div className="bg-[#111827] border-b border-[#1f2937] p-4 flex items-center justify-between relative">
-                        <h2 className="text-lg text-cyan-400 font-bold uppercase tracking-widest w-full text-center">Select Investigation Difficulty</h2>
+                <div className="w-full max-w-5xl mb-8">
+                    <div className="mb-6 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+                        <div className="max-w-2xl">
+                            <div className="flex items-center gap-3 text-cyan-300 mb-4">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-cyan-400/30 bg-cyan-400/10">
+                                    <ShieldCheck className="h-5 w-5" aria-hidden="true" />
+                                </div>
+                                <div>
+                                    <div className="text-xs uppercase tracking-[0.24em] font-semibold">ARIA</div>
+                                    <div className="text-xs text-slate-500">AI-assisted evidence review</div>
+                                </div>
+                            </div>
+                            <h1 className="text-3xl sm:text-5xl font-semibold text-white tracking-normal">
+                                Open the TechCorp case.
+                            </h1>
+                            <p className="mt-4 text-base text-slate-400 leading-relaxed">
+                                A suspicious EUR 2.3M transfer has been approved through a mix of email, voice, video, invoice, and network evidence. Verify what happened and catch ARIA when it overstates the facts.
+                            </p>
+                        </div>
                         <button
-                            onClick={() => dispatch({ type: 'TOGGLE_GLOSSARY' })}
-                            className="absolute right-4 w-6 h-6 flex items-center justify-center rounded-full border border-[#475569] text-[#475569] hover:text-cyan-400 hover:border-cyan-400 transition-colors text-xs font-bold"
+                            onClick={() => setShowHowToPlay(true)}
+                            className="inline-flex items-center justify-center gap-2 rounded-md border border-slate-700 bg-[#0d1420] px-4 py-2 text-sm text-slate-300 hover:border-cyan-500/50 hover:text-cyan-200 transition-colors"
                             title="How to Play"
                         >
-                            ?
+                            <FileSearch className="h-4 w-4" aria-hidden="true" />
+                            How to play
                         </button>
                     </div>
-                    
-                    <div className="p-6 space-y-4">
-                        {/* Task 3.5: View Last Debrief button */}
-                        {lastDebrief && (
-                            <div className="flex justify-center mb-2">
+
+                    <div className="grid gap-5 lg:grid-cols-[1fr_340px]">
+                        <div className="rounded-xl border border-[#263244] bg-[#0d1420] shadow-2xl overflow-hidden">
+                            <div className="border-b border-[#1f2937] bg-[#111827] px-5 py-4">
+                                <h2 className="text-base font-semibold text-white">Choose your investigation style</h2>
+                                <p className="mt-1 text-sm text-slate-400">Start with guidance, hide the training wheels, or take the case cold.</p>
+                            </div>
+
+                            <div className="p-5 space-y-3">
+                                {lastDebrief && (
+                                    <button
+                                        onClick={() => setViewingLastDebrief(true)}
+                                        className="mb-2 flex items-center gap-2 px-3 py-1.5 rounded-md border border-slate-700/50 text-slate-400 hover:text-cyan-300 hover:border-cyan-700/50 text-xs transition-colors"
+                                    >
+                                        <ClipboardList className="w-3.5 h-3.5" />
+                                        View Last Debrief
+                                    </button>
+                                )}
+
                                 <button
-                                    onClick={() => setViewingLastDebrief(true)}
-                                    className="flex items-center gap-2 px-4 py-1.5 rounded border border-slate-700/50 text-slate-400 hover:text-cyan-400 hover:border-cyan-700/50 font-mono text-[11px] transition-colors"
+                                    onClick={() => handleSelect('standard')}
+                                    className="w-full text-left p-4 rounded-lg border border-cyan-500/30 bg-cyan-950/20 hover:border-cyan-400/60 hover:bg-cyan-900/20 transition-colors group flex gap-4 items-start"
                                 >
-                                    <ClipboardList className="w-3.5 h-3.5" />
-                                    View Last Debrief
+                                    <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-cyan-400/10 border border-cyan-400/30">
+                                        <CheckCircle2 className="h-5 w-5 text-cyan-300" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <span className="text-base font-semibold text-white group-hover:text-cyan-200">Guided</span>
+                                            <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[11px] text-emerald-300">Recommended</span>
+                                        </div>
+                                        <p className="text-sm text-slate-400 mt-1">Claim text remains visible while you learn the case flow.</p>
+                                    </div>
+                                </button>
+
+                                <button
+                                    onClick={() => handleSelect('hard')}
+                                    className="w-full text-left p-4 rounded-lg border border-[#1f2937] hover:border-amber-500/50 hover:bg-amber-900/10 transition-colors group flex gap-4 items-start"
+                                >
+                                    <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-400/10 border border-amber-400/25">
+                                        <BrainCircuit className="h-5 w-5 text-amber-300" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <span className="text-base font-semibold text-white group-hover:text-amber-200">Analyst</span>
+                                            <span className="rounded-full border border-amber-500/25 bg-amber-500/10 px-2 py-0.5 text-[11px] text-amber-300">1.25x score</span>
+                                        </div>
+                                        <p className="text-sm text-slate-400 mt-1">Claim badges hide their text until validation, so ARIA's wording matters.</p>
+                                    </div>
+                                </button>
+
+                                <button
+                                    onClick={() => handleSelect('expert')}
+                                    className="w-full text-left p-4 rounded-lg border border-[#1f2937] hover:border-red-500/50 hover:bg-red-900/10 transition-colors group flex gap-4 items-start"
+                                >
+                                    <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-400/10 border border-red-400/25">
+                                        <Trophy className="h-5 w-5 text-red-300" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <span className="text-base font-semibold text-white group-hover:text-red-200">Independent</span>
+                                            <span className="rounded-full border border-red-500/25 bg-red-500/10 px-2 py-0.5 text-[11px] text-red-300">1.5x score</span>
+                                        </div>
+                                        <p className="text-sm text-slate-400 mt-1">Hard mode plus no hint command. Best for a final assessment run.</p>
+                                    </div>
                                 </button>
                             </div>
-                        )}
-                        {/* Standard */}
-                        <button
-                            onClick={() => handleSelect('standard')}
-                            className="w-full text-left p-4 rounded-lg border border-[#1f2937] hover:border-cyan-500/50 hover:bg-cyan-900/10 transition-colors group flex gap-4 items-start"
-                        >
-                            <div className="w-36 shrink-0 text-slate-300 font-bold tracking-[0.2em] mt-0.5 group-hover:text-cyan-400 break-keep whitespace-nowrap">[ STANDARD ]</div>
-                            <div className="flex-1">
-                                <p className="text-sm text-slate-400">Claim text visible on all pending badges.</p>
-                                <p className="text-xs text-emerald-400/70 mt-1">Recommended for first-time players.</p>
-                            </div>
-                        </button>
+                        </div>
 
-                        {/* Hard */}
-                        <button
-                            onClick={() => handleSelect('hard')}
-                            className="w-full text-left p-4 rounded-lg border border-[#1f2937] hover:border-amber-500/50 hover:bg-amber-900/10 transition-colors group flex gap-4 items-start"
-                        >
-                            <div className="w-36 shrink-0 text-amber-500 font-bold tracking-[0.2em] mt-0.5 group-hover:text-amber-400 break-keep whitespace-nowrap">[ HARD ]</div>
-                            <div className="flex-1">
-                                <p className="text-sm text-slate-400">Claim text hidden on badges until after validation. You must read ARIA's full response to understand each claim before judging it.</p>
-                                <p className="text-xs text-amber-500 mt-1">1.25x Score Multiplier</p>
+                        <aside className="rounded-xl border border-[#263244] bg-[#0d1420] shadow-2xl overflow-hidden">
+                            <div className="border-b border-[#1f2937] bg-[#111827] px-5 py-4">
+                                <h3 className="text-base font-semibold text-white">Case briefing</h3>
+                                <p className="mt-1 text-sm text-slate-400">What you are walking into.</p>
                             </div>
-                        </button>
+                            <div className="p-5 space-y-4 text-sm text-slate-300">
+                                <div>
+                                    <div className="text-xs uppercase tracking-[0.18em] text-slate-500 mb-1">Objective</div>
+                                    <p className="leading-relaxed">Build a defensible explanation of the transfer, then validate or reject ARIA's claims against raw evidence.</p>
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="rounded-lg border border-slate-800 bg-[#0a0e17] p-3">
+                                        <div className="text-xl font-semibold text-white">5</div>
+                                        <div className="text-xs text-slate-500">Evidence files</div>
+                                    </div>
+                                    <div className="rounded-lg border border-slate-800 bg-[#0a0e17] p-3">
+                                        <div className="text-xl font-semibold text-white">EUR 2.3M</div>
+                                        <div className="text-xs text-slate-500">Transfer value</div>
+                                    </div>
+                                </div>
+                                <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-amber-100">
+                                    <div className="font-semibold text-amber-200 mb-1">Remember</div>
+                                    <p className="text-xs leading-relaxed text-amber-100/80">ARIA can help, but every tagged claim must be checked before it counts.</p>
+                                </div>
+                            </div>
+                        </aside>
+                    </div>
 
-                        {/* Expert */}
-                        <button
-                            onClick={() => handleSelect('expert')}
-                            className="w-full text-left p-4 rounded-lg border border-[#1f2937] hover:border-red-500/50 hover:bg-red-900/10 transition-colors group flex gap-4 items-start"
-                        >
-                            <div className="w-36 shrink-0 text-red-500 font-bold tracking-[0.2em] mt-0.5 group-hover:text-red-400 break-keep whitespace-nowrap">[ EXPERT ]</div>
-                            <div className="flex-1">
-                                <p className="text-sm text-slate-400">Hard mode + no hint command. No confidence auto-confirm timer.</p>
-                                <p className="text-xs text-red-400 mt-1">Recommended for assessment • 1.5x Score Multiplier</p>
+                    <div className="mt-5 grid gap-4 lg:grid-cols-3">
+                        <div className="rounded-xl border border-[#263244] bg-[#0d1420] p-4">
+                            <div className="mb-2 flex items-center gap-2 text-cyan-300">
+                                <FileSearch className="h-4 w-4" aria-hidden="true" />
+                                <h3 className="text-sm font-semibold text-white">Start with evidence</h3>
                             </div>
-                        </button>
+                            <p className="text-sm leading-relaxed text-slate-400">
+                                Read the recovered files first. The case is solvable from the artifacts, not from ARIA alone.
+                            </p>
+                        </div>
+                        <div className="rounded-xl border border-[#263244] bg-[#0d1420] p-4">
+                            <div className="mb-2 flex items-center gap-2 text-cyan-300">
+                                <MessageSquareText className="h-4 w-4" aria-hidden="true" />
+                                <h3 className="text-sm font-semibold text-white">Use ARIA carefully</h3>
+                            </div>
+                            <p className="text-sm leading-relaxed text-slate-400">
+                                ARIA can summarize and connect clues, but its tagged claims only count after verification.
+                            </p>
+                        </div>
+                        <div className="rounded-xl border border-[#263244] bg-[#0d1420] p-4">
+                            <div className="mb-2 flex items-center gap-2 text-cyan-300">
+                                <ClipboardList className="h-4 w-4" aria-hidden="true" />
+                                <h3 className="text-sm font-semibold text-white">Submit a report</h3>
+                            </div>
+                            <p className="text-sm leading-relaxed text-slate-400">
+                                When the claims and links are checked, write the final report from the terminal.
+                            </p>
+                        </div>
                     </div>
 
                     {leaderboard.length > 0 && (
-                        <div className="px-6 pb-6 text-center">
-                            <h3 className="text-[10px] items-center justify-center flex gap-2 font-bold text-slate-500 uppercase tracking-widest mb-4">
+                        <div className="mt-5 rounded-xl border border-[#263244] bg-[#0d1420] px-6 py-5 text-center">
+                            <h3 className="text-[10px] items-center justify-center flex gap-2 font-bold text-slate-500 uppercase tracking-widest mb-4 font-mono">
                                 <Trophy className="w-3 h-3 text-amber-500" />
                                 Your Best Scores
                             </h3>
@@ -263,8 +412,8 @@ export function DifficultyScreen() {
                         </div>
                     )}
 
-                    <div className="bg-[#111827] border-t border-[#1f2937] p-6">
-                        <h3 className="text-xs text-slate-500 uppercase tracking-widest mb-4 text-center">Load Saved Investigation</h3>
+                    <div className="mt-5 rounded-xl border border-[#263244] bg-[#0d1420] p-5">
+                        <h3 className="text-xs text-slate-500 uppercase tracking-widest mb-4 text-center font-mono">Load Saved Investigation</h3>
                         
                         {saves.length > 0 && (
                             <div className="space-y-3 max-h-48 overflow-y-auto px-2 custom-scrollbar mb-6">
@@ -300,8 +449,8 @@ export function DifficultyScreen() {
                         )}
 
                         {saves.length === 0 && (
-                            <div className="text-xs text-slate-500 italic text-center mb-6 font-mono">
-                                No saved games found. Use the save button during an investigation.
+                            <div className="text-sm text-slate-500 text-center">
+                                No saved investigations yet.
                             </div>
                         )}
 

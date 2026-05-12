@@ -42,7 +42,7 @@ const TUTORIAL_STEPS = [
         icon: <Share2 className="w-6 h-6 text-cyan-400" />,
         title: '5. Board And Panel Controls',
         description:
-            'Switch to the **Board** tab in the Vault to review cross-evidence links. Use the terminal command `connect` when two files share a meaningful forensic relationship.\n\nUse the **Panels** controls in the top-right corner to temporarily hide the Vault, Terminal, or ARIA Chat when you need extra space in the Workspace.',
+            'Switch to the **Board** tab in the Vault to review cross-evidence links. Use the terminal command `connect` when two files share a meaningful forensic relationship.\n\nUse the **Panels** controls in the top-right corner to temporarily hide the Vault, Terminal, or ARIA Chat when you are not using them. This gives the evidence more room and keeps the interface easier to read.',
         highlight: 'board',
     },
     {

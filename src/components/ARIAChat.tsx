@@ -352,7 +352,7 @@ export function ARIAChat() {
                             }}
                             disabled={isGenerating}
                             placeholder={isGenerating ? 'ARIA is processing...' : 'Ask ARIA about the evidence...'}
-                            className={`w-full bg-[#111827] border border-[#334155] rounded px-3 py-2 text-xs font-mono text-slate-200 placeholder-slate-600 focus:outline-none focus:border-cyan-400/50 focus:ring-0 transition-colors custom-cursor-input ${isGenerating ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            className={`aria-chat-input w-full bg-[#111827] border border-[#334155] rounded px-3 py-2 font-mono text-slate-200 placeholder-slate-600 focus:outline-none focus:border-cyan-400/50 focus:ring-0 transition-colors custom-cursor-input ${isGenerating ? 'opacity-50 cursor-not-allowed' : ''}`}
                             aria-label="Ask ARIA"
                         />
                     </div>

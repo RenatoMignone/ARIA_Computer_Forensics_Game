@@ -1,9 +1,9 @@
 import { useGame } from '../context/GameContext';
 import { Evidence } from '../types/game';
 import connectionsData from '../data/connections.json';
-import { Mail, Mic, Video, FileText, Activity, Check } from 'lucide-react';
+import { Mail, Mic, Video, FileText, Activity, Check, Link2, ChevronDown, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
     mail: Mail,
@@ -14,44 +14,56 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 const typeColors: Record<string, string> = {
-    email: 'text-blue-400 bg-blue-400/10',
-    audio: 'text-purple-400 bg-purple-400/10',
-    video: 'text-pink-400 bg-pink-400/10',
-    pdf: 'text-orange-400 bg-orange-400/10',
-    log: 'text-emerald-400 bg-emerald-400/10',
+    email: 'text-blue-300 bg-blue-400/10 border-blue-400/20',
+    audio: 'text-purple-300 bg-purple-400/10 border-purple-400/20',
+    video: 'text-pink-300 bg-pink-400/10 border-pink-400/20',
+    pdf: 'text-orange-300 bg-orange-400/10 border-orange-400/20',
+    log: 'text-emerald-300 bg-emerald-400/10 border-emerald-400/20',
 };
 
-const CARD_POSITIONS: Record<string, { top: string; left: string; rotate: string }> = {
-    'email_1':        { top: '4%',  left: '8%',  rotate: '-1.5deg' },
-    'audio_call':     { top: '4%',  left: '52%', rotate: '1deg'    },
-    'teams_meeting':  { top: '36%', left: '28%', rotate: '-0.5deg' },
-    'invoice_fraud':  { top: '65%', left: '8%',  rotate: '1.5deg'  },
-    'network_logs':   { top: '65%', left: '52%', rotate: '-1deg'   },
-};
+const BOARD_STEPS: Array<{
+    evidenceId: string;
+    time: string;
+    stage: string;
+    note: string;
+}> = [
+    {
+        evidenceId: 'invoice_fraud',
+        time: '01:47',
+        stage: 'Invoice created',
+        note: 'Payment document appears before the later pressure artifacts.',
+    },
+    {
+        evidenceId: 'network_logs',
+        time: '01:58-02:14',
+        stage: 'Infrastructure activity',
+        note: 'Guest workstation contacts mailer infrastructure and Tor endpoints.',
+    },
+    {
+        evidenceId: 'audio_call',
+        time: '02:14',
+        stage: 'Voice pressure',
+        note: 'Synthetic call timestamp aligns with suspicious network activity.',
+    },
+    {
+        evidenceId: 'email_1',
+        time: '14:32',
+        stage: 'Payment request',
+        note: 'Spoofed authorization email arrives from the same mailer IP.',
+    },
+    {
+        evidenceId: 'teams_meeting',
+        time: 'Mar 4',
+        stage: 'Visual reinforcement',
+        note: 'Deepfake meeting recording supports the false authority story.',
+    },
+];
 
 export function EvidenceBoard({ evidenceList }: { evidenceList: Evidence[] }) {
     const { state, dispatch } = useGame();
     const { selectedEvidenceId, verdicts, allClaims, foundConnections } = state;
-
-    // Task 2: ResizeObserver - remount SVG when the container resizes so connection
-    // lines recompute from the updated card positions (debounced 100ms to avoid
-    // thrashing during panel drag).
-    const [boardKey, setBoardKey] = useState(0);
-    const containerRef = useRef<HTMLDivElement>(null);
-    const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-    useEffect(() => {
-        if (!containerRef.current) return;
-        const ro = new ResizeObserver(() => {
-            if (debounceTimer.current) clearTimeout(debounceTimer.current);
-            debounceTimer.current = setTimeout(() => setBoardKey(k => k + 1), 100);
-        });
-        ro.observe(containerRef.current);
-        return () => {
-            ro.disconnect();
-            if (debounceTimer.current) clearTimeout(debounceTimer.current);
-        };
-    }, []);
+    const [crossLinksOpen, setCrossLinksOpen] = useState(false);
+    const evidenceById = Object.fromEntries(evidenceList.map(ev => [ev.id, ev]));
 
     const claimsPerEvidence: Record<string, { total: number; validated: number }> = {};
     Object.values(allClaims).forEach(c => {
@@ -63,8 +75,7 @@ export function EvidenceBoard({ evidenceList }: { evidenceList: Evidence[] }) {
     });
 
     return (
-        <div ref={containerRef} className="relative w-full h-full bg-[#0a0e17] overflow-auto p-3">
-            {/* Visually-hidden list of connections for screen readers */}
+        <div className="h-full w-full overflow-auto bg-[#0a0e17] p-3">
             <ul className="sr-only" aria-label="Discovered evidence connections">
                 {connectionsData
                     .filter(conn => foundConnections.includes(conn.id))
@@ -77,126 +88,129 @@ export function EvidenceBoard({ evidenceList }: { evidenceList: Evidence[] }) {
                 )}
             </ul>
 
-            {/* SVG Lines - key={boardKey} forces a full remount after panel resize */}
-            <svg
-                key={boardKey}
-                role="img"
-                aria-label="Evidence board showing discovered connections between files"
-                className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-visible"
-            >
-                <title>Evidence Board - Cross-file Connections</title>
-                {connectionsData.map(conn => {
-                    const isFound = foundConnections.includes(conn.id);
-                    if (!isFound) return null;
+            <div className="mb-3 border-b border-slate-800 pb-3">
+                <div className="text-[11px] font-mono font-bold uppercase tracking-[0.18em] text-cyan-300">
+                    Attack Story Board
+                </div>
+                <p className="mt-1 text-[11px] leading-relaxed text-slate-400">
+                    A compact timeline of what each artifact contributes to the case.
+                </p>
+            </div>
 
-                    const idx1 = evidenceList.findIndex(e => e.filename === conn.files[0]);
-                    const idx2 = evidenceList.findIndex(e => e.filename === conn.files[1]);
-                    if (idx1 < 0 || idx2 < 0) return null;
+            <div className="relative space-y-2.5">
+                <div className="absolute bottom-4 left-[22px] top-4 w-px bg-slate-800" aria-hidden="true" />
 
-                    const p1 = CARD_POSITIONS[evidenceList[idx1].id] || { top: '0%', left: '0%' };
-                    const p2 = CARD_POSITIONS[evidenceList[idx2].id] || { top: '0%', left: '0%' };
-                    
-                    const left1 = parseFloat(p1.left);
-                    const top1 = parseFloat(p1.top);
-                    const left2 = parseFloat(p2.left);
-                    const top2 = parseFloat(p2.top);
+                {BOARD_STEPS.map((step, idx) => {
+                    const ev = evidenceById[step.evidenceId];
+                    if (!ev) return null;
 
-                    const midX = (left1 + left2) / 2;
-                    const midY = (top1 + top2) / 2;
+                    const Icon = iconMap[ev.icon] || FileText;
+                    const colorClass = typeColors[ev.type] || 'text-slate-300 bg-slate-400/10 border-slate-400/20';
+                    const isSelected = selectedEvidenceId === ev.id;
+                    const stats = claimsPerEvidence[ev.id];
+
+                    let borderClass = 'border-slate-800';
+                    if (stats?.total && stats.validated === stats.total) {
+                        borderClass = 'border-emerald-500/50';
+                    } else if (stats?.total) {
+                        borderClass = 'border-amber-500/50';
+                    }
+                    if (isSelected) {
+                        borderClass = 'border-cyan-400/70 shadow-[0_0_18px_rgba(34,211,238,0.16)]';
+                    }
 
                     return (
-                        <g key={conn.id} aria-label={`Connection: ${conn.files.join(' ↔ ')}`}>
-                            <title>{conn.description}</title>
-                            <line
-                                x1={`${left1}%`}
-                                y1={`${top1}%`}
-                                x2={`${left2}%`}
-                                y2={`${top2}%`}
-                                stroke="#38bdf8"
-                                strokeWidth="2"
-                                opacity="0.4"
-                            />
-                            {/* Label Background using foreignObject for text wrapping/styling */}
-                            <foreignObject
-                                x={`${midX - 15}%`} 
-                                y={`${midY - 5}%`}
-                                width="30%"
-                                height="40"
-                                className="overflow-visible"
-                            >
-                                <div className="flex justify-center items-center h-full">
-                                    <div className="bg-[#0f172a] border border-[#38bdf8]/50 text-[#38bdf8] text-[8px] sm:text-[10px] px-2 py-0.5 rounded shadow-lg font-mono text-center truncate w-full max-w-[120px]">
-                                        {conn.description.substring(0, 30)}...
+                        <motion.button
+                            key={ev.id}
+                            initial={{ opacity: 0, x: -8 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: idx * 0.05 }}
+                            onClick={() => dispatch({ type: 'SELECT_EVIDENCE', evidenceId: ev.id })}
+                            className={`relative z-10 grid w-full grid-cols-[44px_1fr] gap-2 rounded-lg border bg-[#0d1420] p-2.5 text-left transition-colors hover:bg-[#111827] ${borderClass}`}
+                        >
+                            <div className="flex flex-col items-center gap-1">
+                                <span className="rounded bg-[#090d15] px-1.5 py-0.5 text-[9px] font-mono font-bold text-slate-400">
+                                    {step.time}
+                                </span>
+                                <span className={`flex h-8 w-8 items-center justify-center rounded-md border ${colorClass}`}>
+                                    <Icon className="h-4 w-4" aria-hidden="true" />
+                                </span>
+                            </div>
+
+                            <div className="min-w-0">
+                                <div className="flex min-w-0 items-start justify-between gap-2">
+                                    <div className="min-w-0">
+                                        <div className="truncate text-[11px] font-mono font-bold text-slate-100">
+                                            {ev.filename}
+                                        </div>
+                                        <div className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-cyan-300/80">
+                                            {step.stage}
+                                        </div>
                                     </div>
+
+                                    {stats ? (
+                                        <div className="shrink-0 rounded border border-slate-700 bg-[#090d15] px-1.5 py-0.5 text-[9px] font-mono">
+                                            <span className={stats.validated === stats.total ? 'text-emerald-300' : 'text-amber-300'}>
+                                                {stats.validated}/{stats.total}
+                                            </span>
+                                            {stats.validated === stats.total && (
+                                                <Check className="ml-1 inline h-2.5 w-2.5 text-emerald-300" aria-hidden="true" />
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="shrink-0 text-[9px] font-mono text-slate-600">new</div>
+                                    )}
                                 </div>
-                            </foreignObject>
-                        </g>
+                                <p className="mt-1.5 text-[11px] leading-snug text-slate-400">
+                                    {step.note}
+                                </p>
+                            </div>
+                        </motion.button>
                     );
                 })}
-            </svg>
+            </div>
 
-            {/* Cards */}
-            {evidenceList.map((ev, idx) => {
-                const Icon = iconMap[ev.icon] || FileText;
-                const colorClass = typeColors[ev.type] || 'text-slate-400 bg-slate-400/10';
-                const isSelected = selectedEvidenceId === ev.id;
-                const stats = claimsPerEvidence[ev.id];
-                const p = CARD_POSITIONS[ev.id] || { top: '50%', left: '50%', rotate: '0deg' };
+            <div className="mt-4 rounded-lg border border-slate-800 bg-[#0d1420]">
+                <button
+                    type="button"
+                    onClick={() => setCrossLinksOpen(open => !open)}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-[11px] font-mono font-semibold text-slate-300 transition-colors hover:bg-[#111827]"
+                    aria-expanded={crossLinksOpen}
+                >
+                    {crossLinksOpen ? (
+                        <ChevronDown className="h-3.5 w-3.5 shrink-0 text-cyan-300" aria-hidden="true" />
+                    ) : (
+                        <ChevronRight className="h-3.5 w-3.5 shrink-0 text-cyan-300" aria-hidden="true" />
+                    )}
+                    <Link2 className="h-3.5 w-3.5 shrink-0 text-cyan-300" aria-hidden="true" />
+                    <span className="min-w-0 truncate">Cross-links ({foundConnections.length}/{connectionsData.length})</span>
+                </button>
 
-                let borderClass = 'border-[#1f2937]';
-                let animationClass = '';
-                
-                if (stats) {
-                    if (stats.validated === stats.total && stats.total > 0) {
-                        borderClass = 'border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.2)]';
-                    } else if (stats.validated < stats.total && stats.total > 0) {
-                        borderClass = 'border-amber-500/50';
-                        animationClass = 'animate-[pulse_2s_ease-in-out_infinite]';
-                    }
-                }
-                
-                if (isSelected) {
-                    borderClass = 'border-cyan-400/70 shadow-[0_0_20px_rgba(34,211,238,0.2)]';
-                }
-
-                return (
-                    <motion.button
-                        key={ev.id}
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.1, type: 'spring' }}
-                        onClick={() => dispatch({ type: 'SELECT_EVIDENCE', evidenceId: ev.id })}
-                        className={`absolute flex flex-col items-center justify-center p-3 rounded-xl bg-[#0d1420] border-2 transition-colors z-10 w-[44%] max-w-[120px] hover:bg-[#111827] ${borderClass} ${animationClass}`}
-                        style={{
-                            left: p.left,
-                            top: p.top,
-                            transform: `rotate(${p.rotate})`,
-                        }}
-                    >
-                        <div className={`p-2 rounded-full ${colorClass} mb-2 flex-shrink-0`}>
-                            <Icon className="w-5 h-5" />
-                        </div>
-                        <div className="text-[10px] font-mono font-bold text-slate-200 truncate w-full text-center mb-1">
-                            {ev.filename}
-                        </div>
-                        
-                        {stats ? (
-                            <div className="text-[9px] font-mono font-bold w-full text-center flex items-center justify-center gap-1">
-                                <span className={stats.validated === stats.total ? 'text-emerald-400' : 'text-amber-400'}>
-                                    {stats.validated}/{stats.total}
-                                </span>
-                                {stats.validated === stats.total ? (
-                                    <Check className="w-3 h-3 text-emerald-400" />
-                                ) : (
-                                    <span className="text-slate-500">vld</span>
-                                )}
-                            </div>
-                        ) : (
-                            <div className="text-[9px] font-mono text-slate-500">unscanned</div>
-                        )}
-                    </motion.button>
-                );
-            })}
+                {crossLinksOpen && (
+                    <div className="space-y-1.5 border-t border-slate-800 p-2">
+                        {connectionsData.map(conn => {
+                            const isFound = foundConnections.includes(conn.id);
+                            return (
+                                <div
+                                    key={conn.id}
+                                    className={`rounded-md border px-2 py-1.5 text-[10px] leading-snug ${
+                                        isFound
+                                            ? 'border-cyan-400/30 bg-cyan-400/10 text-cyan-100'
+                                            : 'border-slate-800 bg-[#090d15] text-slate-500'
+                                    }`}
+                                >
+                                    <div className="font-mono font-bold">
+                                        {conn.files.join(' + ')}
+                                    </div>
+                                    <div className="mt-0.5">
+                                        {isFound ? conn.keywords.slice(0, 3).join(' / ') : 'Undiscovered'}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
