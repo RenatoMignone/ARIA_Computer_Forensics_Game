@@ -17,7 +17,7 @@ const TIMELINE_EVENTS = [
     time: '2026-03-03  09:29 AM',
     evidenceId: 'invoice_fraud',
     label: 'Invoice modified',
-    detail: '14-minute edit gap — consistent with manual field adjustment after AI generation',
+    detail: '14-minute edit gap - consistent with manual field adjustment after AI generation',
     type: 'artifact_modified',
     anomaly: true,
   },

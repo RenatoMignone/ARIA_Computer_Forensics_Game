@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * ARIA Forensic Workstation — Class Results Aggregator
+ * ARIA Forensic Workstation - Class Results Aggregator
  * =====================================================
  * Usage:
  *   node scripts/aggregate_results.mjs [input-dir] [output-dir]
@@ -87,7 +87,7 @@ for (const filename of files) {
             difficulty: report.difficulty ?? 'unknown',
             finalScore: report.finalScore,
             tier: getTier(report.finalScore),
-            tierLabel: report.investigatorTier ?? '—',
+            tierLabel: report.investigatorTier ?? '-',
             mode: report.mode ?? 'unknown',
             totalClaims,
             validated,
@@ -173,7 +173,7 @@ writeFileSync(outPath, JSON.stringify(summary, null, 2), 'utf-8');
 // ── Stdout Summary ────────────────────────────────────────────────────────────
 const LINE = '─'.repeat(60);
 console.log('\n' + LINE);
-console.log('  ARIA Forensic Workstation — Class Summary');
+console.log('  ARIA Forensic Workstation - Class Summary');
 console.log(LINE);
 console.log(`  Reports processed : ${parsed.length}`);
 console.log(`  Score  mean       : ${summary.scoreStats.mean}`);

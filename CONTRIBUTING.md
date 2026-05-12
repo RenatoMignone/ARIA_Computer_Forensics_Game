@@ -1,6 +1,6 @@
 # Academic Attribution
 
-**ARIA — Don't Trust the Machine**
+**ARIA - Don't Trust the Machine**
 
 - **Author**: Renato Mignone
 - **Course**: Computer Forensics and Cyber Crime Analysis (01GZDUV)

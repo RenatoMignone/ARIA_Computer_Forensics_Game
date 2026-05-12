@@ -104,7 +104,7 @@ function MessageBubble({ msg, onStreamUpdate }: { msg: ChatMessage, onStreamUpda
     // Feature 6: ARIA Confidence Visual Tell
     const [showTell, setShowTell] = useState(false);
 
-    // Task 9: ARIA Confidence Meter — parse self-reported % from message text
+    // Task 9: ARIA Confidence Meter - parse self-reported % from message text
     const confidenceMatch = isAria
         ? msg.text.match(/(\d{1,3})%\s*(confidence|certainty|certain|match|accurate)/i)
         : null;
@@ -191,7 +191,7 @@ function MessageBubble({ msg, onStreamUpdate }: { msg: ChatMessage, onStreamUpda
                             confidencePct > 50 ? 'text-amber-400/80' : 'text-emerald-400/80'
                         }`}>
                             ARIA self-reported confidence: {confidencePct}%
-                            {confidencePct > 85 && ' — ⚠️ High confidence claims require independent verification'}
+                            {confidencePct > 85 && ' - ⚠️ High confidence claims require independent verification'}
                         </p>
                     </div>
                 )}
@@ -246,11 +246,11 @@ export function ARIAChat() {
         const validation = validateQuery(q);
         if (!validation.valid) {
             if (validation.hard) {
-                // Hard block: spam / too short — reject entirely
+                // Hard block: spam / too short - reject entirely
                 setInlineWarning(validation.reason || 'Invalid query');
                 return;
             } else {
-                // Soft warn: query is broad but allowed — show as system chat message and proceed
+                // Soft warn: query is broad but allowed - show as system chat message and proceed
                 setInlineWarning(null);
                 dispatch({
                     type: 'ADD_CHAT_MESSAGE',

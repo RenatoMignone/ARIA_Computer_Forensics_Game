@@ -10,7 +10,7 @@ import { Claim, Verdict } from '../types/game';
 //   13 × (+20) + 11 × (+10) + 50 (report) = 420 pts → Expert (≥ 150)
 //
 // Blanket-skeptic score (mark ALL 24 as "hallucination"):
-//   Previous constants : 13 × (+20) + 11 × (−15) + 50 = 145 pts → Senior Analyst — EXPLOITABLE
+//   Previous constants : 13 × (+20) + 11 × (−15) + 50 = 145 pts → Senior Analyst - EXPLOITABLE
 //   Revised  constants : 13 × (+20) + 11 × (−25) + 50 =  35 pts → AI-Dependent  ✓
 //
 // Adjustment: increased the penalty for falsely rejecting a true claim from
@@ -63,7 +63,7 @@ export function getTier(score: number): TierInfo {
         tier: 'dependent',
         label: 'AI-Dependent',
         emoji: '⚠️',
-        description: 'Critical failure mode — this game was specifically designed to demonstrate this risk.',
+        description: 'Critical failure mode - this game was specifically designed to demonstrate this risk.',
         color: '#ef4444',
     };
 }

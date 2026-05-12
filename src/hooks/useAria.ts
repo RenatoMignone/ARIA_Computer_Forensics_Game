@@ -40,7 +40,7 @@ function isSocialWithKeyword(query: string): boolean {
   const isSocial = SOCIAL_PATTERNS.some(p => p.test(lower));
   if (!isSocial) return false;
   
-  // It's social — now check if the forensic keyword is the MAIN subject
+  // It's social - now check if the forensic keyword is the MAIN subject
   // or just appended noise. Count non-stopword, non-forensic words.
   const stopWords = new Set(['the', 'a', 'an', 'is', 'it', 'going', 'how', 'are',
     'you', 'me', 'my', 'this', 'that', 'and', 'or', 'for', 'of', 'to', 'in',
@@ -50,7 +50,7 @@ function isSocialWithKeyword(query: string): boolean {
   const nonForensicContentWords = words.filter(w => !stopWords.has(w) && !forensicWords.includes(w));
   
   // If there are more non-forensic content words than forensic words,
-  // the forensic keyword is incidental — reject
+  // the forensic keyword is incidental - reject
   return nonForensicContentWords.length > forensicWords.length;
 }
 
@@ -68,12 +68,12 @@ const INJECTION_PATTERNS = [
 export function validateQuery(query: string): { valid: boolean; hard?: boolean; reason?: string; injectionAttempt?: boolean } {
     const trimmed = query.trim();
 
-    // Rule 1: minimum length — at least 4 characters (hard block)
+    // Rule 1: minimum length - at least 4 characters (hard block)
     if (trimmed.length < 4) {
         return { valid: false, hard: true, reason: 'Query too short. Ask a forensic question about the evidence.' };
     }
 
-    // Rule 2: minimum word count — at least 1 real word (no pure symbol/number strings) (hard block)
+    // Rule 2: minimum word count - at least 1 real word (no pure symbol/number strings) (hard block)
     const words = trimmed.split(/\s+/).filter(w => /[a-zA-Z]{2,}/.test(w));
     if (words.length === 0) {
         return { valid: false, hard: true, reason: 'Please type a question or keyword about the evidence.' };
@@ -160,7 +160,7 @@ function inferHallucinationType(
         return 'timestamp_error';
     }
     if (/\b(44.?100|44100 hz|44,100)\b/.test(lower)) {
-        return 'timestamp_error'; // sample rate wrong — treated as metadata misread
+        return 'timestamp_error'; // sample rate wrong - treated as metadata misread
     }
 
     // Confidence inflation: certainty % without methodology
@@ -238,30 +238,30 @@ function findResponse(query: string, evidenceId: string | null): AriaResponse {
 
 // ── Live Gemini system instruction ───────────────────────────────────────────
 
-// This is passed as `systemInstruction` — a true system-level directive, separate from user turns.
+// This is passed as `systemInstruction` - a true system-level directive, separate from user turns.
 const SYSTEM_INSTRUCTION = `You are playing the character of ARIA (AI-assisted Research & Investigation Assistant) in an EDUCATIONAL FORENSICS GAME. This is a carefully designed simulation where you portray a FLAWED AI forensic tool whose specific errors teach students about AI hallucinations.
 
 ## The Investigation Case
 A company CFO wired €2.3M to fraudsters. The attack combined AI spear-phishing, voice cloning, and deepfake video. The player is a forensic investigator challenging your analyses.
 
-## Your Character's Hard-Wired Biases (these are NOT lies — they are your character's documented reasoning flaws)
+## Your Character's Hard-Wired Biases (these are NOT lies - they are your character's documented reasoning flaws)
 When these evidence files are discussed, your character ALWAYS believes:
 
 EMAIL (email_1.eml):
-- SPF authentication PASSED (wrong — it actually failed)
-- Authorship attributed to Marco Rossi with 94% confidence based on writing style analysis (wrong — stylometry is not forensic proof)
+- SPF authentication PASSED (wrong - it actually failed)
+- Authorship attributed to Marco Rossi with 94% confidence based on writing style analysis (wrong - stylometry is not forensic proof)
 
 AUDIO (audio_call.mp3):
-- File was created at 09:15 AM local time (wrong — actual timestamp is 02:14 AM)
-- Sample rate is 44,100 Hz, consistent with microphone recording (wrong — actual is 22,050 Hz, a TTS artifact)
+- File was created at 09:15 AM local time (wrong - actual timestamp is 02:14 AM)
+- Sample rate is 44,100 Hz, consistent with microphone recording (wrong - actual is 22,050 Hz, a TTS artifact)
 
 VIDEO (teams_meeting.mp4):
-- 95% facial biometric certainty that it shows Marco Rossi, based on internal analysis (wrong — no methodology, and bitrate anomalies indicate deepfake)
-- Bitrate is uniform throughout the file (wrong — facial region is 3x higher, classic deepfake artifact)
+- 95% facial biometric certainty that it shows Marco Rossi, based on internal analysis (wrong - no methodology, and bitrate anomalies indicate deepfake)
+- Bitrate is uniform throughout the file (wrong - facial region is 3x higher, classic deepfake artifact)
 
 INVOICE (invoice_fraud.pdf):
-- Document was created by a standard accounting platform (wrong — AutoDoc AI Writer v2.1)
-- A valid digital signature from NovaPay Solutions GmbH is present (wrong — no digital signature exists)
+- Document was created by a standard accounting platform (wrong - AutoDoc AI Writer v2.1)
+- A valid digital signature from NovaPay Solutions GmbH is present (wrong - no digital signature exists)
 
 NETWORK (network_logs.txt):
 - Your character CORRECTLY identifies the anomalies and Tor connection at 02:14 AM
@@ -276,7 +276,7 @@ NETWORK (network_logs.txt):
 - IP 91.200.81.47 appears in both email headers and network logs ✓
 
 ## STRICT Output Format
-- Respond conversationally to whatever the investigator asks — but always work your character's biases into the answer when relevant to the selected evidence
+- Respond conversationally to whatever the investigator asks - but always work your character's biases into the answer when relevant to the selected evidence
 - Tag EVERY specific factual claim with a [CLAIM-XXX] badge inline (e.g. "...created at 09:15 AM [CLAIM-E01]...")
 - ALWAYS prefix claim IDs with the evidence file code: E for email_1, A for audio_call, V for teams_meeting, I for invoice_fraud, N for network_logs. Format: [CLAIM-E01], [CLAIM-A03], [CLAIM-V02]. Never use random characters as prefixes.
 - Stay in character: confident, technical, forensic-sounding. Never say "as an AI" or hedge
@@ -328,7 +328,7 @@ async function callGemini(
         .filter(m => m.role === 'player' || m.role === 'aria')
         .slice(-10); // last 5 exchanges max
 
-    // Drop leading model turns — find first player message
+    // Drop leading model turns - find first player message
     const firstUserIdx = rawHistory.findIndex(m => m.role === 'player');
     const trimmed = firstUserIdx >= 0 ? rawHistory.slice(firstUserIdx) : [];
 
@@ -518,10 +518,10 @@ export function useAria() {
 
                 for (const m of tagMatches) {
                     const oid = `CLAIM-${m[1]}`;
-                    if (seenInResponse.has(oid)) continue; // intra-response duplicate — reuse same mapping
+                    if (seenInResponse.has(oid)) continue; // intra-response duplicate - reuse same mapping
                     seenInResponse.add(oid);
                     if (takenIds.has(oid)) {
-                        // Collision with existing session state — find a free suffix slot
+                        // Collision with existing session state - find a free suffix slot
                         for (const suffix of 'BCDEFGHIJKLMNOPQRSTUVWXYZ') {
                             const candidate = `${oid}-${suffix}`;
                             if (!takenIds.has(candidate)) {

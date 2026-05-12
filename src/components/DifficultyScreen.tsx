@@ -8,11 +8,6 @@ import { useAudio } from '../hooks/useAudio';
 export function DifficultyScreen() {
     const { dispatch } = useGame();
     const { playBootSequence } = useAudio();
-    const [resumeCode, setResumeCode] = useState('');
-    const [resumeError, setResumeError] = useState<string | null>(null);
-    const [scoreCode, setScoreCode] = useState('');
-    const [scoreDecoded, setScoreDecoded] = useState<Record<string, unknown> | null>(null);
-    const [scoreCodeError, setScoreCodeError] = useState<string | null>(null);
     // Task 3.3: Timer prompt state
     const [pendingDifficulty, setPendingDifficulty] = useState<'standard' | 'hard' | 'expert' | null>(null);
     // Task 3.5: Last debrief snapshot
@@ -92,34 +87,6 @@ export function DifficultyScreen() {
         return `${d.toLocaleString('default', { month: 'short' })} ${d.getDate()} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
     };
 
-    const handleResume = () => {
-        try {
-            const parsed = JSON.parse(atob(resumeCode));
-            if (parsed.SAVE_SCHEMA_VERSION !== SAVE_SCHEMA_VERSION) {
-                setResumeError(
-                    `This save code was created with an older version of ARIA (schema v${parsed.SAVE_SCHEMA_VERSION ?? 0}) and cannot be loaded. Please start a new investigation.`
-                );
-                return;
-            }
-            playBootSequence();
-            dispatch({ type: 'LOAD_GAME_STATE', state: parsed });
-        } catch {
-            setResumeError('Invalid save code. Start a new investigation instead.');
-        }
-    };
-
-    const handleDecodeScore = () => {
-        try {
-            const data = JSON.parse(atob(scoreCode));
-            if (!data.type || data.type !== 'score_share') throw new Error('Not a score share code');
-            setScoreDecoded(data);
-            setScoreCodeError(null);
-        } catch {
-            setScoreDecoded(null);
-            setScoreCodeError('Invalid score code. Make sure you copied it correctly from the Debrief screen.');
-        }
-    };
-
     return (
         <AnimatePresence>
             {/* Task 3.3: Timer prompt modal */}
@@ -145,7 +112,7 @@ export function DifficultyScreen() {
                             </button>
                             <button onClick={() => confirmDifficulty(null)}
                                 className="w-full py-2 rounded border border-slate-700/50 bg-slate-800/30 text-slate-400 font-mono text-sm hover:bg-slate-700/30 transition-colors">
-                                No Timer — Untimed Investigation
+                                No Timer - Untimed Investigation
                             </button>
                         </div>
                         <button
@@ -331,78 +298,6 @@ export function DifficultyScreen() {
                             </div>
                         )}
 
-                        <div className="border-t border-[#1f2937] pt-6 text-center">
-                            <h3 className="text-xs text-slate-500 uppercase tracking-widest mb-3">Or Paste Save Code</h3>
-                        <div className="flex gap-2 max-w-sm mx-auto">
-                            <input
-                                type="text"
-                                placeholder="Paste save code here..."
-                                value={resumeCode}
-                                onChange={(e) => {
-                                    setResumeCode(e.target.value);
-                                    if (resumeError) setResumeError(null);
-                                }}
-                                className="flex-1 bg-[#0a0e17] border border-[#1f2937] rounded px-3 py-2 text-xs font-mono text-slate-300 placeholder-[#374151] focus:outline-none focus:border-cyan-400/50"
-                            />
-                            <button
-                                onClick={handleResume}
-                                disabled={!resumeCode.trim()}
-                                className="px-4 py-2 bg-cyan-900/30 text-cyan-400 border border-cyan-800/50 rounded text-xs hover:bg-cyan-900/50 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                Load
-                            </button>
-                        </div>
-                        {resumeError && (
-                            <div className="mt-2 text-[10px] text-red-400 max-w-sm mx-auto">
-                                ⚠️ {resumeError}
-                            </div>
-                        )}
-                        </div>
-                    </div>
-
-                    {/* Task 8 — Score code paste */}
-                    <div className="border-t border-[#1f2937] pt-6 text-center">
-                        <h3 className="text-xs text-slate-500 uppercase tracking-widest mb-3">View a Classmate's Score</h3>
-                        <div className="flex gap-2 max-w-sm mx-auto">
-                            <input
-                                type="text"
-                                placeholder="Paste score code here..."
-                                value={scoreCode}
-                                onChange={(e) => {
-                                    setScoreCode(e.target.value);
-                                    setScoreDecoded(null);
-                                    if (scoreCodeError) setScoreCodeError(null);
-                                }}
-                                className="flex-1 bg-[#0a0e17] border border-[#1f2937] rounded px-3 py-2 text-xs font-mono text-slate-300 placeholder-[#374151] focus:outline-none focus:border-cyan-400/50"
-                            />
-                            <button
-                                onClick={handleDecodeScore}
-                                disabled={!scoreCode.trim()}
-                                className="px-4 py-2 bg-cyan-900/30 text-cyan-400 border border-cyan-800/50 rounded text-xs hover:bg-cyan-900/50 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                View
-                            </button>
-                        </div>
-                        {scoreCodeError && (
-                            <div className="mt-2 text-[10px] text-red-400 max-w-sm mx-auto">⚠️ {scoreCodeError}</div>
-                        )}
-                        {scoreDecoded && (
-                            <div className="mt-3 max-w-sm mx-auto bg-[#0a0e17] border border-[#1f2937] rounded-lg p-3 text-left text-xs font-mono text-slate-300">
-                                <div className="text-[10px] text-slate-500 uppercase tracking-widest mb-2">Score Summary</div>
-                                <div className="grid grid-cols-2 gap-1">
-                                    <span className="text-slate-500">Score:</span>
-                                    <span className="text-cyan-400 font-bold">{String(scoreDecoded.finalScore)} pts</span>
-                                    <span className="text-slate-500">Difficulty:</span>
-                                    <span className="text-white uppercase">{String(scoreDecoded.difficulty)}</span>
-                                    <span className="text-slate-500">Tier:</span>
-                                    <span className="text-white">{String(scoreDecoded.tier)}</span>
-                                    <span className="text-slate-500">Hallucinations found:</span>
-                                    <span className="text-white">{String(scoreDecoded.halluFound)}/{String(scoreDecoded.halluTotal)}</span>
-                                    <span className="text-slate-500">Mode:</span>
-                                    <span className="text-white">{String(scoreDecoded.mode)}</span>
-                                </div>
-                            </div>
-                        )}
                     </div>
                 </div>
             </motion.div>

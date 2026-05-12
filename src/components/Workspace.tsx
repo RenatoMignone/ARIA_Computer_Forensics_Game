@@ -147,7 +147,7 @@ export function Workspace({ glitching }: { glitching?: boolean }) {
                             <div className="p-4 bg-[#0a0e17] text-xs font-mono text-emerald-400/80 leading-relaxed">
                                 <span className="text-slate-500 mr-3">[00:00]</span>"Luca, it's Marco. Listen, I need you to move fast on this.<br/>
                                 <span className="text-slate-500 mr-3">[00:08]</span>Legal has cleared the NovaPay transfer. Two point three million.<br/>
-                                <span className="text-slate-500 mr-3">[00:15]</span>I know it's unusual but this is time-sensitive — do NOT discuss<br/>
+                                <span className="text-slate-500 mr-3">[00:15]</span>I know it's unusual but this is time-sensitive - do NOT discuss<br/>
                                 <span className="text-slate-500 mr-3">[00:22]</span>with anyone until it clears. I'll explain everything tomorrow.<br/>
                                 <span className="text-slate-500 mr-3">[00:31]</span>Process it now. Reference PROJ-ALPHA-SEC. Trust me on this."<br/>
                                 <span className="text-slate-500 mr-3 mt-2 block">[02:14]</span><span className="text-slate-600">[END OF RECORDING]</span>
@@ -182,7 +182,7 @@ export function Workspace({ glitching }: { glitching?: boolean }) {
                                     {/* Corner Badge */}
                                     <div className="absolute bottom-3 right-3 bg-red-900/80 border border-red-500/50 text-red-200 text-[9px] font-mono px-2 py-1 rounded flex items-center gap-1.5 shadow-lg z-30">
                                         <AlertTriangle className="w-3 h-3 text-red-400" />
-                                        DEEPFAKE ARTIFACT — Blocking visible at face boundary edges (frames 142–891)
+                                        DEEPFAKE ARTIFACT - Blocking visible at face boundary edges (frames 142–891)
                                     </div>
                                 </div>
                                 <div className="h-10 bg-[#0a0e17] flex items-center justify-center gap-4 text-[10px] font-mono text-slate-400 border-t border-[#1f2937]">
@@ -218,7 +218,7 @@ export function Workspace({ glitching }: { glitching?: boolean }) {
                                     </div>
                                 </div>
                                 <div className="mt-4 text-[10px] font-mono text-slate-400 border-l-2 border-[#334155] pl-3 py-1">
-                                    Facial region bitrate is 3.1× higher than the background — a classic deepfake insertion artifact. A uniform single-pass encode would not show this discrepancy.
+                                    Facial region bitrate is 3.1× higher than the background - a classic deepfake insertion artifact. A uniform single-pass encode would not show this discrepancy.
                                 </div>
                             </div>
                         </div>
@@ -267,7 +267,7 @@ export function Workspace({ glitching }: { glitching?: boolean }) {
                                 <div className="flex justify-between items-end border-t border-slate-300 pt-4">
                                     <div className="text-xs text-slate-600 leading-relaxed">
                                         <strong>IBAN:</strong> DE89 3704 0044 0532 0130 00<br/>
-                                        <strong>Bank:</strong> DKB — Deutsche Kreditbank AG<br/>
+                                        <strong>Bank:</strong> DKB - Deutsche Kreditbank AG<br/>
                                         <strong>Payment terms:</strong> IMMEDIATE
                                     </div>
                                     <div className="text-right">
@@ -284,7 +284,7 @@ export function Workspace({ glitching }: { glitching?: boolean }) {
                             <div className="bg-[#0d1420] border border-[#1f2937] rounded-lg p-3 space-y-2">
                                 <div className="flex gap-2 items-start text-[10px] font-mono">
                                     <AlertTriangle className="w-3.5 h-3.5 text-amber-500 flex-shrink-0 mt-0.5" />
-                                    <span className="text-slate-300"><strong>Creator Tool:</strong> AutoDoc AI Writer v2.1 — <span className="text-amber-400">Not a standard accounting platform.</span></span>
+                                    <span className="text-slate-300"><strong>Creator Tool:</strong> AutoDoc AI Writer v2.1 - <span className="text-amber-400">Not a standard accounting platform.</span></span>
                                 </div>
                                 <div className="flex gap-2 items-start text-[10px] font-mono">
                                     <AlertTriangle className="w-3.5 h-3.5 text-amber-500 flex-shrink-0 mt-0.5" />

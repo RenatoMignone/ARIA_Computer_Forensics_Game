@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import { getTier, countHallucinationsFound, countTotalHallucinations } from '../lib/scoring';
 import { Claim, LeaderboardEntry } from '../types/game';
-import { Trophy, CheckCircle, XCircle, AlertCircle, BookOpen, RefreshCw, Download, Trash2, List, Clipboard } from 'lucide-react';
+import { Trophy, CheckCircle, XCircle, AlertCircle, BookOpen, RefreshCw, Download, Trash2, List } from 'lucide-react';
 import { motion } from 'framer-motion';
 import connectionsData from '../data/connections.json';
 
@@ -15,8 +15,8 @@ const HALLUCINATION_TYPE_LABELS: Record<string, string> = {
 };
 
 const HALLUCINATION_TYPE_LESSON: Record<string, string> = {
-    timestamp_error: 'Always read timestamps directly from raw metadata. AI summary timestamps can be wrong by hours — a 7-hour difference in forensics can invalidate an entire timeline.',
-    false_attribution: 'Stylometric (writing style) analysis is probabilistic, not forensic proof. Never use AI authorship attribution as primary evidence — it is inadmissible alone.',
+    timestamp_error: 'Always read timestamps directly from raw metadata. AI summary timestamps can be wrong by hours - a 7-hour difference in forensics can invalidate an entire timeline.',
+    false_attribution: 'Stylometric (writing style) analysis is probabilistic, not forensic proof. Never use AI authorship attribution as primary evidence - it is inadmissible alone.',
     fabricated_metadata: 'AI systems confabulate specific-sounding data (numbers, coordinates, file counts) for fields that are absent or inaccessible. Verify every field directly from raw files.',
     false_correlation: 'Temporal proximity or superficial similarity does not prove a shared actor. Every link in the chain of evidence must be explicit, documented, and independently verifiable.',
     confidence_inflation: 'AI confidence percentages have no inherent forensic meaning. Any probabilistic tool output requires: tool name & version, methodology, training data provenance, and false-positive rate.',
@@ -28,8 +28,6 @@ export function DebriefScreen() {
     
     const [activeTab, setActiveTab] = useState<'report' | 'leaderboard'>('report');
     const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
-
-    const [scoreCodeCopied, setScoreCodeCopied] = useState(false);
 
     useEffect(() => {
         try {
@@ -91,26 +89,7 @@ export function DebriefScreen() {
         }
     });
 
-    // Task 8 — shareable score code
-    const scorePayload = btoa(JSON.stringify({
-        type: 'score_share',
-        finalScore,
-        difficulty,
-        tier: tierInfo.label,
-        halluFound,
-        halluTotal,
-        mode: import.meta.env.VITE_LIVE_AI && !state.liveAIFailed ? 'Live AI' : 'Scripted',
-        date: new Date().toISOString().split('T')[0],
-    }));
-
-    const handleCopyScoreCode = () => {
-        navigator.clipboard.writeText(scorePayload).then(() => {
-            setScoreCodeCopied(true);
-            setTimeout(() => setScoreCodeCopied(false), 2000);
-        });
-    };
-
-    // Task 7 — JSON export
+    // Task 7 - JSON export
     const handleExportJSON = () => {
         const isoDate = new Date().toISOString().split('T')[0];
         const payload = {
@@ -275,7 +254,7 @@ export function DebriefScreen() {
                     animate={{ opacity: 1, y: 0 }}
                     className="text-center mb-10"
                 >
-                    {/* Task 11 — Mode badge */}
+                    {/* Task 11 - Mode badge */}
                     {(() => {
                         const isLive = import.meta.env.VITE_LIVE_AI && !state.liveAIFailed;
                         return (
@@ -357,7 +336,7 @@ export function DebriefScreen() {
                                         (c.isHallucination && verd === 'hallucination') ||
                                         (!c.isHallucination && verd === 'verified');
                                         
-                                    let calibNode = <span className="text-slate-500">—</span>;
+                                    let calibNode = <span className="text-slate-500">-</span>;
                                     if (!isPending) {
                                         if (conf === 'high' && correct) calibNode = <span className="text-emerald-400">✅ Well-calibrated</span>;
                                         else if (conf === 'high' && !correct) calibNode = <span className="text-red-400">⚠ Overconfident</span>;
@@ -409,7 +388,7 @@ export function DebriefScreen() {
                 <div className="bg-[#0d1420] border border-[#1f2937] rounded-2xl p-6">
                     <h2 className="text-sm font-mono font-bold text-[#64748b] uppercase tracking-wider mb-4 flex items-center gap-2">
                         <AlertCircle className="w-4 h-4 text-red-400" />
-                        Hallucination Analysis — {halluFound}/{halluTotal} Found
+                        Hallucination Analysis - {halluFound}/{halluTotal} Found
                     </h2>
 
                     {Array.from(new Set([...typesFound, ...typesMissed])).map(ht => {
@@ -447,7 +426,7 @@ export function DebriefScreen() {
                             What ARIA Got Right ({trueClaimsCorrect.length} verified claims)
                         </h2>
                         <p className="text-xs text-slate-400 mb-3">
-                            AI tools are not useless — they can correctly summarize known facts when grounded in clear data. The lesson is not to distrust AI blindly, but to validate systematically.
+                            AI tools are not useless - they can correctly summarize known facts when grounded in clear data. The lesson is not to distrust AI blindly, but to validate systematically.
                         </p>
                         {trueClaimsCorrect.map(c => (
                             <div key={c.id} className="text-xs font-mono text-emerald-300 mb-1 flex gap-2">
@@ -464,7 +443,7 @@ export function DebriefScreen() {
                             <div>
                                 <div className="text-xs font-mono text-cyan-400 font-bold mb-1">Academic Reference</div>
                                 <p className="text-xs text-slate-400 leading-relaxed">
-                                    <em>Computer Forensics and Cyber Crime Analysis</em> — Chapter 19: Digital Forensics and Generative AI.
+                                    <em>Computer Forensics and Cyber Crime Analysis</em> - Chapter 19: Digital Forensics and Generative AI.
                                     Key principle: <strong className="text-slate-300">"LLMs can generate false, misleading, or inaccurate information. In these cases, who is accountable? LLMs cannot replicate the intuition of human investigators."</strong>
                                 </p>
                             </div>
@@ -494,28 +473,6 @@ export function DebriefScreen() {
                                 Restart Investigation
                             </button>
                         </div>
-
-                        {/* Task 8 — Share score code */}
-                        <div className="pt-4 border-t border-[#1f2937] mt-4">
-                            <h3 className="text-xs font-mono text-slate-500 uppercase tracking-widest mb-3 text-center">Share Your Score</h3>
-                            <div className="bg-[#0a0e17] border border-[#1f2937] rounded-xl p-4 max-w-lg mx-auto">
-                                <p className="text-[10px] font-mono text-slate-500 mb-3">Copy this code and share it. Paste it at the start screen to show a classmate your results.</p>
-                                <div className="flex gap-2">
-                                    <input
-                                        readOnly
-                                        value={scorePayload}
-                                        className="flex-1 bg-[#111827] border border-[#1f2937] rounded px-3 py-2 text-[10px] font-mono text-slate-400 truncate focus:outline-none"
-                                    />
-                                    <button
-                                        onClick={handleCopyScoreCode}
-                                        className="px-4 py-2 flex items-center gap-1.5 bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white rounded text-xs font-mono transition-colors"
-                                    >
-                                        <Clipboard className="w-3.5 h-3.5" />
-                                        {scoreCodeCopied ? 'Copied!' : 'Copy'}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
                     </motion.div>
                 )}
 
@@ -525,7 +482,7 @@ export function DebriefScreen() {
                             <div className="flex justify-between items-center mb-6">
                                 <h2 className="text-sm font-mono font-bold text-[#64748b] uppercase tracking-wider flex items-center gap-2">
                                     <List className="w-4 h-4 text-cyan-400" />
-                                    Investigation Leaderboard — All Time
+                                    Investigation Leaderboard - All Time
                                 </h2>
                                 {leaderboard.length > 0 && (
                                     <button 

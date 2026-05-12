@@ -33,7 +33,7 @@ export function EvidenceBoard({ evidenceList }: { evidenceList: Evidence[] }) {
     const { state, dispatch } = useGame();
     const { selectedEvidenceId, verdicts, allClaims, foundConnections } = state;
 
-    // Task 2: ResizeObserver — remount SVG when the container resizes so connection
+    // Task 2: ResizeObserver - remount SVG when the container resizes so connection
     // lines recompute from the updated card positions (debounced 100ms to avoid
     // thrashing during panel drag).
     const [boardKey, setBoardKey] = useState(0);
@@ -77,14 +77,14 @@ export function EvidenceBoard({ evidenceList }: { evidenceList: Evidence[] }) {
                 )}
             </ul>
 
-            {/* SVG Lines — key={boardKey} forces a full remount after panel resize */}
+            {/* SVG Lines - key={boardKey} forces a full remount after panel resize */}
             <svg
                 key={boardKey}
                 role="img"
                 aria-label="Evidence board showing discovered connections between files"
                 className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-visible"
             >
-                <title>Evidence Board — Cross-file Connections</title>
+                <title>Evidence Board - Cross-file Connections</title>
                 {connectionsData.map(conn => {
                     const isFound = foundConnections.includes(conn.id);
                     if (!isFound) return null;

@@ -5,7 +5,7 @@ import { LeaderboardEntry } from '../types/game';
 
 /**
  * Save schema version: increment this whenever SerializedGameState gains
- * required fields to ensure old save codes are safely rejected.
+ * required fields to ensure old local saves are safely rejected.
  */
 export const SAVE_SCHEMA_VERSION = 1;
 
