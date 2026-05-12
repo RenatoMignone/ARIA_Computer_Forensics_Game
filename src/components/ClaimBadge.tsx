@@ -70,13 +70,13 @@ export function ClaimBadge({ claim, compact = false }: ClaimBadgeProps) {
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpanded(v => !v); } }}
             aria-expanded={expanded}
             aria-label={`Claim ${claim.id}, ${isPending ? 'unvalidated' : verdictValue ?? 'pending'}. Press Enter to expand.`}
-            className={`rounded-lg border p-3 mb-2 ${badgeClass} focus:outline-none focus:ring-2 focus:ring-cyan-400/60`}
+            className={`rounded-lg border p-3 mb-3 ${badgeClass} focus:outline-none focus:ring-2 focus:ring-cyan-400/60`}
         >
             <div className="flex items-start gap-2">
                 <Icon className="w-4 h-4 mt-0.5 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-mono font-bold">{claim.id}</span>
+                        <span className="text-xs font-mono font-bold tracking-wide">{claim.id}</span>
                         {claim.isHallucination && !isPending && (
                             <span className="text-[10px] font-mono px-1 py-0.5 bg-red-900/30 border border-red-800/50 text-red-300 rounded">
                                 {claim.hallucinationType?.replace(/_/g, ' ')}
@@ -91,11 +91,14 @@ export function ClaimBadge({ claim, compact = false }: ClaimBadgeProps) {
                             {expanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
                         </button>
                     </div>
-                    <div className="cursor-pointer" onClick={() => setExpanded(!expanded)}>
-                        <p className={`text-xs leading-relaxed ${isPending && (state.difficulty === 'hard' || state.difficulty === 'expert') ? 'text-slate-500 italic' : 'text-current opacity-90'} ${!expanded ? 'line-clamp-2' : ''}`}>
+                    <div
+                        className="claim-text-card cursor-pointer mt-2"
+                        onClick={() => setExpanded(!expanded)}
+                    >
+                        <p className={`text-sm leading-6 ${isPending && (state.difficulty === 'hard' || state.difficulty === 'expert') ? 'text-slate-400 italic' : 'text-slate-100'} ${!expanded ? 'line-clamp-3' : ''}`}>
                             {isPending && (state.difficulty === 'hard' || state.difficulty === 'expert') 
                                 ? '[Claim formulation redacted. Read ARIA\'s analysis below.]'
-                                : (isPending && !expanded && claim.text.length > 160 ? claim.text.slice(0, 160) + '...' : claim.text)
+                                : (isPending && !expanded && claim.text.length > 260 ? claim.text.slice(0, 260) + '...' : claim.text)
                             }
                         </p>
                     </div>
@@ -107,23 +110,25 @@ export function ClaimBadge({ claim, compact = false }: ClaimBadgeProps) {
                                 animate={{ opacity: 1, height: 'auto' }}
                                 className="mt-2 pt-2 border-t border-current border-opacity-20"
                             >
-                                <p className="text-[11px] leading-relaxed opacity-80">{claim.explanation}</p>
+                                <div className="claim-explanation-card">
+                                    <p className="text-xs leading-relaxed text-slate-300">{claim.explanation}</p>
+                                </div>
                             </motion.div>
                         </AnimatePresence>
                     )}
 
                     {isPending && !stagedVerdict && (
-                        <div className="flex gap-2 mt-2">
+                        <div className="flex gap-2 mt-3">
                             <button
                                 onClick={(e) => { e.stopPropagation(); handleValidate('verified'); }}
-                                className="flex items-center gap-1 px-2.5 py-1 rounded text-xs font-mono font-medium bg-emerald-900/50 border border-emerald-700/50 text-emerald-300 hover:bg-emerald-800/50 transition-colors"
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-mono font-medium bg-emerald-900/50 border border-emerald-700/50 text-emerald-200 hover:bg-emerald-800/60 transition-colors"
                             >
                                 <CheckCircle className="w-3 h-3" />
                                 Verify
                             </button>
                             <button
                                 onClick={(e) => { e.stopPropagation(); handleValidate('hallucination'); }}
-                                className="flex items-center gap-1 px-2.5 py-1 rounded text-xs font-mono font-medium bg-red-900/50 border border-red-700/50 text-red-300 hover:bg-red-800/50 transition-colors"
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-mono font-medium bg-red-900/50 border border-red-700/50 text-red-200 hover:bg-red-800/60 transition-colors"
                             >
                                 <XCircle className="w-3 h-3" />
                                 Hallucination

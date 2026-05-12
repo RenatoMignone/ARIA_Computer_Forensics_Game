@@ -130,6 +130,11 @@ export interface GameState {
     claimDisplayOrder: Record<string, string[]>;
     timerEndTime: number | null;
     lastAutoSaveTime?: number | null;
+    workspaceFocusRequest: {
+        id: number;
+        evidenceId: string;
+        target: 'metadataClaims';
+    } | null;
     /** Set to true when Gemini API fails mid-session so the UI can reflect fallback state. */
     liveAIFailed?: boolean;
     errorReveal: {
@@ -147,6 +152,7 @@ export type GameAction =
     | { type: 'ADD_TERMINAL_LINE'; line: string }
     | { type: 'ADD_CHAT_MESSAGE'; message: ChatMessage }
     | { type: 'REGISTER_CLAIMS'; claims: Claim[] }
+    | { type: 'FOCUS_EVIDENCE_CLAIMS'; evidenceId: string }
     | { type: 'ADVANCE_TUTORIAL' }
     | { type: 'SKIP_TUTORIAL' }
     | { type: 'SUBMIT_REPORT' }

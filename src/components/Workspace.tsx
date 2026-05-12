@@ -4,12 +4,12 @@ import evidenceData from '../data/evidence.json';
 import connectionsData from '../data/connections.json';
 import { ClaimBadgeList } from './ClaimBadge';
 import { Hash, FileSearch, AlertTriangle, Edit2, Save, X, Link } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AttackTimeline } from './AttackTimeline';
 
 const evidenceList = evidenceData as Evidence[];
 
-export function Workspace({ glitching }: { glitching?: boolean }) {
+export function Workspace({ validationErrorPulse }: { validationErrorPulse?: boolean }) {
     const { state, dispatch } = useGame();
     const { selectedEvidenceId, allClaims, verdicts, notes, foundConnections } = state;
     
@@ -17,6 +17,7 @@ export function Workspace({ glitching }: { glitching?: boolean }) {
     const [editingField, setEditingField] = useState<string | null>(null);
     const [editNote, setEditNote] = useState('');
     const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
+    const claimsRef = useRef<HTMLDivElement | null>(null);
 
     const toggleRow = (k: string) => {
         setExpandedRows(prev => ({ ...prev, [k]: !prev[k] }));
@@ -45,8 +46,20 @@ export function Workspace({ glitching }: { glitching?: boolean }) {
         foundConnections.includes(c.id) && c.files.includes(selectedEvidenceId || '')
     );
 
+    useEffect(() => {
+        const focusRequest = state.workspaceFocusRequest;
+        if (!focusRequest || focusRequest.target !== 'metadataClaims') return;
+        if (focusRequest.evidenceId !== selectedEvidenceId) return;
+
+        setActiveTab('metadata');
+
+        window.setTimeout(() => {
+            claimsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 80);
+    }, [state.workspaceFocusRequest, selectedEvidenceId]);
+
     return (
-        <div className={`flex-1 flex flex-col h-full bg-[#0a0e17] overflow-hidden ${glitching ? 'glitch-anim' : ''}`}>
+        <div className={`flex-1 flex flex-col h-full bg-[#0a0e17] overflow-hidden ${validationErrorPulse ? 'validation-error-pulse' : ''}`}>
             {/* Header and Tabs */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-2.5 border-b border-[#1f2937] bg-[#0d1420]">
                 {evidence ? (
@@ -525,7 +538,7 @@ export function Workspace({ glitching }: { glitching?: boolean }) {
 
                 {/* Claim badges */}
                 {evidenceClaims.length > 0 && (
-                    <div className="px-4 pb-4">
+                    <div ref={claimsRef} className="px-4 pb-4 scroll-mt-4">
                         <ClaimBadgeList
                             claims={evidenceClaims}
                             title={`ARIA Claims (${evidenceClaims.length})`}

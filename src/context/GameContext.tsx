@@ -51,6 +51,7 @@ const initialState: GameState = {
     claimDisplayOrder: {},
     timerEndTime: null,
     lastAutoSaveTime: null,
+    workspaceFocusRequest: null,
     liveAIFailed: false,
     errorReveal: null,
 };
@@ -139,6 +140,17 @@ function gameReducer(state: GameState, action: GameAction): GameState {
             });
             return { ...state, allClaims: newClaims, verdicts: newVerdicts, claimDisplayOrder: newOrder };
         }
+
+        case 'FOCUS_EVIDENCE_CLAIMS':
+            return {
+                ...state,
+                selectedEvidenceId: action.evidenceId,
+                workspaceFocusRequest: {
+                    id: Date.now(),
+                    evidenceId: action.evidenceId,
+                    target: 'metadataClaims',
+                },
+            };
 
         case 'VALIDATE_CLAIM': {
             const { claimId, verdict, confidence, claim } = action;

@@ -467,6 +467,11 @@ export function useAria() {
         setIsGenerating(true);
 
         const msgId = `aria-${Date.now()}`;
+        const focusEvidenceClaims = (claims: Claim[] = []) => {
+            const targetEvidenceId = claims[0]?.evidenceRef || evidenceId;
+            if (!targetEvidenceId || targetEvidenceId === 'unknown') return;
+            dispatch({ type: 'FOCUS_EVIDENCE_CLAIMS', evidenceId: targetEvidenceId });
+        };
 
         if (LIVE_AI && !GEMINI_KEY) {
             dispatch({
@@ -482,6 +487,7 @@ export function useAria() {
             const matched = findResponse(query, evidenceId);
             if (matched) {
                 dispatch({ type: 'REGISTER_CLAIMS', claims: matched.claims });
+                focusEvidenceClaims(matched.claims);
                 dispatch({ type: 'ADD_CHAT_MESSAGE', message: { id: msgId, role: 'aria', text: matched.responseText, claims: matched.claims, timestamp: new Date(), streaming: true } });
             } else {
                 dispatch({ type: 'ADD_CHAT_MESSAGE', message: { id: msgId, role: 'aria', text: data.fallback, timestamp: new Date(), streaming: true } });
@@ -570,6 +576,7 @@ export function useAria() {
                 if (newClaims.length > 0) {
                     dispatch({ type: 'REGISTER_CLAIMS', claims: newClaims });
                 }
+                focusEvidenceClaims(liveClaims);
 
                 dispatch({
                     type: 'ADD_CHAT_MESSAGE',
@@ -590,6 +597,7 @@ export function useAria() {
                 const matched = findResponse(query, evidenceId);
                 if (matched) {
                     dispatch({ type: 'REGISTER_CLAIMS', claims: matched.claims });
+                    focusEvidenceClaims(matched.claims);
                     dispatch({ type: 'ADD_CHAT_MESSAGE', message: { id: `${msgId}-fb`, role: 'aria', text: matched.responseText, claims: matched.claims, timestamp: new Date(), streaming: true } });
                 } else {
                     dispatch({ type: 'ADD_CHAT_MESSAGE', message: { id: `${msgId}-fb`, role: 'aria', text: data.fallback, timestamp: new Date(), streaming: true } });
@@ -611,6 +619,7 @@ export function useAria() {
                 const matched = findResponse(query, evidenceId);
                 if (matched) {
                     dispatch({ type: 'REGISTER_CLAIMS', claims: matched.claims });
+                    focusEvidenceClaims(matched.claims);
                     dispatch({ type: 'ADD_CHAT_MESSAGE', message: { id: msgId, role: 'aria', text: matched.responseText, claims: matched.claims, timestamp: new Date(), streaming: true } });
                 } else {
                     dispatch({ type: 'ADD_CHAT_MESSAGE', message: { id: msgId, role: 'aria', text: data.fallback, timestamp: new Date(), streaming: true } });

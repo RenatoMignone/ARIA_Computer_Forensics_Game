@@ -10,7 +10,7 @@ import { Monitor } from 'lucide-react';
 
 export function AppShell() {
     const { state, dispatch } = useGame();
-    const [glitching, setGlitching] = useState(false);
+    const [validationErrorPulse, setValidationErrorPulse] = useState(false);
     // Task 4.3: Mobile width warning
     const [mobileWarningDismissed, setMobileWarningDismissed] = useState(
         () => localStorage.getItem('aria_mobile_acknowledged') === 'true'
@@ -74,12 +74,12 @@ export function AppShell() {
     }, [isDraggingTerminal, isDraggingChat, isDraggingVault]);
 
     useEffect(() => {
-        if (state.lastScoreDelta === -30) {
-            setGlitching(true);
+        if (state.lastScoreDelta < 0) {
+            setValidationErrorPulse(true);
             const timer = setTimeout(() => {
-                setGlitching(false);
+                setValidationErrorPulse(false);
                 dispatch({ type: 'CLEAR_SCORE_DELTA' });
-            }, 600); // 600ms glitch duration
+            }, 520);
             return () => clearTimeout(timer);
         }
     }, [state.lastScoreDelta, dispatch]);
@@ -106,8 +106,7 @@ export function AppShell() {
     const spotlightClasses = "z-[110] ring-4 ring-cyan-400 shadow-[0_0_50px_rgba(6,182,212,0.5)] relative pointer-events-none transition-all duration-300";
 
     return (
-        <div className={`flex flex-col h-screen bg-[#0a0e17] overflow-hidden transition-all duration-75 ${glitching ? 'hue-rotate-[-30deg] saturate-150 brightness-110' : ''
-            }`}>
+        <div className="flex flex-col h-screen bg-[#0a0e17] overflow-hidden">
             {/* Task 4.3: Mobile viewport warning overlay */}
             {isMobileWidth && !mobileWarningDismissed && (
                 <div className="fixed inset-0 z-[200] bg-[#0a0e17] flex flex-col items-center justify-center p-6 text-center font-mono">
@@ -176,7 +175,7 @@ export function AppShell() {
 
                 {/* Center: Workspace */}
                 <div className={`flex-1 flex flex-col min-w-0 overflow-hidden border-x border-[#1f2937] transition-all duration-300 ${hlWorkspace ? spotlightClasses : ''}`}>
-                    <Workspace glitching={glitching} />
+                    <Workspace validationErrorPulse={validationErrorPulse} />
                 </div>
 
                 {/* Vertical Resizer Handle (Chat) */}
