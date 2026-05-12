@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useGame, SAVE_SCHEMA_VERSION } from '../context/GameContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SaveSlot, LeaderboardEntry } from '../types/game';
-import { FolderOpen, Trophy } from 'lucide-react';
+import { ArrowLeft, ClipboardList, Clock, FolderOpen, Trophy } from 'lucide-react';
 import { useAudio } from '../hooks/useAudio';
 
 export function DifficultyScreen() {
@@ -97,18 +97,23 @@ export function DifficultyScreen() {
                         animate={{ opacity: 1, scale: 1 }}
                         className="bg-[#0d1420] border border-[#1f2937] rounded-xl p-6 max-w-sm w-full shadow-2xl"
                     >
-                        <h3 className="text-lg font-mono font-bold text-cyan-400 mb-2">⏱️ Enable Investigation Timer?</h3>
+                        <h3 className="text-lg font-mono font-bold text-cyan-400 mb-2 flex items-center gap-2">
+                            <Clock className="w-5 h-5" />
+                            Enable Investigation Timer?
+                        </h3>
                         <p className="text-xs text-slate-400 font-mono mb-5">
                             A countdown timer adds a speed bonus (+50 pts) if you submit before time runs out.
                         </p>
                         <div className="space-y-2 mb-4">
                             <button onClick={() => confirmDifficulty(45 * 60 * 1000)}
                                 className="w-full py-2 rounded border border-cyan-700/50 bg-cyan-900/20 text-cyan-300 font-mono text-sm hover:bg-cyan-800/30 transition-colors">
-                                ⏱ 45 minutes
+                                <Clock className="inline w-4 h-4 mr-2 -mt-0.5" />
+                                45 minutes
                             </button>
                             <button onClick={() => confirmDifficulty(30 * 60 * 1000)}
                                 className="w-full py-2 rounded border border-amber-700/50 bg-amber-900/20 text-amber-300 font-mono text-sm hover:bg-amber-800/30 transition-colors">
-                                ⏱ 30 minutes
+                                <Clock className="inline w-4 h-4 mr-2 -mt-0.5" />
+                                30 minutes
                             </button>
                             <button onClick={() => confirmDifficulty(null)}
                                 className="w-full py-2 rounded border border-slate-700/50 bg-slate-800/30 text-slate-400 font-mono text-sm hover:bg-slate-700/30 transition-colors">
@@ -119,7 +124,8 @@ export function DifficultyScreen() {
                             onClick={() => setPendingDifficulty(null)}
                             className="text-[10px] text-slate-500 hover:text-slate-300 font-mono w-full text-center"
                         >
-                            ← Back
+                            <ArrowLeft className="inline w-3 h-3 mr-1 -mt-0.5" />
+                            Back
                         </button>
                     </motion.div>
                 </div>
@@ -184,7 +190,8 @@ export function DifficultyScreen() {
                                     onClick={() => setViewingLastDebrief(true)}
                                     className="flex items-center gap-2 px-4 py-1.5 rounded border border-slate-700/50 text-slate-400 hover:text-cyan-400 hover:border-cyan-700/50 font-mono text-[11px] transition-colors"
                                 >
-                                    📋 View Last Debrief
+                                    <ClipboardList className="w-3.5 h-3.5" />
+                                    View Last Debrief
                                 </button>
                             </div>
                         )}

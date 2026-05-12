@@ -74,14 +74,14 @@ export function HUD({ showChat, setShowChat, showTerminal, setShowTerminal, show
 
     return (
         <>
-        <div className={`flex items-center justify-between px-4 py-2 border-b border-[#1f2937] bg-[#0d1420] select-none relative ${
+        <div className={`flex flex-wrap items-center justify-between gap-3 px-4 py-2 border-b border-[#1f2937] bg-[#0d1420] select-none relative ${
             highlightPanelToggles ? 'z-[120]' : 'z-30'
         }`}>
             {/* Brand */}
             <div className="relative flex items-center gap-2">
                 <Shield className="w-5 h-5 text-cyan-400" />
                 <span className="font-mono text-sm font-bold text-cyan-400 tracking-widest">ARIA</span>
-                <span className="text-[#475569] text-xs font-mono ml-1 hidden sm:inline">Don't Trust the Machine</span>
+                <span className="text-slate-500 text-xs font-mono ml-1 hidden sm:inline">Don't Trust the Machine</span>
 
                 <AnimatePresence>
                     {showAutoSave && (
@@ -89,19 +89,20 @@ export function HUD({ showChat, setShowChat, showTerminal, setShowTerminal, show
                             initial={{ opacity: 0, y: -5 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0 }}
-                            className="absolute top-full left-0 mt-3 whitespace-nowrap text-xs text-emerald-400 font-mono font-bold bg-[#0d1420] border border-[#1f2937] px-2 py-1 rounded shadow-lg pointer-events-none"
+                            className="absolute top-full left-0 mt-3 whitespace-nowrap text-xs text-emerald-400 font-mono font-bold bg-[#0d1420] border border-[#1f2937] px-2 py-1 rounded shadow-lg pointer-events-none flex items-center gap-1.5"
                         >
-                            💾 Auto-saved
+                            <Save className="w-3 h-3" />
+                            Auto-saved
                         </motion.div>
                     )}
                 </AnimatePresence>
             </div>
 
             {/* Stats */}
-            <div className="flex items-center gap-6">
+            <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2 min-w-0">
                 {/* Score */}
                 <div className="relative flex items-center gap-2">
-                    <span className="text-[#475569] text-xs font-mono uppercase tracking-wider">Score</span>
+                    <span className="text-slate-500 text-xs font-mono uppercase tracking-wider">Score</span>
                     <span className="font-mono text-lg font-bold text-white">{score}</span>
                     <AnimatePresence>
                         {lastScoreDelta !== null && (
@@ -119,7 +120,7 @@ export function HUD({ showChat, setShowChat, showTerminal, setShowTerminal, show
                     </AnimatePresence>
                 </div>
 
-                <div className="w-px h-4 bg-[#1f2937]" />
+                <div className="hidden lg:block w-px h-4 bg-[#1f2937]" />
 
                 {/* Timer */}
                 {timerEndTime !== null && (
@@ -130,42 +131,42 @@ export function HUD({ showChat, setShowChat, showTerminal, setShowTerminal, show
                                 {formatTime(timeLeftMs)}
                             </span>
                         </div>
-                        <div className="w-px h-4 bg-[#1f2937]" />
+                        <div className="hidden lg:block w-px h-4 bg-[#1f2937]" />
                     </>
                 )}
 
                 {/* Claims */}
                 <div className="flex items-center gap-1.5">
-                    <span className="text-[#475569] text-xs font-mono uppercase tracking-wider">Claims</span>
+                    <span className="text-slate-500 text-xs font-mono uppercase tracking-wider">Claims</span>
                     <span className="font-mono text-sm font-semibold">
                         <span className="text-white">{validated}</span>
-                        <span className="text-[#475569]">/{totalClaims}</span>
+                        <span className="text-slate-500">/{totalClaims}</span>
                     </span>
                 </div>
 
-                <div className="w-px h-4 bg-[#1f2937]" />
+                <div className="hidden lg:block w-px h-4 bg-[#1f2937]" />
 
                 {/* Hallucinations */}
                 <div className="flex items-center gap-1.5">
-                    <span className="text-[#475569] text-xs font-mono uppercase tracking-wider">Hallucinations</span>
+                    <span className="text-slate-500 text-xs font-mono uppercase tracking-wider">Hallucinations</span>
                     <span className="font-mono text-sm font-semibold">
                         {totalClaims === 0 ? (
-                            <span className="text-[#475569]">0/0</span>
+                            <span className="text-slate-500">0/0</span>
                         ) : (
                             <>
                                 <span className="text-red-400">{halluFound}</span>
-                                <span className="text-[#475569]">/{halluTotal}</span>
+                                <span className="text-slate-500">/{halluTotal}</span>
                             </>
                         )}
                     </span>
                 </div>
 
-                <div className="w-px h-4 bg-[#1f2937]" />
+                <div className="hidden xl:block w-px h-4 bg-[#1f2937]" />
 
                 {/* Phase & Difficulty badge */}
                 <div className="flex items-center gap-2">
                     <div className={`w-2 h-2 rounded-full ${state.phase === 'investigation' ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
-                    <span className="text-xs font-mono text-[#64748b] uppercase tracking-wider">{state.phase}</span>
+                    <span className="text-xs font-mono text-slate-400 uppercase tracking-wider">{state.phase}</span>
                     <span className={`px-1.5 py-0.5 rounded text-[10px] font-mono border ${
                         state.difficulty === 'expert' ? 'bg-red-900/30 text-red-400 border-red-800/50' :
                         state.difficulty === 'hard' ? 'bg-amber-900/30 text-amber-400 border-amber-800/50' :
@@ -175,7 +176,7 @@ export function HUD({ showChat, setShowChat, showTerminal, setShowTerminal, show
                     </span>
                 </div>
 
-                <div className="w-px h-4 bg-[#1f2937]" />
+                <div className="hidden xl:block w-px h-4 bg-[#1f2937]" />
 
                 {/* Save button */}
                 {state.phase === 'investigation' && (
@@ -189,7 +190,7 @@ export function HUD({ showChat, setShowChat, showTerminal, setShowTerminal, show
                     </button>
                 )}
 
-                <div className="w-px h-4 bg-[#1f2937]" />
+                <div className="hidden xl:block w-px h-4 bg-[#1f2937]" />
 
                 {/* Panel toggles */}
                 <div
@@ -200,7 +201,7 @@ export function HUD({ showChat, setShowChat, showTerminal, setShowTerminal, show
                     }`}
                     title="Toggle workstation panels"
                 >
-                    <span className="text-[9px] font-mono uppercase tracking-widest text-[#475569] hidden xl:inline mr-1">Panels</span>
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-slate-500 hidden xl:inline mr-1">Panels</span>
                     <button
                         onClick={() => setShowVault(!showVault)}
                         className={`p-1.5 rounded transition-colors ${showVault ? 'text-cyan-400 bg-[#111827]' : 'text-[#475569] hover:text-slate-300'}`}

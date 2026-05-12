@@ -5,16 +5,16 @@ import { AlertTriangle, Link2 } from 'lucide-react';
 const TIMELINE_EVENTS = [
   {
     id: 'e1',
-    time: '2026-03-03  09:15 AM',
+    time: '2026-03-03  01:47 UTC',
     evidenceId: 'invoice_fraud',
     label: 'Fraudulent invoice created',
-    detail: 'AutoDoc AI Writer v2.1 generates invoice #INV-2026-447 for €2,312,450',
+    detail: 'AutoDoc AI Writer v2.1 generates invoice #INV-2026-0089 for €2,300,000.00',
     type: 'artifact_created',
     anomaly: false,
   },
   {
     id: 'e2',
-    time: '2026-03-03  09:29 AM',
+    time: '2026-03-03  02:01 UTC',
     evidenceId: 'invoice_fraud',
     label: 'Invoice modified',
     detail: '14-minute edit gap - consistent with manual field adjustment after AI generation',
@@ -23,47 +23,47 @@ const TIMELINE_EVENTS = [
   },
   {
     id: 'e3',
-    time: '2026-03-03  14:32 UTC',
-    evidenceId: 'email_1',
-    label: 'Spear-phishing email sent',
-    detail: 'SPF FAIL, DKIM FAIL. Return-Path spoofed. Originating IP: 91.200.81.47',
-    type: 'attack_action',
+    time: '2026-03-03  02:11 UTC',
+    evidenceId: 'network_logs',
+    label: 'Anomalous outbound connection',
+    detail: 'Unregistered workstation 192.168.1.88 sends 4.1 MB to Tor endpoint 185.220.101.42',
+    type: 'network_event',
     anomaly: true,
   },
   {
     id: 'e4',
-    time: '2026-03-03  (evening)',
+    time: '2026-03-03  02:14 UTC',
     evidenceId: 'audio_call',
-    label: 'Voice-cloned call placed',
-    detail: 'TTS-generated audio, 22,050 Hz sample rate. Created at 02:14 AM local',
+    label: 'Voice-cloned call generated',
+    detail: 'TTS-generated audio, 22,050 Hz sample rate. Creation timestamp: 02:14:33Z',
     type: 'attack_action',
     anomaly: true,
   },
   {
     id: 'e5',
-    time: '2026-03-04  09:22 UTC',
-    evidenceId: 'teams_meeting',
-    label: 'Deepfake Teams meeting held',
-    detail: 'OBS encoder. Facial bitrate 3× background. No GPS/EXIF data.',
-    type: 'attack_action',
+    time: '2026-03-03  02:14 UTC',
+    evidenceId: 'network_logs',
+    label: 'Data exfiltration via Tor',
+    detail: 'Connection to 45.33.32.156:9001 uploads 4.7 MB. IP 91.200.81.47 also appears in email headers and staging traffic.',
+    type: 'exfiltration',
     anomaly: true,
   },
   {
     id: 'e6',
-    time: '2026-03-04  02:11 AM',
-    evidenceId: 'network_logs',
-    label: 'Anomalous outbound connection',
-    detail: 'Internal host 10.1.5.23 initiates outbound to unknown endpoint',
-    type: 'network_event',
+    time: '2026-03-03  14:32 UTC',
+    evidenceId: 'email_1',
+    label: 'Spear-phishing email received',
+    detail: 'SPF FAIL, DKIM FAIL. Return-Path uses mailer-svc-eu7.xyz. Originating IP: 91.200.81.47',
+    type: 'attack_action',
     anomaly: true,
   },
   {
     id: 'e7',
-    time: '2026-03-04  02:14 AM',
-    evidenceId: 'network_logs',
-    label: '🔴 Data exfiltration via Tor',
-    detail: 'Connection to Tor exit node 185.220.101.42. 4.7 MB transferred. IP 91.200.81.47 present in email headers.',
-    type: 'exfiltration',
+    time: '2026-03-04  09:22 UTC',
+    evidenceId: 'teams_meeting',
+    label: 'Deepfake Teams recording created',
+    detail: 'OBS encoder. Facial bitrate 3x background. Audio/lip sync drift detected. No GPS/EXIF data.',
+    type: 'attack_action',
     anomaly: true,
   },
 ];
@@ -172,11 +172,11 @@ export function AttackTimeline() {
                                     </div>
                                 )}
                                 
-                                {event.time.includes('evening') && event.evidenceId === 'audio_call' && audioTimeFound && (
+                                {event.evidenceId === 'audio_call' && audioTimeFound && (
                                     <div className="ml-52 mt-2 mb-4">
                                         <div className="text-[10px] flex items-center gap-2 text-blue-400 bg-blue-900/20 border border-blue-800/40 p-2 rounded-lg max-w-sm">
                                             <Link2 className="w-3.5 h-3.5" />
-                                            <span><strong>Connected to network_logs.txt:</strong> Coordinated timing (02:14 AM local)</span>
+                                            <span><strong>Connected to network_logs.txt:</strong> Coordinated timing (02:14 UTC)</span>
                                         </div>
                                     </div>
                                 )}

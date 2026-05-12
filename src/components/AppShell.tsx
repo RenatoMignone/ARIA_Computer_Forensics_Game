@@ -24,9 +24,9 @@ export function AppShell() {
     }, []);
     
     // Resizer State
-    const [terminalHeight, setTerminalHeight] = useState(220);
-    const [chatWidth, setChatWidth] = useState(320);
-    const [vaultWidth, setVaultWidth] = useState(260);
+    const [terminalHeight, setTerminalHeight] = useState(280);
+    const [chatWidth, setChatWidth] = useState(450);
+    const [vaultWidth, setVaultWidth] = useState(300);
     const [showChat, setShowChat] = useState(true);
     const [showTerminal, setShowTerminal] = useState(true);
     const [showVault, setShowVault] = useState(true);
@@ -86,12 +86,12 @@ export function AppShell() {
 
     useEffect(() => {
         const savedCrt = localStorage.getItem('aria_settings_crt');
-        const savedHighContrast = localStorage.getItem('aria_settings_high_contrast');
         const savedReducedEffects = localStorage.getItem('aria_settings_reduced_effects');
         if (savedCrt === 'true' && savedReducedEffects !== 'true') {
             document.body.classList.add('crt-effect');
         }
-        document.body.classList.toggle('high-contrast', savedHighContrast === 'true');
+        document.body.classList.add('high-contrast');
+        localStorage.setItem('aria_settings_high_contrast', 'true');
         document.body.classList.toggle('reduced-effects', savedReducedEffects === 'true');
     }, []);
 
@@ -163,8 +163,11 @@ export function AppShell() {
 
                 {/* Vertical Resizer Handle (Vault) */}
                 {showVault && (
-                    <div 
-                        className={`w-1 cursor-col-resize hover:bg-cyan-500/50 transition-colors ${isDraggingVault ? 'bg-cyan-500' : 'bg-transparent'}`}
+                    <div
+                        className={`w-2 cursor-col-resize workstation-resizer workstation-resizer--vertical ${isDraggingVault ? 'is-dragging' : ''}`}
+                        title="Resize evidence vault"
+                        aria-label="Resize evidence vault"
+                        role="separator"
                         onPointerDown={(e) => {
                             e.preventDefault();
                             setIsDraggingVault(true);
@@ -180,8 +183,11 @@ export function AppShell() {
 
                 {/* Vertical Resizer Handle (Chat) */}
                 {showChat && (
-                    <div 
-                        className={`w-1 cursor-col-resize hover:bg-cyan-500/50 transition-colors ${isDraggingChat ? 'bg-cyan-500' : 'bg-transparent'}`}
+                    <div
+                        className={`w-2 cursor-col-resize workstation-resizer workstation-resizer--vertical ${isDraggingChat ? 'is-dragging' : ''}`}
+                        title="Resize ARIA chat"
+                        aria-label="Resize ARIA chat"
+                        role="separator"
                         onPointerDown={(e) => {
                             e.preventDefault();
                             setIsDraggingChat(true);
@@ -203,8 +209,11 @@ export function AppShell() {
 
             {/* Horizontal Resizer Handle (Terminal) */}
             {showTerminal && (
-                <div 
-                    className={`h-1 cursor-row-resize hover:bg-cyan-500/50 transition-colors z-10 ${isDraggingTerminal ? 'bg-cyan-500' : 'bg-transparent'}`}
+                <div
+                    className={`h-2 cursor-row-resize z-10 workstation-resizer workstation-resizer--horizontal ${isDraggingTerminal ? 'is-dragging' : ''}`}
+                    title="Resize terminal"
+                    aria-label="Resize terminal"
+                    role="separator"
                     onPointerDown={(e) => {
                         e.preventDefault();
                         setIsDraggingTerminal(true);
@@ -226,10 +235,10 @@ export function AppShell() {
                         <div className="w-2.5 h-2.5 rounded-full bg-amber-500/70" />
                         <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/70" />
                     </div>
-                    <span className="text-[10px] font-mono text-[#374151] ml-2 uppercase tracking-widest">
+                    <span className="text-[11px] font-mono text-slate-500 ml-2 uppercase tracking-widest">
                         ARIA Forensic Terminal
                     </span>
-                    <span className="ml-auto text-[10px] font-mono text-[#1f2937]">
+                    <span className="ml-auto text-[11px] font-mono text-slate-600">
                         {state.phase === 'debrief' ? 'SESSION CLOSED' : 'ACTIVE'}
                     </span>
                 </div>

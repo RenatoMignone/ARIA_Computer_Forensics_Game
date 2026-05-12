@@ -720,7 +720,7 @@ export function Terminal() {
                 brightRed: '#f87171',
             },
             fontFamily: '"JetBrains Mono", "Fira Code", monospace',
-            fontSize: 12,
+            fontSize: 13,
             lineHeight: 1.5,
             cursorBlink: true,
             cursorStyle: 'bar',

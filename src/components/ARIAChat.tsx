@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import { useAria, validateQuery } from '../hooks/useAria';
 import { ClaimBadge } from './ClaimBadge';
-import { Bot, Send, User } from 'lucide-react';
+import { AlertTriangle, Bot, Loader2, Search, Send, User, Zap } from 'lucide-react';
 import { ChatMessage, Claim, Evidence } from '../types/game';
 import { motion, useAnimation } from 'framer-motion';
 import evidenceData from '../data/evidence.json';
@@ -191,7 +191,7 @@ function MessageBubble({ msg, onStreamUpdate }: { msg: ChatMessage, onStreamUpda
                             confidencePct > 50 ? 'text-amber-400/80' : 'text-emerald-400/80'
                         }`}>
                             ARIA self-reported confidence: {confidencePct}%
-                            {confidencePct > 85 && ' - ⚠️ High confidence claims require independent verification'}
+                            {confidencePct > 85 && ' - High confidence claims require independent verification'}
                         </p>
                     </div>
                 )}
@@ -212,7 +212,7 @@ export function ARIAChat() {
     // Task 4: detect API failure mid-session
     const modeLabel = state.liveAIFailed
         ? 'SCRIPTED (API Unavailable)'
-        : isLiveMode ? '⚡ Live Gemini' : 'Pre-scripted';
+        : isLiveMode ? 'Live Gemini' : 'Pre-scripted';
     const modeClass = state.liveAIFailed
         ? 'text-amber-400 border-amber-800/50 bg-amber-900/20'
         : isLiveMode
@@ -235,7 +235,7 @@ export function ARIAChat() {
                 message: {
                     id: `sys-${Date.now()}`,
                     role: 'system',
-                    text: '⚠  No evidence file selected.\nSelect a file from the Evidence Vault on the left, then ask ARIA about it.\nARIA needs an evidence context to generate verifiable claims.',
+                    text: 'No evidence file selected.\nSelect a file from the Evidence Vault on the left, then ask ARIA about it.\nARIA needs an evidence context to generate verifiable claims.',
                     timestamp: new Date(),
                 }
             });
@@ -257,7 +257,7 @@ export function ARIAChat() {
                     message: {
                         id: `warn-${Date.now()}`,
                         role: 'system',
-                        text: validation.reason || '\u26a0\ufe0f Your query seems broad. Proceeding anyway\u2026',
+                        text: validation.reason || 'Your query seems broad. Proceeding anyway...',
                         timestamp: new Date(),
                     }
                 });
@@ -283,15 +283,16 @@ export function ARIAChat() {
     };
 
     return (
-        <div className="flex flex-col h-full bg-[#0d1420] border-l border-[#1f2937]">
+        <div className="flex flex-col h-full bg-[#0e1726] border-l border-[#1f2937]">
             {/* Header */}
             <motion.div
                 animate={headerControls}
                 className="flex items-center gap-2 px-4 py-3 border-b border-[#1f2937]"
             >
                 <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-                <span className="text-xs font-mono text-[#64748b] uppercase tracking-widest">ARIA Chat</span>
+                <span className="text-xs font-mono text-slate-400 uppercase tracking-widest">ARIA Chat</span>
                 <span className={`ml-auto text-[10px] font-mono px-2 py-0.5 rounded border ${modeClass}`}>
+                    {isLiveMode && !state.liveAIFailed && <Zap className="inline w-3 h-3 mr-1 -mt-0.5" />}
                     {modeLabel}
                 </span>
             </motion.div>
@@ -313,18 +314,21 @@ export function ARIAChat() {
                 {state.selectedEvidenceId ? (() => {
                     const ev = evidenceList.find(e => e.id === state.selectedEvidenceId);
                     return (
-                        <div className="flex items-center gap-2 mb-3 px-3 py-1.5 rounded bg-emerald-900/20 border border-emerald-800/30 text-emerald-400 text-[10px] font-mono">
-                            <span className="font-bold">🔍 CONTEXT:</span> {ev?.filename || state.selectedEvidenceId}
+                        <div className="flex items-center gap-2 mb-3 px-3 py-1.5 rounded bg-emerald-900/20 border border-emerald-800/30 text-emerald-400 text-[11px] font-mono">
+                            <Search className="w-3 h-3" />
+                            <span className="font-bold">CONTEXT:</span> {ev?.filename || state.selectedEvidenceId}
                         </div>
                     );
                 })() : (
-                    <div className="flex items-center gap-2 mb-3 px-3 py-1.5 rounded bg-amber-900/20 border border-amber-800/30 text-amber-500 text-[10px] font-mono animate-[pulse_2s_ease-in-out_infinite]">
-                        <span className="font-bold">⚠ NO EVIDENCE SELECTED:</span> Select a file to enable ARIA analysis
+                    <div className="flex items-center gap-2 mb-3 px-3 py-1.5 rounded bg-amber-900/20 border border-amber-800/30 text-amber-400 text-[11px] font-mono animate-[pulse_2s_ease-in-out_infinite]">
+                        <AlertTriangle className="w-3 h-3" />
+                        <span className="font-bold">NO EVIDENCE SELECTED:</span> Select a file to enable ARIA analysis
                     </div>
                 )}
                 {isGenerating && (
-                    <div className="flex items-center gap-1.5 mb-2 px-3 py-1.5 rounded bg-violet-900/20 border border-violet-500/30 text-violet-400 text-[10px] font-mono animate-pulse">
-                        ⏳ ARIA is processing…
+                    <div className="flex items-center gap-1.5 mb-2 px-3 py-1.5 rounded bg-violet-900/20 border border-violet-500/30 text-violet-400 text-[11px] font-mono animate-pulse">
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        ARIA is processing...
                     </div>
                 )}
 
@@ -332,7 +336,7 @@ export function ARIAChat() {
                     <div className={`flex-1 relative aria-input-wrap ${input.length === 0 ? 'is-empty' : ''}`}>
                         {inlineWarning && (
                             <div className="absolute -top-10 left-0 right-0 p-2 bg-amber-900/30 border border-amber-500/50 rounded text-[10px] text-amber-500 italic shadow-lg animate-[fadeIn_0.2s_ease-out]">
-                                ⚠️ {inlineWarning}
+                                {inlineWarning}
                             </div>
                         )}
                         <input
@@ -347,8 +351,8 @@ export function ARIAChat() {
                                 if (e.key === 'Enter') handleSend();
                             }}
                             disabled={isGenerating}
-                            placeholder={isGenerating ? 'ARIA is processing…' : 'Ask ARIA about the evidence…'}
-                            className={`w-full bg-[#111827] border border-[#1f2937] rounded px-3 py-2 text-xs font-mono text-slate-300 placeholder-[#374151] focus:outline-none focus:border-cyan-400/50 focus:ring-0 transition-colors custom-cursor-input ${isGenerating ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            placeholder={isGenerating ? 'ARIA is processing...' : 'Ask ARIA about the evidence...'}
+                            className={`w-full bg-[#111827] border border-[#334155] rounded px-3 py-2 text-xs font-mono text-slate-200 placeholder-slate-600 focus:outline-none focus:border-cyan-400/50 focus:ring-0 transition-colors custom-cursor-input ${isGenerating ? 'opacity-50 cursor-not-allowed' : ''}`}
                             aria-label="Ask ARIA"
                         />
                     </div>
@@ -362,7 +366,7 @@ export function ARIAChat() {
                         <Send className="w-4 h-4" />
                     </button>
                 </div>
-                <p className="text-[10px] font-mono text-[#374151] mt-1.5">
+                <p className="text-[11px] font-mono text-slate-500 mt-1.5">
                     Tip: Select evidence first, then ask ARIA about it
                 </p>
             </div>

@@ -3,11 +3,13 @@ import { Evidence } from '../types/game';
 import evidenceData from '../data/evidence.json';
 import connectionsData from '../data/connections.json';
 import { ClaimBadgeList } from './ClaimBadge';
-import { Hash, FileSearch, AlertTriangle, Edit2, Save, X, Link } from 'lucide-react';
+import { Hash, FileSearch, AlertTriangle, Edit2, Save, X, Link, Zap } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { AttackTimeline } from './AttackTimeline';
 
 const evidenceList = evidenceData as Evidence[];
+const audioLeftBars = [38, 62, 44, 78, 52, 92, 36, 66, 84, 48, 58, 72, 40, 88, 54, 68, 46, 76, 60, 42];
+const audioRightBars = [44, 70, 36, 62, 82, 48, 58, 74, 40, 66, 90, 52, 64, 46, 78];
 
 export function Workspace({ validationErrorPulse }: { validationErrorPulse?: boolean }) {
     const { state, dispatch } = useGame();
@@ -71,32 +73,33 @@ export function Workspace({ validationErrorPulse }: { validationErrorPulse?: boo
                         </span>
                     </div>
                 ) : (
-                    <div className="flex items-center gap-3 opacity-50 min-w-0">
-                        <FileSearch className="w-4 h-4 text-[#475569] flex-shrink-0" />
-                        <span className="font-mono text-sm text-[#475569] font-medium truncate">No Evidence Selected</span>
+                    <div className="flex items-center gap-3 min-w-0">
+                        <FileSearch className="w-4 h-4 text-slate-500 flex-shrink-0" />
+                        <span className="font-mono text-sm text-slate-400 font-medium truncate">No Evidence Selected</span>
                     </div>
                 )}
 
-                <div className="flex gap-1 bg-[#0a0e17] p-1 rounded-lg border border-[#1f2937] overflow-x-auto custom-scrollbar flex-shrink-0">
+                <div className="flex gap-px bg-[#0a0e17] p-px rounded-md border border-[#1f2937] overflow-x-auto custom-scrollbar flex-shrink-0">
                     <button 
                         onClick={() => setActiveTab('content')} 
                         disabled={!evidence}
-                        className={`text-[10px] sm:text-xs font-mono px-3 py-1.5 rounded transition-colors whitespace-nowrap ${activeTab === 'content' ? 'bg-[#1f2937] text-cyan-300' : 'text-slate-500 hover:text-cyan-400 disabled:opacity-30'}`}
+                        className={`compact-tab-button font-mono font-medium rounded transition-colors whitespace-nowrap ${activeTab === 'content' ? 'bg-[#1f2937] text-cyan-300' : 'text-slate-500 hover:text-cyan-400 disabled:opacity-50'}`}
                     >
                         Content Preview
                     </button>
                     <button 
                         onClick={() => setActiveTab('metadata')} 
                         disabled={!evidence}
-                        className={`text-[10px] sm:text-xs font-mono px-3 py-1.5 rounded transition-colors whitespace-nowrap ${activeTab === 'metadata' ? 'bg-[#1f2937] text-cyan-300' : 'text-slate-500 hover:text-cyan-400 disabled:opacity-30'}`}
+                        className={`compact-tab-button font-mono font-medium rounded transition-colors whitespace-nowrap ${activeTab === 'metadata' ? 'bg-[#1f2937] text-cyan-300' : 'text-slate-500 hover:text-cyan-400 disabled:opacity-50'}`}
                     >
                         Raw Metadata
                     </button>
                     <button 
                         onClick={() => setActiveTab('timeline')} 
-                        className={`text-[10px] sm:text-xs font-mono px-3 py-1.5 rounded transition-colors flex items-center gap-1.5 whitespace-nowrap ${activeTab === 'timeline' ? 'bg-amber-900/30 text-amber-400' : 'text-amber-500/70 hover:text-amber-400'}`}
+                        className={`compact-tab-button font-mono font-medium rounded transition-colors flex items-center gap-1 whitespace-nowrap ${activeTab === 'timeline' ? 'bg-amber-900/30 text-amber-400' : 'text-amber-500/70 hover:text-amber-400'}`}
                     >
-                        ⚡ Attack Timeline
+                        <Zap className="w-2 h-2" />
+                        Attack Timeline
                     </button>
                 </div>
             </div>
@@ -107,9 +110,9 @@ export function Workspace({ validationErrorPulse }: { validationErrorPulse?: boo
                 
                 {!evidence && activeTab !== 'timeline' && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 pointer-events-none">
-                        <FileSearch className="w-12 h-12 text-[#1f2937] mb-4" />
-                        <p className="text-[#374151] font-mono text-sm">No evidence selected</p>
-                        <p className="text-[#1f2937] text-xs mt-1 font-mono">
+                        <FileSearch className="w-12 h-12 text-slate-600 mb-4" />
+                        <p className="text-slate-400 font-mono text-sm">No evidence selected</p>
+                        <p className="text-slate-500 text-xs mt-1 font-mono">
                             Select a file from the Evidence Vault to begin analysis
                         </p>
                     </div>
@@ -125,14 +128,14 @@ export function Workspace({ validationErrorPulse }: { validationErrorPulse?: boo
                                 <div className="absolute left-[15%] top-0 bottom-0 w-px bg-cyan-400 z-10 shadow-[0_0_8px_rgba(6,182,212,0.8)]"></div>
                                 {/* Left normal waveform */}
                                 <div className="flex-1 flex items-center justify-between gap-[2px] h-16 opacity-70">
-                                    {Array.from({ length: 20 }).map((_, i) => (
-                                        <div key={`l-${i}`} className="w-1 bg-cyan-600 rounded-full" style={{ height: `${Math.max(20, Math.random() * 100)}%` }}></div>
+                                    {audioLeftBars.map((height, i) => (
+                                        <div key={`l-${i}`} className="w-1 bg-cyan-600 rounded-full" style={{ height: `${height}%` }}></div>
                                     ))}
                                 </div>
                                 {/* Anomaly region */}
                                 <div className="w-1/3 flex items-center justify-between gap-[2px] h-16 bg-amber-900/20 border-x border-dashed border-amber-500/50 px-2 relative group">
                                     <div className="absolute -top-7 left-1/2 -translate-x-1/2 text-[9px] font-mono text-amber-500 whitespace-nowrap bg-[#0d1420] px-2 py-0.5 border border-amber-500/30 rounded opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                                        ⚠ TTS Synthesis Artifact (0:42–1:58)
+                                        TTS Synthesis Artifact (0:42-1:58)
                                     </div>
                                     <div className="absolute bottom-1 left-0 right-0 text-center text-[8px] font-mono text-amber-500/70">UNIFORM AMPLITUDE</div>
                                     {Array.from({ length: 30 }).map((_, i) => (
@@ -141,8 +144,8 @@ export function Workspace({ validationErrorPulse }: { validationErrorPulse?: boo
                                 </div>
                                 {/* Right normal waveform */}
                                 <div className="flex-1 flex items-center justify-between gap-[2px] h-16 opacity-70">
-                                    {Array.from({ length: 15 }).map((_, i) => (
-                                        <div key={`r-${i}`} className="w-1 bg-cyan-600 rounded-full" style={{ height: `${Math.max(20, Math.random() * 100)}%` }}></div>
+                                    {audioRightBars.map((height, i) => (
+                                        <div key={`r-${i}`} className="w-1 bg-cyan-600 rounded-full" style={{ height: `${height}%` }}></div>
                                     ))}
                                 </div>
                             </div>
@@ -245,17 +248,17 @@ export function Workspace({ validationErrorPulse }: { validationErrorPulse?: boo
                                 <div className="flex justify-between items-start mb-8 border-b-2 border-slate-300 pb-4">
                                     <div>
                                         <h2 className="text-xl font-bold tracking-tight text-slate-900">NovaPay Solutions GmbH</h2>
-                                        <div className="text-xs text-slate-600 mt-1">Bahnhofstraße 42, 10115 Berlin<br/>VAT: DE 299 123 456</div>
+                                        <div className="text-xs text-slate-600 mt-1">Kurfürstendamm 57, 10707 Berlin, DE<br/>VAT: DE812345678</div>
                                     </div>
                                     <div className="text-right">
                                         <div className="text-lg font-bold tracking-widest text-slate-500">INVOICE</div>
-                                        <div className="text-sm font-mono mt-1 font-medium text-slate-800">#INV-2026-447</div>
+                                        <div className="text-sm font-mono mt-1 font-medium text-slate-800">#INV-2026-0089</div>
                                     </div>
                                 </div>
                                 
                                 <div className="mb-8">
                                     <div className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Bill To:</div>
-                                    <div className="text-sm"><strong>TechCorp S.p.A.</strong><br/>Via Roma 15, 20121 Milano</div>
+                                    <div className="text-sm"><strong>TechCorp S.p.A.</strong><br/>Via Roma 12, 20121 Milano, IT</div>
                                 </div>
                                 
                                 <table className="w-full text-sm mb-8">
@@ -269,10 +272,10 @@ export function Workspace({ validationErrorPulse }: { validationErrorPulse?: boo
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td className="py-3">Strategic Consulting Services</td>
+                                            <td className="py-3">Strategic Advisory Services - Q1 2026</td>
                                             <td className="py-3 text-center">1</td>
-                                            <td className="py-3 text-right">€2,312,450.00</td>
-                                            <td className="py-3 text-right font-bold">€2,312,450.00</td>
+                                            <td className="py-3 text-right">€2,300,000.00</td>
+                                            <td className="py-3 text-right font-bold">€2,300,000.00</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -285,7 +288,7 @@ export function Workspace({ validationErrorPulse }: { validationErrorPulse?: boo
                                     </div>
                                     <div className="text-right">
                                         <div className="text-xs text-slate-500 uppercase font-bold mb-1">Total Due</div>
-                                        <div className="text-xl font-bold text-slate-900 tracking-tight">€2,312,450.00</div>
+                                        <div className="text-xl font-bold text-slate-900 tracking-tight">€2,300,000.00</div>
                                     </div>
                                 </div>
                                 
@@ -301,7 +304,7 @@ export function Workspace({ validationErrorPulse }: { validationErrorPulse?: boo
                                 </div>
                                 <div className="flex gap-2 items-start text-[10px] font-mono">
                                     <AlertTriangle className="w-3.5 h-3.5 text-amber-500 flex-shrink-0 mt-0.5" />
-                                    <span className="text-slate-300"><strong>Timeline:</strong> Created 14:01:22Z → Modified 14:15:44Z <span className="text-amber-400">(14 min 22 sec gap implies manual post-edit).</span></span>
+                                    <span className="text-slate-300"><strong>Timeline:</strong> Created 01:47:22Z → Modified 02:01:55Z <span className="text-amber-400">(14 min 33 sec gap implies manual post-edit).</span></span>
                                 </div>
                                 <div className="flex gap-2 items-start text-[10px] font-mono">
                                     <AlertTriangle className="w-3.5 h-3.5 text-red-500 flex-shrink-0 mt-0.5" />
@@ -323,10 +326,10 @@ export function Workspace({ validationErrorPulse }: { validationErrorPulse?: boo
                                 <div className="text-slate-400"><span className="text-slate-600 w-20 inline-block">02:01:55</span> ALLOW  OUT  192.168.1.88 → <span className="text-cyan-600">45.33.32.156:443</span>     HTTPS</div>
                                 <div className="text-cyan-700"><span className="text-slate-600 w-20 inline-block">02:05:11</span> ALLOW  OUT  192.168.1.88 → 9.9.9.9:53             DNS   [query: mailer-svc-eu7.xyz]</div>
                                 <div className="text-slate-400"><span className="text-slate-600 w-20 inline-block">02:07:30</span> ALLOW  OUT  192.168.1.88 → <span className="text-cyan-600">91.200.81.47:443</span>     HTTPS <span className="text-slate-500">[1.2 MB↑]</span></div>
-                                <div className="text-amber-500 font-bold bg-amber-900/10 -mx-4 px-4 py-0.5"><span className="text-amber-600/50 w-20 inline-block font-normal">02:11:44</span> ⚠ ALERT OUT  192.168.1.88 → <span className="text-amber-400">185.220.101.42:443</span> HTTPS <span className="bg-amber-500/20 px-1 rounded ml-2">[4.1 MB↑ ANOMALY]</span></div>
+                                <div className="text-amber-500 font-bold bg-amber-900/10 -mx-4 px-4 py-0.5"><span className="text-amber-600/50 w-20 inline-block font-normal">02:11:44</span> ALERT OUT  192.168.1.88 → <span className="text-amber-400">185.220.101.42:443</span> HTTPS <span className="bg-amber-500/20 px-1 rounded ml-2">[4.1 MB↑ ANOMALY]</span></div>
                                 <div className="text-slate-400"><span className="text-slate-600 w-20 inline-block">02:14:22</span> ALLOW  OUT  192.168.1.88 → <span className="text-cyan-600">91.200.81.47:443</span>     HTTPS</div>
-                                <div className="text-red-400 font-bold bg-red-900/20 -mx-4 px-4 py-1.5 flex justify-between items-center"><div className="whitespace-nowrap"><span className="text-red-600/50 w-20 inline-block font-normal">02:14:33</span> 🔴 ALLOW OUT  192.168.1.88 → <span className="text-red-300">45.33.32.156:9001</span> ...</div><span className="text-[9px] bg-red-600 text-white px-2 py-0.5 rounded tracking-widest whitespace-nowrap">TOR EXIT NODE</span></div>
-                                <div className="text-red-500 bg-red-900/10 -mx-4 px-4 py-0.5 flex justify-between items-center"><div className="whitespace-nowrap"><span className="text-red-600/50 w-20 inline-block font-normal">02:14:33</span>    ... session transfer continuing ...</div><span className="text-[9px] border border-red-500/50 text-red-400 px-2 py-0.5 rounded tracking-widest bg-[#0a0e17] whitespace-nowrap">⚠ 4.7MB EXFILTRATION</span></div>
+                                <div className="text-red-400 font-bold bg-red-900/20 -mx-4 px-4 py-1.5 flex justify-between items-center"><div className="whitespace-nowrap"><span className="text-red-600/50 w-20 inline-block font-normal">02:14:33</span> CRITICAL ALLOW OUT  192.168.1.88 → <span className="text-red-300">45.33.32.156:9001</span> ...</div><span className="text-[9px] bg-red-600 text-white px-2 py-0.5 rounded tracking-widest whitespace-nowrap">TOR EXIT NODE</span></div>
+                                <div className="text-red-500 bg-red-900/10 -mx-4 px-4 py-0.5 flex justify-between items-center"><div className="whitespace-nowrap"><span className="text-red-600/50 w-20 inline-block font-normal">02:14:33</span>    ... session transfer continuing ...</div><span className="text-[9px] border border-red-500/50 text-red-400 px-2 py-0.5 rounded tracking-widest bg-[#0a0e17] whitespace-nowrap">4.7MB EXFILTRATION</span></div>
                                 <div className="text-slate-400"><span className="text-slate-600 w-20 inline-block">02:19:05</span> BLOCK  OUT  192.168.1.88 → 10.0.0.1:22            SSH   <span className="text-slate-500">(internal attempt)</span></div>
                                 <div className="text-cyan-700"><span className="text-slate-600 w-20 inline-block">02:22:18</span> ALLOW  OUT  192.168.1.88 → 8.8.8.8:53             DNS   [query: pool.ntp.org]</div>
                                 <div className="text-slate-500 line-through">... 12 hours later ...</div>
@@ -443,7 +446,7 @@ export function Workspace({ validationErrorPulse }: { validationErrorPulse?: boo
                                         <div className={`px-3 py-1.5 flex-1 min-w-0 break-words flex items-center justify-between ${isBad ? 'text-red-400' : 'text-slate-300'}`}>
                                             <span>{v}</span>
                                             <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
-                                                {note && <span className="text-[10px] text-amber-500 mr-2 border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 rounded truncate max-w-[100px]" title={note}>✏ Note</span>}
+                                                {note && <span className="text-[10px] text-amber-500 mr-2 border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 rounded truncate max-w-[100px]" title={note}>Note</span>}
                                                 <button 
                                                     onClick={(e) => {
                                                         e.stopPropagation();

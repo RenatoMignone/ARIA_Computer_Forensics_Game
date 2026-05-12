@@ -13,7 +13,7 @@
                 "email_1",
                 "email"
             ],
-            "responseText": "Based on writing style analysis of email_1.eml, the message was most likely authored by **Marco Rossi** (CEO) himself with 94% confidence. [CLAIM-001] The email was sent on March 3rd, 2026 at 14:32 UTC from the corporate domain. [CLAIM-002] The tone and phrasing pattern match 87 prior emails in Marco's communication archive. [CLAIM-003] The email contains no attachments, which fits the urgent tone. [CLAIM-019]",
+            "responseText": "Based on writing style analysis of email_1.eml, the message was most likely authored by **Marco Rossi** (CEO) himself with 94% confidence. [CLAIM-001] The email header records March 3rd, 2026 at 14:32 UTC as the sent time. [CLAIM-002] The tone and phrasing pattern match 87 prior emails in Marco's communication archive. [CLAIM-003] The email is a single plain-text message with no attachments indicated in the evidence. [CLAIM-019]",
             "claims": [
                 {
                     "id": "CLAIM-001",
@@ -34,7 +34,7 @@
                     "text": "The email was sent on March 3rd, 2026 at 14:32 UTC.",
                     "isHallucination": false,
                     "hallucinationType": null,
-                    "explanation": "VERIFIED - The Date header in the raw metadata confirms: 'Thu, 3 Mar 2026 14:32:07 +0000'. This is a directly readable header value, not an inference.",
+                    "explanation": "VERIFIED - The Date header in the raw metadata confirms: 'Tue, 3 Mar 2026 14:32:07 +0000'. This is a directly readable header value, not an inference.",
                     "evidenceRef": "email_1",
                     "hintText": "Check the 'Date' field in the raw metadata.",
                     "metadataFields": [
@@ -56,10 +56,10 @@
                 },
                 {
                     "id": "CLAIM-019",
-                    "text": "The email contains no attachments, which fits the urgent tone.",
+                    "text": "The email is a single plain-text message with no attachments indicated in the evidence.",
                     "isHallucination": false,
                     "hallucinationType": null,
-                    "explanation": "VERIFIED - There are no attachments indicated in the raw evidence payload.",
+                    "explanation": "VERIFIED - The MIME and Content-Type metadata show a single text/plain message, and the evidence payload lists no attachments.",
                     "evidenceRef": "email_1",
                     "hintText": "Did you see any file attachments listed?",
                     "metadataFields": [
@@ -125,7 +125,7 @@
                     "text": "The Return-Path header clearly indicates the mailer-svc-eu7.xyz infrastructure.",
                     "isHallucination": false,
                     "hallucinationType": null,
-                    "explanation": "VERIFIED - Raw metadata confirms the Return-Path is <bounce@mailer-svc-eu7.xyz>.",
+                    "explanation": "VERIFIED - Raw metadata confirms the Return-Path is <bounces@mailer-svc-eu7.xyz>.",
                     "evidenceRef": "email_1",
                     "hintText": "Check the Return-Path header.",
                     "metadataFields": [
@@ -190,7 +190,7 @@
                     "text": "There is noticeable background noise consistent with a busy airport terminal.",
                     "isHallucination": true,
                     "hallucinationType": "fabricated_metadata",
-                    "explanation": "HALLUCINATION - Fabricated Metadata. The raw metadata states 'Background-Noise: unusually low, lacking expected ambient room reflection'. ARIA invented the airport noise.",
+                    "explanation": "HALLUCINATION - Fabricated Metadata. The raw metadata states 'Background-Noise: Synthetically added - flat spectrum, loop detected at 0:42'. ARIA invented the airport terminal noise.",
                     "evidenceRef": "audio_call",
                     "hintText": "Read the Background-Noise field in the raw metadata.",
                     "metadataFields": [
@@ -221,10 +221,10 @@
                     "hallucinationType": "confidence_inflation",
                     "explanation": "HALLUCINATION - Confidence Inflation. ARIA claims '95% certainty' with no underlying tool output, no methodology, and no reference to a verified facial recognition database. Raw metadata shows significant compression artifacts in the facial region bitstream (blockiness at face boundaries, frames 142-891) - clear deepfake insertion indicators. AI confidence scores are not forensic certainty. Any claim of '95% certainty' must cite the specific tool used, its version, its trained dataset, and its false-positive rate.",
                     "evidenceRef": "teams_meeting",
-                    "hintText": "Does the raw metadata mention any 'biometrics' or '95%'? Look at 'Bitstream-Analysis' instead.",
+                    "hintText": "Does the raw metadata mention any 'biometrics' or '95%'? Look at the facial-region bitrate and compression artifacts instead.",
                     "metadataFields": [
-                        "Bitstream-Analysis",
-                        "Bitrate-Facial-Region"
+                        "Bitrate-Facial-Region",
+                        "Compression-Artifacts"
                     ]
                 },
                 {
@@ -303,8 +303,8 @@
                     "evidenceRef": "invoice_fraud",
                     "hintText": "Is there any explicit link proving the SAME ACTOR modified the PDF and recorded the audio? Proximate timestamps alone don't prove identity.",
                     "metadataFields": [
-                        "Last-Modified",
-                        "Creation-Date"
+                        "ModificationDate",
+                        "CreationDate"
                     ]
                 },
                 {
@@ -347,7 +347,7 @@
                 "outbound",
                 "traffic"
             ],
-            "responseText": "The network logs show an anomalous outbound connection at 02:11:44 AM from internal host 192.168.1.88 to IP 185.220.101.42 with 4.1 MB of data transferred. [CLAIM-016] At 02:14:33 AM, a connection was made to a known Tor exit node (45.33.32.156:9001) with 4.7 MB uploaded - consistent with data exfiltration. [CLAIM-017] The source IP 91.200.81.47 appears in both the email_1.eml Received header and the network logs, confirming shared infrastructure between the phishing and the exfiltration actor. [CLAIM-018] There were also 12 failed login attempts prior to the exfiltration. [CLAIM-024]",
+            "responseText": "The network logs show an anomalous outbound connection at 02:11:44 AM from internal host 192.168.1.88 to IP 185.220.101.42 with 4.1 MB of data transferred. [CLAIM-016] At 02:14:33 AM, a connection was made to a Tor relay endpoint (45.33.32.156:9001) with 4.7 MB uploaded - consistent with data exfiltration. [CLAIM-017] The source IP 91.200.81.47 appears in both the email_1.eml Received header and the network logs, documenting infrastructure overlap between phishing delivery and earlier staging traffic. [CLAIM-018] There were also 12 failed login attempts prior to the exfiltration. [CLAIM-024]",
             "claims": [
                 {
                     "id": "CLAIM-016",
@@ -358,31 +358,33 @@
                     "evidenceRef": "network_logs",
                     "hintText": "Look for the log line starting with '[02:11:44]' in the DISPLAY CONTENT.",
                     "metadataFields": [
-                        "185.220.101.42"
+                        "Destination-185.220.101.42"
                     ]
                 },
                 {
                     "id": "CLAIM-017",
-                    "text": "At 02:14:33 AM, a Tor exit node connection (45.33.32.156:9001) with 4.7 MB uploaded - consistent with data exfiltration.",
+                    "text": "At 02:14:33 AM, a Tor relay endpoint connection (45.33.32.156:9001) with 4.7 MB uploaded - consistent with data exfiltration.",
                     "isHallucination": false,
                     "hallucinationType": null,
                     "explanation": "VERIFIED - Log entry [02:14:33] confirms the Tor connection to 45.33.32.156:9001. Raw metadata confirms '4.7 MB exfiltration detected'. The 02:14 timestamp also matches the audio_call.mp3 creation time - corroborating the attack timeline.",
                     "evidenceRef": "network_logs",
-                    "hintText": "Look for the log line starting with '[02:14:33] ALERT OUT' in the DISPLAY CONTENT.",
+                    "hintText": "Look for the log line starting with '[02:14:33] ALLOW OUT' in the DISPLAY CONTENT.",
                     "metadataFields": [
-                        "45.33.32.156"
+                        "Destination-45.33.32.156",
+                        "Tor-Connection"
                     ]
                 },
                 {
                     "id": "CLAIM-018",
-                    "text": "IP 91.200.81.47 appears in both email_1.eml and network logs, confirming shared infrastructure between phishing and exfiltration actor.",
+                    "text": "IP 91.200.81.47 appears in both email_1.eml and network logs, documenting infrastructure overlap between phishing delivery and earlier staging traffic.",
                     "isHallucination": false,
                     "hallucinationType": null,
-                    "explanation": "VERIFIED - The email_1.eml metadata shows 'X-Originating-IP: 91.200.81.47' and 'Received: from mailer-svc-eu7.xyz (91.200.81.47)'. The network logs show [02:14:22] ALLOW OUT 192.168.1.88 → 91.200.81.47:443. The analyst note in raw logs also confirms this overlap. This is a legitimate, documented correlation with explicit chain-of-evidence.",
+                    "explanation": "VERIFIED - The email_1.eml metadata shows 'X-Originating-IP: 91.200.81.47' and 'Received: from mailer-svc-eu7.xyz (91.200.81.47)'. The network logs show outbound connections from 192.168.1.88 to 91.200.81.47 and a later inbound SMTP delivery from the same IP. This is a documented infrastructure correlation; it does not by itself prove the same human operator.",
                     "evidenceRef": "network_logs",
                     "hintText": "Does '91.200.81.47' appear in both the email_1.eml raw metadata (X-Originating-IP) and the network_logs DISPLAY CONTENT ([02:14:22])?",
                     "metadataFields": [
-                        "X-Originating-IP"
+                        "Destination-91.200.81.47",
+                        "Analyst-Note"
                     ]
                 },
                 {
@@ -394,7 +396,7 @@
                     "evidenceRef": "network_logs",
                     "hintText": "Are there any failed logins shown in the network logs?",
                     "metadataFields": [
-                        "Failed Login"
+                        "Anomaly-Entries"
                     ]
                 }
             ]

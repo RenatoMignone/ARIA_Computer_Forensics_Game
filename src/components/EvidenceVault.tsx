@@ -3,7 +3,7 @@ import { useGame } from '../context/GameContext';
 import { Evidence } from '../types/game';
 import evidenceData from '../data/evidence.json';
 import connectionsData from '../data/connections.json';
-import { Mail, Mic, Video, FileText, Activity, Lock, Check, Link, LayoutList, LayoutGrid } from 'lucide-react';
+import { Mail, Mic, Video, FileText, Activity, Lock, Check, Link, LayoutList, LayoutGrid, ChevronDown, ChevronRight } from 'lucide-react';
 import { EvidenceBoard } from './EvidenceBoard';
 
 const evidenceList = evidenceData as Evidence[];
@@ -28,6 +28,7 @@ export function EvidenceVault() {
     const { state, dispatch } = useGame();
     const { selectedEvidenceId, verdicts, allClaims, foundConnections } = state;
     const [viewMode, setViewMode] = useState<'list' | 'board'>('list');
+    const [crossReferencesOpen, setCrossReferencesOpen] = useState(false);
 
     // Count validated claims per evidence
     const claimsPerEvidence: Record<string, { total: number; validated: number }> = {};
@@ -40,25 +41,25 @@ export function EvidenceVault() {
     });
 
     return (
-        <div className="flex flex-col h-full bg-[#0d1420] border-r border-[#1f2937]">
+        <div className="flex flex-col h-full bg-[#0e1726] border-r border-[#1f2937]">
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-[#1f2937]">
+            <div className="flex items-center justify-between px-3 py-2 border-b border-[#1f2937]">
                 <div className="flex items-center gap-2">
                     <Lock className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" />
-                    <span className="text-xs font-mono text-[#64748b] uppercase tracking-widest hidden sm:inline">Evidence Vault</span>
+                    <span className="text-xs font-mono text-slate-400 uppercase tracking-widest hidden sm:inline">Evidence Vault</span>
                 </div>
-                <div className="flex items-center p-1 bg-[#111827] rounded border border-[#1f2937]">
+                <div className="flex items-center p-px bg-[#111827] rounded border border-[#1f2937]">
                     <button
                         onClick={() => setViewMode('list')}
-                        className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-mono font-bold transition-colors ${viewMode === 'list' ? 'bg-[#1f2937] text-white border border-[#334155]' : 'text-[#64748b] hover:text-slate-300 border border-transparent'}`}
+                        className={`compact-segment-button flex items-center gap-0.5 rounded font-mono font-medium transition-colors ${viewMode === 'list' ? 'bg-[#1f2937] text-slate-100 border border-[#334155]' : 'text-[#64748b] hover:text-slate-300 border border-transparent'}`}
                     >
-                        <LayoutList className="w-3 h-3" /> LIST
+                        <LayoutList className="w-2 h-2" /> LIST
                     </button>
                     <button
                         onClick={() => setViewMode('board')}
-                        className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-mono font-bold transition-colors ${viewMode === 'board' ? 'bg-[#1f2937] text-white border border-[#334155]' : 'text-[#64748b] hover:text-slate-300 border border-transparent'}`}
+                        className={`compact-segment-button flex items-center gap-0.5 rounded font-mono font-medium transition-colors ${viewMode === 'board' ? 'bg-[#1f2937] text-slate-100 border border-[#334155]' : 'text-[#64748b] hover:text-slate-300 border border-transparent'}`}
                     >
-                        <LayoutGrid className="w-3 h-3" /> BOARD
+                        <LayoutGrid className="w-2 h-2" /> BOARD
                     </button>
                 </div>
             </div>
@@ -92,17 +93,25 @@ export function EvidenceVault() {
                                 <div className={`text-xs font-mono font-medium truncate ${isSelected ? 'text-cyan-300' : 'text-slate-300'}`}>
                                     {ev.filename}
                                 </div>
-                                <div className="text-[10px] text-[#475569] uppercase mt-0.5 font-mono">{ev.type}</div>
+                                <div className="text-[11px] text-slate-500 uppercase mt-0.5 font-mono">{ev.type}</div>
                                 {stats && (
-                                    <div className="text-[10px] mt-1 font-mono flex items-center justify-between pr-2">
-                                        <span className={stats.validated === stats.total ? 'text-emerald-400' : 'text-amber-400'}>
-                                            {stats.validated}/{stats.total} claims
-                                        </span>
-                                        {stats.validated === stats.total && stats.total > 0 ? (
-                                            <Check className="w-3 h-3 text-emerald-400" />
-                                        ) : stats.total > 0 && stats.validated < stats.total ? (
-                                            <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></div>
-                                        ) : null}
+                                    <div className="mt-1.5 pr-2">
+                                        <div className="text-[11px] font-mono flex items-center justify-between mb-1">
+                                            <span className={stats.validated === stats.total ? 'text-emerald-400' : 'text-amber-400'}>
+                                                {stats.validated}/{stats.total} claims
+                                            </span>
+                                            {stats.validated === stats.total && stats.total > 0 ? (
+                                                <Check className="w-3 h-3 text-emerald-400" />
+                                            ) : stats.total > 0 && stats.validated < stats.total ? (
+                                                <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                                            ) : null}
+                                        </div>
+                                        <div className="h-1 rounded-full bg-[#1f2937] overflow-hidden">
+                                            <div
+                                                className={`h-full rounded-full ${stats.validated === stats.total ? 'bg-emerald-400' : 'bg-amber-400'}`}
+                                                style={{ width: `${stats.total > 0 ? (stats.validated / stats.total) * 100 : 0}%` }}
+                                            />
+                                        </div>
                                     </div>
                                 )}
                             </div>
@@ -112,31 +121,43 @@ export function EvidenceVault() {
             </div>
 
             {/* Cross-References */}
-            <div className="border-t border-[#1f2937] px-4 py-3">
-                <div className="flex items-center gap-2 mb-2">
-                    <Link className="w-3.5 h-3.5 text-blue-400" />
-                    <span className="text-[10px] font-mono font-bold text-[#64748b] uppercase tracking-widest">
+            <div className="border-t border-[#263449] bg-[#101a2a]">
+                <button
+                    type="button"
+                    onClick={() => setCrossReferencesOpen(open => !open)}
+                    className="w-full flex items-center gap-2 px-4 py-2.5 text-left hover:bg-[#142033] transition-colors"
+                    aria-expanded={crossReferencesOpen}
+                >
+                    {crossReferencesOpen ? (
+                        <ChevronDown className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
+                    ) : (
+                        <ChevronRight className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
+                    )}
+                    <Link className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
+                    <span className="text-[10px] font-mono font-bold text-slate-300 uppercase tracking-widest truncate">
                         Cross-References ({foundConnections.length}/{connectionsData.length})
                     </span>
-                 </div>
-                 <div className="space-y-1">
-                     {connectionsData.map(conn => {
-                         const isFound = foundConnections.includes(conn.id);
-                         return (
-                             <div key={conn.id} className={`text-[10px] font-mono px-2 py-1.5 rounded border ${isFound ? 'bg-blue-900/20 border-blue-800/50 text-blue-300' : 'bg-[#0d1420] border-[#1f2937] text-[#374151]'}`}>
-                                 <div className="flex justify-between items-center">
-                                     <span>{conn.files[0]} ↔ {conn.files[1]}</span>
-                                     {isFound ? <Check className="w-3 h-3 text-emerald-400" /> : <span className="text-[9px]">UNDISCOVERED</span>}
-                                 </div>
-                                 {isFound && (
-                                     <div className="mt-1 text-blue-200/70 opacity-90 leading-tight">
-                                         {conn.description}
+                 </button>
+                 {crossReferencesOpen && (
+                     <div className="space-y-1.5 px-4 pb-3">
+                         {connectionsData.map(conn => {
+                             const isFound = foundConnections.includes(conn.id);
+                             return (
+                                 <div key={conn.id} className={`text-[11px] font-mono px-2.5 py-2 rounded border leading-snug ${isFound ? 'bg-blue-900/25 border-blue-700/50 text-blue-200' : 'bg-[#0d1420] border-[#334155] text-slate-400'}`}>
+                                     <div className="flex justify-between items-start gap-2">
+                                         <span className="min-w-0 break-words">{conn.files[0]} ↔ {conn.files[1]}</span>
+                                         {isFound ? <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" /> : <span className="text-[10px] text-slate-500 flex-shrink-0">UNDISCOVERED</span>}
                                      </div>
-                                 )}
-                             </div>
-                         );
-                     })}
-                 </div>
+                                     {isFound && (
+                                         <div className="mt-1.5 text-blue-100/80 leading-snug">
+                                             {conn.description}
+                                         </div>
+                                     )}
+                                 </div>
+                             );
+                         })}
+                     </div>
+                 )}
              </div>
              </>
             ) : (
@@ -146,8 +167,8 @@ export function EvidenceVault() {
             )}
 
             {/* Footer */}
-            <div className="px-4 py-3 border-t border-[#1f2937] bg-[#0a0e17]">
-                <div className="text-[10px] font-mono text-[#374151]">
+            <div className="px-4 py-3 border-t border-[#263449] bg-[#0a0e17]">
+                <div className="text-[11px] font-mono text-slate-500">
                     {evidenceList.length} files • Chain of Custody Active
                 </div>
             </div>

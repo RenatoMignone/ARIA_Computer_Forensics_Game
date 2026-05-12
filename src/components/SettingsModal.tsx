@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, X, Volume2, VolumeX, Monitor, Trash2, Github, Eye, ZapOff } from 'lucide-react';
+import { Settings, X, Monitor, Trash2, Github, Eye, ZapOff } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 interface SettingsModalProps {
@@ -8,19 +8,16 @@ interface SettingsModalProps {
 }
 
 export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
-    const [soundEnabled, setSoundEnabled] = useState(true);
     const [crtEnabled, setCrtEnabled] = useState(false);
-    const [highContrastEnabled, setHighContrastEnabled] = useState(false);
+    const [highContrastEnabled, setHighContrastEnabled] = useState(true);
     const [reducedEffectsEnabled, setReducedEffectsEnabled] = useState(false);
 
     useEffect(() => {
-        const savedSound = localStorage.getItem('aria_settings_sound');
         const savedCrt = localStorage.getItem('aria_settings_crt');
-        const savedHighContrast = localStorage.getItem('aria_settings_high_contrast');
         const savedReducedEffects = localStorage.getItem('aria_settings_reduced_effects');
-        if (savedSound !== null) setSoundEnabled(savedSound === 'true');
         if (savedCrt !== null) setCrtEnabled(savedCrt === 'true');
-        if (savedHighContrast !== null) setHighContrastEnabled(savedHighContrast === 'true');
+        setHighContrastEnabled(true);
+        localStorage.setItem('aria_settings_high_contrast', 'true');
         if (savedReducedEffects !== null) setReducedEffectsEnabled(savedReducedEffects === 'true');
     }, []);
 
@@ -39,13 +36,6 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     useEffect(() => {
         document.body.classList.toggle('reduced-effects', reducedEffectsEnabled);
     }, [reducedEffectsEnabled]);
-
-    const toggleSound = () => {
-        const newVal = !soundEnabled;
-        setSoundEnabled(newVal);
-        localStorage.setItem('aria_settings_sound', String(newVal));
-        // Note: useAudio will check this localStorage key
-    };
 
     const toggleCrt = () => {
         const newVal = !crtEnabled;
@@ -102,25 +92,6 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
                         {/* Content */}
                         <div className="p-6 space-y-6">
-                            {/* Sound Toggle */}
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded bg-cyan-400/10 flex items-center justify-center">
-                                        {soundEnabled ? <Volume2 className="w-4 h-4 text-cyan-400" /> : <VolumeX className="w-4 h-4 text-[#475569]" />}
-                                    </div>
-                                    <div>
-                                        <div className="text-xs font-bold text-slate-200 font-mono">Terminal Audio</div>
-                                        <div className="text-[10px] text-[#475569] font-mono">Mechanical keystroke and boot sounds</div>
-                                    </div>
-                                </div>
-                                <button
-                                    onClick={toggleSound}
-                                    className={`w-12 h-6 rounded-full relative transition-colors ${soundEnabled ? 'bg-cyan-500' : 'bg-[#1f2937]'}`}
-                                >
-                                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${soundEnabled ? 'left-7' : 'left-1'}`} />
-                                </button>
-                            </div>
-
                             {/* CRT Toggle */}
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">

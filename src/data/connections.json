@@ -4,8 +4,8 @@
     "files": ["email_1", "network_logs"],
     "keywords": ["91.200.81.47", "IP", "mailer", "bulk"],
     "reward": 15,
-    "description": "IP 91.200.81.47 appears in email_1 X-Originating-IP header AND network_logs outbound at 02:11 AM - same bulk mailer infrastructure. This is a valid cross-evidence link.",
-    "forensicLesson": "IP address correlation across evidence sources strengthens attribution - but requires timestamps to confirm simultaneity."
+    "description": "IP 91.200.81.47 appears in email_1 X-Originating-IP/Received headers and in network_logs outbound traffic at 01:58, 02:07, and 02:14 UTC - same bulk mailer infrastructure. This is a valid cross-evidence link.",
+    "forensicLesson": "IP address correlation across evidence sources strengthens infrastructure attribution, but it must be tied to exact timestamps and should not be overstated as human identity proof."
   },
   {
     "id": "conn_2",
@@ -20,7 +20,7 @@
     "files": ["invoice_fraud", "network_logs"],
     "keywords": ["exfiltration", "4.7", "MB", "data", "transfer"],
     "reward": 15,
-    "description": "invoice_fraud.pdf was modified at 14:15. The 4.7 MB exfiltration in network_logs occurred 8 hours earlier at 02:14 AM - temporal proximity exists but is insufficient to prove same actor.",
+    "description": "invoice_fraud.pdf was created at 01:47:22 UTC and modified at 02:01:55 UTC. The network logs show outbound activity from the same unregistered workstation minutes later, including Tor/exfiltration traffic at 02:14:33 UTC. The timeline is suspicious but still insufficient to prove the same actor without payload-level evidence.",
     "forensicLesson": "Temporal proximity is weak evidence. Without a direct data artifact linking the invoice file to the exfiltrated payload, this connection is circumstantial."
   }
 ]
