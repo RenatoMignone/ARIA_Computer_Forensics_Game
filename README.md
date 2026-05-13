@@ -255,6 +255,18 @@ Preview the production build:
 npm run preview
 ```
 
+## Hosted Demo
+
+The project can be deployed as a GitHub Pages project site through the included GitHub Actions workflow:
+
+```text
+https://renatomignone.github.io/ARIA_Computer_Forensics_Game/
+```
+
+The hosted version intentionally runs in scripted mode. This avoids exposing a Gemini API key in client-side JavaScript and gives a stable public demo for grading and presentations.
+
+To experience ARIA with Live Gemini Flash interaction, clone the repository and run it locally with a private `.env` file as described below.
+
 ## Environment Variables
 
 Scripted mode works without an API key.

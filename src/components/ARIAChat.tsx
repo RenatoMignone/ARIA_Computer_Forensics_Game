@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import { useAria, validateQuery } from '../hooks/useAria';
 import { ClaimBadge } from './ClaimBadge';
-import { AlertTriangle, Bot, Loader2, Search, Send, Sparkles, User, Zap } from 'lucide-react';
+import { AlertTriangle, Bot, KeyRound, Loader2, Search, Send, Sparkles, User, Zap } from 'lucide-react';
 import { ChatMessage, Claim, Evidence } from '../types/game';
 import { motion, useAnimation } from 'framer-motion';
 import evidenceData from '../data/evidence.json';
@@ -208,6 +208,9 @@ export function ARIAChat() {
     const bottomRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const headerControls = useAnimation();
+    const isPublicDemo = import.meta.env.VITE_PUBLIC_DEMO === 'true';
+    const liveRequestedWithoutKey = import.meta.env.VITE_LIVE_AI === 'true' && !import.meta.env.VITE_GEMINI_KEY;
+    const showScriptedModeNotice = !isLiveMode && !state.liveAIFailed && (isPublicDemo || liveRequestedWithoutKey);
 
     // Task 4: detect API failure mid-session
     const modeLabel = state.liveAIFailed
@@ -338,6 +341,17 @@ export function ARIAChat() {
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto py-1">
+                {showScriptedModeNotice && (
+                    <div className="mx-3 my-3 rounded-lg border border-cyan-500/30 bg-cyan-950/30 p-3 text-xs leading-relaxed text-cyan-100 shadow-[0_0_18px_rgba(8,145,178,0.12)]">
+                        <div className="mb-1.5 flex items-center gap-2 font-semibold text-cyan-200">
+                            <KeyRound className="h-4 w-4" aria-hidden="true" />
+                            Scripted demo mode
+                        </div>
+                        <p className="text-slate-300">
+                            This hosted version does not include a Gemini API key, so ARIA uses the deterministic scripted assistant. For the full Live Gemini Flash experience, clone the repository, create a local <code className="rounded border border-cyan-500/30 bg-[#0b1220] px-1 py-0.5 text-cyan-200">.env</code>, set <code className="rounded border border-cyan-500/30 bg-[#0b1220] px-1 py-0.5 text-cyan-200">VITE_LIVE_AI=true</code> and <code className="rounded border border-cyan-500/30 bg-[#0b1220] px-1 py-0.5 text-cyan-200">VITE_GEMINI_KEY</code>, then run the game locally.
+                        </p>
+                    </div>
+                )}
                 {state.chatHistory.length === 0 && (
                     <div className="aria-chat-empty mx-3 my-4 rounded-lg border p-3">
                         <div className="flex items-center gap-2 text-xs font-semibold text-cyan-200">
