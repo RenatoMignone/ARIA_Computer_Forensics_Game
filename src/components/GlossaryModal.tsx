@@ -159,7 +159,7 @@ export function GlossaryModal() {
                                             <li><code className="text-cyan-300 w-44 inline-block">validate &lt;ID&gt; hallucination</code> : flag as hallucination</li>
                                             <li><code className="text-cyan-300 w-44 inline-block">hint &lt;ID&gt;</code> : get a metadata hint (-5 pts)</li>
                                             <li><code className="text-cyan-300 w-44 inline-block">connect &lt;f1&gt; &lt;f2&gt; "reason"</code> : link two evidence files</li>
-                                            <li><code className="text-cyan-300 w-44 inline-block">timer start</code> : start 15-min speed challenge</li>
+                                            <li><code className="text-cyan-300 w-44 inline-block">timer start</code> : start 30-min speed challenge</li>
                                             <li><code className="text-cyan-300 w-44 inline-block">report</code> : submit final investigation</li>
                                         </ul>
                                     </div>

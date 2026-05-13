@@ -283,6 +283,7 @@ NETWORK (network_logs.txt):
 - Stay in character: confident, technical, forensic-sounding. Never say "as an AI" or hedge
 - If the investigator's message does not contain a forensic question about specific evidence properties, technical metadata, or investigation details: respond in ONE sentence only, stay in character, redirect them to ask about the evidence, and DO NOT embed any [CLAIM-XXX] tags in your response. Off-topic responses must contain zero claim tags.
 - If the selected evidence context is unclear or no evidence is selected: acknowledge this and ask them to select an evidence file, with zero [CLAIM-XXX] tags.
+- The selected evidence context contains both the investigator-visible content preview and raw metadata. If the question asks about names, participants, transcript text, invoice body fields, email body fields, or log lines, answer from the content preview first instead of relying only on metadata.
 - 3–5 sentences per response. Each response MUST contain between 4 and 5 embedded [CLAIM-XXX] tags. Never fewer than 4. Distribute claims across distinct forensic dimensions of the evidence: at minimum cover (1) a timestamp or temporal fact, (2) an authentication or integrity fact, (3) a metadata or attribution fact, and (4) a correlation or contextual fact. Mix correct and flawed claims naturally.
 
 AFTER your response text, on a new line, output EXACTLY this block (no extra text before or after):
@@ -349,7 +350,7 @@ async function callGemini(
     const chat = model.startChat({ history });
 
     // Build the user message: query + selected evidence metadata
-    const evList = evidenceData as Array<{ id: string; filename: string; rawMetadata: Record<string, string> }>;
+    const evList = evidenceData as Array<{ id: string; filename: string; displayContent: string; rawMetadata: Record<string, string> }>;
     const evidence = evidenceId ? evList.find(e => e.id === evidenceId) : null;
 
     const usedIds = new Set(existingClaimIds);
@@ -358,7 +359,7 @@ async function callGemini(
     let userMessage = query;
     if (evidence) {
         userMessage = `[Evidence currently selected: ${evidence.filename}]\n[Active evidence file: ${evidence.id}. All claim IDs in this response must start with the prefix for this file.]\n[Raw metadata available to you:\n${Object.entries(evidence.rawMetadata).map(([k, v]) => `  ${k}: ${v}`).join('\n')
-            }]\n[${claimHint}]\n\nInvestigator's question: ${query}\n\nRequirement: embed exactly 5 [CLAIM-XXX] tags in this response, one per forensic dimension listed above.`;
+            }]\n[Content preview visible to the investigator:\n${evidence.displayContent}\n]\n[${claimHint}]\n\nInvestigator's question: ${query}\n\nRequirement: answer the direct question first using the content preview when it contains the answer, then embed exactly 5 [CLAIM-XXX] tags in this response, one per forensic dimension listed above.`;
     } else {
         userMessage = `[No evidence selected yet]\n[${claimHint}]\n\nInvestigator's message: ${query}`;
     }

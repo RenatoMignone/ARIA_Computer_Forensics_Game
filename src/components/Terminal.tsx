@@ -420,11 +420,11 @@ export function Terminal() {
             if (s.timerEndTime && s.timerEndTime > Date.now()) {
                 writeLines(['\x1b[33mTimer is already running.\x1b[0m']);
             } else {
-                dispatch({ type: 'START_TIMER', durationMs: 15 * 60 * 1000 });
+                dispatch({ type: 'START_TIMER', durationMs: 30 * 60 * 1000 });
                 writeLines([
-                    '\x1b[32mInvestigation timer started: 15:00\x1b[0m',
-                    '\x1b[90mSubmit your final report before time expires for a +50 pt speed bonus.\x1b[0m'
-                ]);
+                '\x1b[32mInvestigation timer started: 30:00\x1b[0m',
+                '\x1b[90mSubmit your final report before time expires for a +50 pt speed bonus.\x1b[0m'
+            ]);
             }
         }
 
@@ -609,7 +609,7 @@ export function Terminal() {
                     '',
                     'Cross-reference two evidence files and log the connection.',
                     '',
-                    '  \x1b[33mconnect email_draft.txt network_log.pcap "Both show C2 domain exfil."\x1b[0m',
+                    '  \x1b[33mconnect email_1.eml network_logs.txt "Both show IP 91.200.81.47"\x1b[0m',
                     '',
                     '\x1b[90mConnections that match known forensic links award +15 pts.\x1b[0m',
                     '\x1b[90mUse the Evidence Board panel to visualise discovered links.\x1b[0m',
@@ -619,8 +619,8 @@ export function Terminal() {
                     '',
                     'Display raw metadata and contents for a specific evidence file.',
                     '',
-                    '  \x1b[33minspect malware_sample.exe\x1b[0m',
-                    '  \x1b[33minspect email_draft.txt\x1b[0m',
+                    '  \x1b[33minspect email_1.eml\x1b[0m',
+                    '  \x1b[33minspect audio_call.mp3\x1b[0m',
                     '',
                     '\x1b[90mAlways compare raw timestamps and hashes against ARIA\'s claims. It fabricates specific fields.\x1b[0m',
                     '\x1b[90mAlias: cat <filename> shows file content. hash verify <filename> shows checksums.\x1b[0m',
@@ -642,8 +642,8 @@ export function Terminal() {
                     '',
                     '  \x1b[33mreport\x1b[0m',
                     '',
-                    '\x1b[90mAll unvalidated claims are marked PENDING and score as 0.\x1b[0m',
-                    '\x1b[90mA +50 pt submission bonus applies to all completed reports.\x1b[0m',
+                    '\x1b[90mThe report is blocked until every generated ARIA claim is validated.\x1b[0m',
+                    '\x1b[90mSubmitting the report awards the completion bonus once the case is ready.\x1b[0m',
                     '\x1b[90mIf the speed timer is still running, an extra +50 speed bonus applies.\x1b[0m',
                 ],
             };
@@ -670,7 +670,7 @@ export function Terminal() {
                 '  \x1b[33mask aria "<question>"\x1b[0m                Send query to ARIA chat',
                 '  \x1b[33mconnect <f1> <f2> "<reason>"\x1b[0m       Cross-reference evidence files',
                 '  \x1b[33mnotes list\x1b[0m                          List investigator annotations',
-                '  \x1b[33mtimer start\x1b[0m                         Start investigation speed timer',
+                '  \x1b[33mtimer start\x1b[0m                         Start a 30-minute speed timer',
                 '  \x1b[33mdecode <base64>\x1b[0m                     Decrypt a base64 encoded string',
                 '  \x1b[33mtrace <ip>\x1b[0m                          Trace network route to IP address',
                 '  \x1b[33mtheme <name>\x1b[0m                        Change terminal color theme (default, matrix, blood)',

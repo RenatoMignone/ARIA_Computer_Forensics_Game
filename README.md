@@ -83,10 +83,10 @@ The current scenario contains 5 evidence files:
 
 Current scripted data:
 
-- 6 scripted ARIA responses.
-- 24 unique claims.
-- 13 hallucinated claims.
-- 11 true claims.
+- 7 scripted ARIA responses.
+- 28 unique claims.
+- 14 hallucinated claims.
+- 14 true claims.
 - 3 cross-evidence connections.
 
 Claim distribution:
@@ -94,7 +94,7 @@ Claim distribution:
 | Evidence | Claims |
 | --- | ---: |
 | `email_1` | 8 |
-| `audio_call` | 4 |
+| `audio_call` | 8 |
 | `teams_meeting` | 4 |
 | `invoice_fraud` | 4 |
 | `network_logs` | 4 |

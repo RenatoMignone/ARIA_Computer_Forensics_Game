@@ -40,6 +40,10 @@ export function EvidenceVault() {
         }
     });
 
+    const totalClaims = Object.keys(allClaims).length;
+    const validatedClaims = Object.values(claimsPerEvidence).reduce((sum, item) => sum + item.validated, 0);
+    const progress = totalClaims > 0 ? Math.round((validatedClaims / totalClaims) * 100) : 0;
+
     return (
         <div className="flex flex-col h-full bg-[#0e1726] border-r border-[#1f2937]">
             {/* Header */}
@@ -67,6 +71,16 @@ export function EvidenceVault() {
             {/* Content */}
             {viewMode === 'list' ? (
                 <>
+                    <div className="evidence-case-status">
+                        <div className="flex items-center justify-between gap-3">
+                            <span>Case Progress</span>
+                            <strong>{validatedClaims}/{totalClaims || '??'}</strong>
+                        </div>
+                        <div className="evidence-case-bar" aria-hidden="true">
+                            <span style={{ width: `${progress}%` }} />
+                        </div>
+                        <p>{totalClaims > 0 ? 'Validate every ARIA claim before reporting.' : 'Ask ARIA about a file to generate claims.'}</p>
+                    </div>
                     {/* File list */}
             <div className="flex-1 overflow-y-auto py-2">
                 {evidenceList.map(ev => {
@@ -94,7 +108,7 @@ export function EvidenceVault() {
                                     {ev.filename}
                                 </div>
                                 <div className="text-[11px] text-slate-500 uppercase mt-0.5 font-mono">{ev.type}</div>
-                                {stats && (
+                                {stats ? (
                                     <div className="mt-1.5 pr-2">
                                         <div className="text-[11px] font-mono flex items-center justify-between mb-1">
                                             <span className={stats.validated === stats.total ? 'text-emerald-400' : 'text-amber-400'}>
@@ -112,6 +126,10 @@ export function EvidenceVault() {
                                                 style={{ width: `${stats.total > 0 ? (stats.validated / stats.total) * 100 : 0}%` }}
                                             />
                                         </div>
+                                    </div>
+                                ) : (
+                                    <div className="mt-1.5 text-[10px] font-mono uppercase tracking-wider text-slate-600">
+                                        No claims generated
                                     </div>
                                 )}
                             </div>

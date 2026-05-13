@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import { useAria, validateQuery } from '../hooks/useAria';
 import { ClaimBadge } from './ClaimBadge';
-import { AlertTriangle, Bot, Loader2, Search, Send, User, Zap } from 'lucide-react';
+import { AlertTriangle, Bot, Loader2, Search, Send, Sparkles, User, Zap } from 'lucide-react';
 import { ChatMessage, Claim, Evidence } from '../types/game';
 import { motion, useAnimation } from 'framer-motion';
 import evidenceData from '../data/evidence.json';
@@ -224,8 +224,43 @@ export function ARIAChat() {
         headerControls.start({ backgroundColor: ['rgba(13, 20, 32, 1)', 'rgba(8, 145, 178, 0.2)', 'rgba(13, 20, 32, 1)'], transition: { duration: 0.6 } });
     }, [state.chatHistory, headerControls]);
 
-    const handleSend = () => {
-        const q = input.trim();
+    const getSuggestedQuestions = (evidenceId: string | null) => {
+        switch (evidenceId) {
+            case 'email_1':
+                return [
+                    'What proves whether this email is legitimate?',
+                    'Which metadata fields should I distrust?',
+                ];
+            case 'audio_call':
+                return [
+                    'Who is speaking in this audio?',
+                    'What signs suggest the voice was synthetic?',
+                ];
+            case 'teams_meeting':
+                return [
+                    'What proves this Teams recording was edited?',
+                    'Which artifacts point to a deepfake?',
+                ];
+            case 'invoice_fraud':
+                return [
+                    'What is suspicious about this invoice?',
+                    'Which metadata fields prove the document history?',
+                ];
+            case 'network_logs':
+                return [
+                    'Which network events matter most?',
+                    'How do these logs connect to the other evidence?',
+                ];
+            default:
+                return [
+                    'What should I inspect first?',
+                    'Which claims will need verification?',
+                ];
+        }
+    };
+
+    const submitQuestion = (question: string) => {
+        const q = question.trim();
         if (!q) return;
         if (isGenerating) return; // guard: one request at a time
         
@@ -282,6 +317,10 @@ export function ARIAChat() {
         askAria(q, state.selectedEvidenceId);
     };
 
+    const handleSend = () => {
+        submitQuestion(input);
+    };
+
     return (
         <div className="flex flex-col h-full bg-[#0e1726] border-l border-[#1f2937]">
             {/* Header */}
@@ -299,6 +338,17 @@ export function ARIAChat() {
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto py-1">
+                {state.chatHistory.length === 0 && (
+                    <div className="aria-chat-empty mx-3 my-4 rounded-lg border p-3">
+                        <div className="flex items-center gap-2 text-xs font-semibold text-cyan-200">
+                            <Sparkles className="h-4 w-4" aria-hidden="true" />
+                            Start with a precise question
+                        </div>
+                        <p className="mt-2 text-xs leading-relaxed text-slate-400">
+                            ARIA is useful when you ask about the selected file, but every tagged claim still has to be proven against the evidence.
+                        </p>
+                    </div>
+                )}
                 {state.chatHistory.map(msg => (
                     <MessageBubble key={msg.id} msg={msg} onStreamUpdate={() => {
                         // Use a small timeout to let the DOM settle before scrolling
@@ -329,6 +379,22 @@ export function ARIAChat() {
                     <div className="flex items-center gap-1.5 mb-2 px-3 py-1.5 rounded bg-violet-900/20 border border-violet-500/30 text-violet-400 text-[11px] font-mono animate-pulse">
                         <Loader2 className="w-3 h-3 animate-spin" />
                         ARIA is processing...
+                    </div>
+                )}
+
+                {!isGenerating && (
+                    <div className="aria-suggestion-list mb-3">
+                        {getSuggestedQuestions(state.selectedEvidenceId).map((question) => (
+                            <button
+                                key={question}
+                                type="button"
+                                onClick={() => submitQuestion(question)}
+                                disabled={!state.selectedEvidenceId}
+                                className="aria-suggestion"
+                            >
+                                {question}
+                            </button>
+                        ))}
                     </div>
                 )}
 

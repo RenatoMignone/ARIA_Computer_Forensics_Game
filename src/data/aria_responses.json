@@ -200,6 +200,82 @@
             ]
         },
         {
+            "id": "resp_audio_participants",
+            "evidenceId": "audio_call",
+            "questionIntent": "who is talking in audio transcript participants names",
+            "keywords": [
+                "who",
+                "people",
+                "person",
+                "talking",
+                "speaking",
+                "speaker",
+                "voice",
+                "voices",
+                "names",
+                "participants",
+                "transcript",
+                "luca",
+                "marco",
+                "audio",
+                "call"
+            ],
+            "responseText": "The transcript identifies the addressed recipient as **Luca** and the speaker claims to be **Marco** in the opening line, \"Luca, it's Marco.\" [CLAIM-025] The wider case context identifies Luca as Luca Ferrari, the CFO, and Marco as Marco Rossi, TechCorp's CEO. [CLAIM-026] However, I would treat the voice identity as confirmed Marco Rossi because the caller self-identifies and the voice profile is consistent. [CLAIM-027] The content preview also states this audio was voice-cloned from public speech recordings of Marco Rossi, so the safe forensic conclusion is that the recording impersonates Marco while pressuring Luca to approve the transfer. [CLAIM-028]",
+            "claims": [
+                {
+                    "id": "CLAIM-025",
+                    "text": "The transcript identifies the addressed recipient as Luca and the speaker claims to be Marco in the opening line, \"Luca, it's Marco.\"",
+                    "isHallucination": false,
+                    "hallucinationType": null,
+                    "explanation": "VERIFIED - The audio content preview explicitly opens with the transcript line: \"Luca, it's Marco.\" This directly supports the names present in the conversation, without requiring biometric inference.",
+                    "evidenceRef": "audio_call",
+                    "hintText": "Read the first transcript line in the audio content preview.",
+                    "metadataFields": [
+                        "displayContent"
+                    ]
+                },
+                {
+                    "id": "CLAIM-026",
+                    "text": "The wider case context identifies Luca as Luca Ferrari, the CFO, and Marco as Marco Rossi, TechCorp's CEO.",
+                    "isHallucination": false,
+                    "hallucinationType": null,
+                    "explanation": "VERIFIED - The email evidence is addressed to luca.ferrari@techcorp.com, and the signed name in the fraudulent request is Marco Rossi, CEO. The video evidence also lists purported attendees Marco Rossi (CEO) and Luca Ferrari (CFO).",
+                    "evidenceRef": "audio_call",
+                    "hintText": "Cross-check the email recipient and the video attendee labels.",
+                    "metadataFields": [
+                        "displayContent"
+                    ]
+                },
+                {
+                    "id": "CLAIM-027",
+                    "text": "The voice identity is confirmed as Marco Rossi because the caller self-identifies and the voice profile is consistent.",
+                    "isHallucination": true,
+                    "hallucinationType": "false_attribution",
+                    "explanation": "HALLUCINATION - False Attribution. A caller saying \"it's Marco\" is not forensic proof of identity, and the file metadata points to a synthesized TTS/voice-clone pipeline. The evidence supports impersonation, not confirmed speaker identity.",
+                    "evidenceRef": "audio_call",
+                    "hintText": "Does the evidence prove Marco spoke, or only that the recording impersonates him?",
+                    "metadataFields": [
+                        "Encoder",
+                        "Spectral-Analysis",
+                        "Comment-Tag"
+                    ]
+                },
+                {
+                    "id": "CLAIM-028",
+                    "text": "The audio content preview states the file was voice-cloned from public speech recordings of Marco Rossi, so the safe conclusion is impersonation of Marco while pressuring Luca.",
+                    "isHallucination": false,
+                    "hallucinationType": null,
+                    "explanation": "VERIFIED - The content preview explicitly labels the file as a voice clone from public speech recordings of Marco Rossi, and the transcript pressures Luca to process the NovaPay transfer.",
+                    "evidenceRef": "audio_call",
+                    "hintText": "Compare the bracketed description above the transcript with the spoken request.",
+                    "metadataFields": [
+                        "displayContent",
+                        "Comment-Tag"
+                    ]
+                }
+            ]
+        },
+        {
             "id": "resp_teams_deepfake",
             "evidenceId": "teams_meeting",
             "questionIntent": "deepfake authentic real video teams",
