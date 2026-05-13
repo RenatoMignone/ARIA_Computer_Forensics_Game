@@ -7,7 +7,13 @@ export interface SerializedGameState {
     chainOfCustody: ChainEntry[];
     chatHistory: ChatMessage[];
     selectedEvidenceId: string | null;
+    terminalHistory: string[];
+    usedHints: Record<string, boolean>;
+    notes: Record<string, Record<string, string>>;
     reviewedEvidenceIds: string[];
+    claimDisplayOrder: Record<string, string[]>;
+    timerEndTime: number | null;
+    liveAIFailed?: boolean;
     /** Schema migration guard: must match SAVE_SCHEMA_VERSION in GameContext. */
     SAVE_SCHEMA_VERSION?: number;
 }

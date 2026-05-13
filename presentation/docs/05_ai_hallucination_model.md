@@ -16,6 +16,8 @@ This makes the AI output easier to evaluate. Instead of asking the player to jud
 
 Each claim can then be checked against the evidence.
 
+In live Gemini mode, claim identifiers are also treated as stable objects. If the assistant repeats the same forensic fact, the game attempts to reuse the existing claim ID instead of creating an infinite stream of duplicate badges. This keeps the learning task focused on evidence verification rather than badge management.
+
 ## Claim Types
 
 The game includes both:
@@ -82,6 +84,8 @@ The core rule is:
 **No claim should be accepted unless it can be traced to evidence.**
 
 In the game, this means checking content, metadata, hashes, timestamps, logs, and cross-evidence links before validating a claim.
+
+The interface reinforces this rule by blocking claim validation until the relevant evidence has been reviewed.
 
 In real forensic work, the same principle applies to reports, testimony, incident response documentation, and internal security decisions.
 

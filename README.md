@@ -26,15 +26,16 @@ This project is designed to support Computer Forensics and Cyber Crime Analysis 
 
 ## Game Loop
 
-1. Choose a difficulty level.
-2. Read the tutorial or skip directly to the investigation.
-3. Select evidence from the vault.
-4. Ask ARIA questions about the evidence.
-5. Inspect raw metadata in the workspace.
-6. Mark each ARIA claim as verified or hallucination.
-7. Add notes and identify cross-evidence connections.
-8. Submit the final report.
-9. Review the debrief, score, calibration, and exportable report.
+1. Start from the ARIA main menu.
+2. Choose an investigation mode and optional timer.
+3. Read the tutorial or skip directly to the investigation.
+4. Select evidence from the vault.
+5. Inspect raw metadata in the workspace or terminal.
+6. Ask ARIA questions about the evidence.
+7. Mark each ARIA claim as verified or hallucination only after reviewing the related evidence.
+8. Add notes and identify cross-evidence connections.
+9. Submit the final report from the terminal.
+10. Review the debrief, score, calibration, and exportable report.
 
 ## Current Implementation Status
 
@@ -44,15 +45,16 @@ The current build passes with `npm run build`.
 Implemented:
 
 - Boot sequence and difficulty selection.
-- Tutorial flow.
+- Game-style main menu, difficulty selection, timer selection, and tutorial flow.
 - Evidence vault and evidence workspace.
 - Raw metadata inspection.
 - ARIA chat in scripted mode.
 - Optional Gemini-backed live AI mode.
-- Claim registration and validation.
+- Stable claim registration and validation, including duplicate prevention in live AI mode.
 - Confidence selection for verdicts.
 - Scoring and performance tiers.
 - Terminal interface with forensic commands.
+- Investigator Handbook with glossary, how-to-play guide, and terminal command reference.
 - Notes per evidence field.
 - Chain of custody log.
 - Cross-evidence connection tracking.
@@ -109,6 +111,8 @@ The scoring model rewards careful verification and penalizes blind trust or blan
 | Accept a hallucination as true | -30 |
 | Reject a true claim as hallucinated | -25 |
 | Find a cross-evidence connection | +15 for the first 3 |
+| Trace the Tor exit-node IP in the terminal | +15 once |
+| Decode the hidden invoice creator payload | +20 once |
 | Submit final report | +50 |
 | Submit before timer expires | +50 |
 
@@ -116,9 +120,9 @@ Difficulty multiplier:
 
 | Difficulty | Multiplier |
 | --- | ---: |
-| Standard | 1.00 |
-| Hard | 1.25 |
-| Expert | 1.50 |
+| Guided Run | 1.00 |
+| Challenge Run | 1.25 |
+| Final Exam | 1.50 |
 
 Performance tiers:
 
@@ -160,9 +164,13 @@ The player also chooses a confidence level:
 - `medium`
 - `high`
 
+The interface blocks claim validation until the player has reviewed the related evidence through the Raw Metadata tab or a terminal inspection command. This prevents a player from winning only by repeatedly prompting ARIA and clicking verdict buttons without touching the actual artifacts.
+
 ### Terminal
 
 The terminal provides command-style investigation tools, including evidence scanning, hash checks, metadata inspection, claim validation, note management, connection checks, and report submission.
+
+The in-game Investigator Handbook also includes a Terminal Commands tab so players can recover the syntax during the investigation.
 
 ### Debrief
 
@@ -186,7 +194,12 @@ It shows score, tier, hallucinations found, calibration, final report details, l
 AI_Game/
   docs/
     README.md
+    deployment.md
+    gameplay-and-assessment.md
     setup-and-api-key.md
+  .github/
+    workflows/
+      deploy.yml
   src/
     App.tsx
     main.tsx
@@ -230,6 +243,8 @@ AI_Game/
 ## Running The Project
 
 For the full setup process, including Gemini API key creation and `.env` configuration, see [`docs/setup-and-api-key.md`](docs/setup-and-api-key.md).
+For gameplay and assessment behavior, see [`docs/gameplay-and-assessment.md`](docs/gameplay-and-assessment.md).
+For GitHub Pages deployment, see [`docs/deployment.md`](docs/deployment.md).
 
 Install dependencies:
 
@@ -310,3 +325,4 @@ Before presenting or submitting the project:
 3. Run `npm run build` and confirm it completes successfully.
 4. Start the game with `npm run dev` or preview the production build with `npm run preview`.
 5. Play the scripted case from boot screen to debrief, then export the final report if it is needed for the presentation.
+6. Confirm the public GitHub Pages build runs in scripted demo mode and does not expose any Gemini API key.

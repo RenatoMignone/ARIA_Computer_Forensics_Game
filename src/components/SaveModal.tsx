@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useGame, SAVE_SCHEMA_VERSION } from '../context/GameContext';
+import { useGame, SAVE_SCHEMA_VERSION, serializeGameState } from '../context/GameContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { SaveSlot, SerializedGameState } from '../types/game';
+import { SaveSlot } from '../types/game';
 import { countHallucinationsFound, countTotalHallucinations, countValidated } from '../lib/scoring';
 import { X, Save, FolderOpen, Trash2, CheckCircle2 } from 'lucide-react';
 
@@ -48,18 +48,7 @@ export function SaveModal({ isOpen, onClose }: SaveModalProps) {
             return verdict === 'hallucination' && state.allClaims[id]?.isHallucination === true;
         }).length;
 
-        const gameState: SerializedGameState = {
-            SAVE_SCHEMA_VERSION,
-            score: state.score,
-            verdicts: state.verdicts,
-            allClaims: state.allClaims,
-            foundConnections: state.foundConnections,
-            difficulty: state.difficulty,
-            chainOfCustody: state.chainOfCustody,
-            chatHistory: state.chatHistory.slice(-30),
-            selectedEvidenceId: state.selectedEvidenceId,
-            reviewedEvidenceIds: state.reviewedEvidenceIds,
-        };
+        const gameState = serializeGameState(state);
 
         const newSave: SaveSlot = {
             id: `save_${Date.now()}`,
@@ -92,6 +81,12 @@ export function SaveModal({ isOpen, onClose }: SaveModalProps) {
     };
 
     const handleLoad = (slot: SaveSlot) => {
+        if (slot.gameState.SAVE_SCHEMA_VERSION !== SAVE_SCHEMA_VERSION) {
+            alert(
+                `This save file was created with an older version of ARIA (schema v${slot.gameState.SAVE_SCHEMA_VERSION ?? 0}) and cannot be loaded. Please start a new investigation.`
+            );
+            return;
+        }
         dispatch({
             type: 'LOAD_GAME_STATE',
             state: {

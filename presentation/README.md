@@ -20,6 +20,7 @@ presentation/
     07_technical_implementation.md
     08_evaluation_and_results.md
     09_presentation_storyline.md
+    10_demo_script.md
 ```
 
 ## How To Use These Notes
@@ -35,5 +36,6 @@ They can be used to prepare:
 - The explanation of the forensic and AI-related learning objectives.
 - The technical overview of the implementation.
 - The final discussion about outcomes, limits, and future improvements.
+- A practical live-demo script for the final presentation.
 
 The material is written as source content for a final presentation, not as player-facing documentation.

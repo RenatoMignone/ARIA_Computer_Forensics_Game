@@ -25,6 +25,8 @@ The most important areas are:
 
 ```text
 AI_Game/
+  .github/workflows/
+  docs/
   src/
     components/
     context/
@@ -36,6 +38,8 @@ AI_Game/
   scripts/
   presentation/
 ```
+
+The `docs/` folder contains setup, gameplay, assessment, and deployment documentation. The `presentation/` folder contains material for the final university presentation.
 
 The `presentation/` folder contains the material used to explain the project.
 
@@ -56,6 +60,7 @@ The `components/` folder contains the main interface elements:
 - Evidence board.
 - Debrief screen.
 - Settings and glossary modals.
+- Investigator Handbook with glossary, how-to-play, and terminal command reference.
 
 ### Context
 
@@ -96,6 +101,20 @@ The game includes optional support for a Gemini-backed live mode when an API key
 
 This is not required for the main educational experience. The controlled scripted mode remains the primary mode because it supports consistent assessment and predictable classroom demonstration.
 
+If live mode fails because the key is missing, invalid, rate-limited, or exhausted, the game falls back to scripted responses. This prevents the investigation from becoming blocked during a presentation.
+
+Live responses also receive the selected evidence content, raw metadata, and the known claim catalog for that evidence. This reduces repeated duplicate claims and helps the assistant reuse existing claim IDs.
+
+## GitHub Pages Deployment
+
+The repository includes a GitHub Actions workflow for static deployment to GitHub Pages.
+
+The public version is intentionally built in scripted mode:
+
+- It avoids exposing a Gemini API key in the JavaScript bundle.
+- It provides a stable demo URL for the professor.
+- It keeps live Gemini as a local optional enhancement.
+
 ## Save System
 
 The game supports local save and resume functionality through browser local storage.
@@ -123,3 +142,4 @@ The implementation is designed to prioritize:
 - Reproducible educational behavior.
 - Fast local development.
 - A strong demonstration flow for the course presentation.
+- Safe public hosting without leaking API keys.

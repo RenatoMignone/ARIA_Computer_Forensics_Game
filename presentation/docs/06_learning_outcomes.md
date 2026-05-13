@@ -42,11 +42,15 @@ The game includes hashes, evidence selection, notes, and investigation events.
 
 This introduces the idea that evidence must be tracked and handled carefully.
 
+The terminal command `hash verify <file>` and the chain-of-custody log make this concept visible during play instead of leaving it only as theory.
+
 ### Report-Oriented Thinking
 
 The final report flow encourages the player to think about the investigation as something that must be communicated clearly.
 
 A forensic conclusion is not only a private belief. It must be explainable.
+
+The debrief then connects the player's actions back to the learning goal by showing correct validations, mistakes, hallucinations found, calibration feedback, and report results.
 
 ## AI Literacy Skills
 
@@ -74,6 +78,8 @@ The player learns the difference between:
 The player must neither trust everything nor reject everything.
 
 The correct behavior is calibrated trust: accept what is supported, reject what is unsupported, and remain careful when evidence is incomplete.
+
+The evidence-review gate supports this outcome by making raw evidence inspection a required step before claim validation.
 
 ## Cybersecurity Concepts
 
@@ -103,6 +109,7 @@ After completing the game, the student should be able to:
 - Understand the value of cross-evidence correlation.
 - Recognize the risks of unsupported confidence.
 - Produce a more defensible investigative conclusion.
+- Use an AI assistant as a source of leads without treating it as the source of truth.
 
 ## Broader Educational Outcome
 

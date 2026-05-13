@@ -4,12 +4,14 @@ This document explains how to prepare ARIA for local development, classroom demo
 
 ## Requirements
 
-- Node.js 20 or newer
+- Node.js 20.19 or newer, or Node.js 22.12 or newer
 - npm
 - A modern browser such as Chrome, Edge, or Firefox
 - Optional: a Google Gemini API key for live AI mode
 
 The game works without an API key. In the default scripted mode, all ARIA answers come from the curated responses in `src/data/aria_responses.json`, which is the recommended mode for stable university presentations.
+
+The hosted GitHub Pages version is intentionally built in scripted mode because a Gemini API key would be exposed if it were shipped inside client-side JavaScript. Live Gemini mode should be used locally with a private `.env` file.
 
 ## Local Setup
 
@@ -81,10 +83,17 @@ VITE_GEMINI_KEY=your_gemini_api_key_here
 
 Restart the development server after editing `.env`, because Vite reads environment variables when the server starts.
 
+## Live AI Fallback Behavior
+
+If live mode is enabled but Gemini cannot answer because the key is missing, invalid, rate-limited, or exhausted, ARIA falls back to scripted responses. The game shows a scripted-mode notice so the player understands that the deterministic assistant is being used.
+
+Live mode also reuses existing claim IDs for repeated facts. This prevents repeated questions from creating infinite duplicate claim badges for the same forensic observation.
+
 ## Important Security Notes
 
 - Do not commit `.env`.
 - Do not paste a real API key into screenshots, reports, or presentation slides.
+- Do not add `VITE_GEMINI_KEY` to the GitHub Pages workflow.
 - If a key is accidentally committed or shared, revoke it in Google AI Studio and create a new one.
 - For a formal demo, prefer scripted mode unless live AI behavior is explicitly being evaluated.
 
@@ -100,5 +109,5 @@ If live mode does not activate:
 If the project does not start:
 
 - Run `npm install` again.
-- Check that Node.js is installed with `node --version`.
+- Check that Node.js is installed with `node --version`. Vite requires Node.js 20.19+ or 22.12+.
 - Delete only generated folders such as `node_modules/` and `dist/` if you need a clean reinstall, then run `npm install`.

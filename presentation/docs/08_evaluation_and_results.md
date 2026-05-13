@@ -13,16 +13,23 @@ This makes the project suitable for a course presentation because it is not only
 The current game includes:
 
 - Difficulty selection.
+- Game-style main menu.
+- Timer selection.
 - Tutorial flow.
+- Reopenable tutorial with forward and backward navigation.
 - Evidence vault.
 - Evidence workspace.
 - Metadata inspection.
 - ARIA chat in scripted mode.
 - Optional live AI mode.
+- Scripted fallback when live AI is unavailable.
+- Duplicate claim reuse for repeated live AI facts.
 - Claim validation.
+- Evidence-review gate before validation.
 - Confidence selection.
 - Scoring.
 - Terminal commands.
+- Investigator Handbook with glossary, how-to-play, and terminal command reference.
 - Investigation notes.
 - Cross-evidence connections.
 - Timer options.
@@ -39,6 +46,7 @@ The implemented prototype successfully supports the project learning goals:
 
 - It creates a realistic investigation context.
 - It forces the player to inspect evidence rather than trust the assistant blindly.
+- It prevents claim validation before evidence review, which improves the intended learning loop.
 - It introduces several common forensic artifacts.
 - It makes AI hallucinations visible and measurable.
 - It provides feedback through scoring and debriefing.
@@ -94,6 +102,7 @@ Current limitations include:
 - The local save system works only on the same browser and device.
 - The game does not include a real backend for multiplayer, class comparison, or tamper-resistant result sharing.
 - The live AI mode is optional and not the primary assessment path.
+- The public GitHub Pages version cannot safely include a private Gemini API key, so live AI requires local execution.
 
 ## Future Improvements
 

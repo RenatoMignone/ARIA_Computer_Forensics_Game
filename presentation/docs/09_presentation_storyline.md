@@ -68,17 +68,21 @@ Explain that each file contains content, metadata, and hashes.
 
 Show the gameplay loop:
 
-1. Select evidence.
-2. Inspect content and metadata.
-3. Ask ARIA questions.
-4. Read claim tags.
-5. Validate claims.
-6. Add notes.
-7. Connect evidence.
-8. Submit the final report.
-9. Review the debrief.
+1. Start from the ARIA main menu.
+2. Choose Guided Run, Challenge Run, or Final Exam.
+3. Choose a timer or play without one.
+4. Select evidence.
+5. Inspect content and metadata.
+6. Ask ARIA questions.
+7. Read claim tags.
+8. Validate claims after reviewing evidence.
+9. Add notes and connect evidence.
+10. Submit the final report.
+11. Review the debrief.
 
 This is the best point to include screenshots or a live demo.
+
+Mention that the tutorial can be reopened with the `?` button and that the book icon opens the Investigator Handbook with glossary, how-to-play, and terminal command reference.
 
 ## 8. AI Hallucination Examples
 
@@ -112,8 +116,10 @@ Briefly present the implementation:
 - JSON-based evidence and claim data.
 - Scripted ARIA responses for controlled educational behavior.
 - Optional live AI mode.
+- Scripted fallback for public demos and exhausted API keys.
 - Local save system.
 - Terminal and workspace interface.
+- GitHub Pages deployment through GitHub Actions.
 
 Keep this section concise. The focus should remain on the educational design and forensic reasoning.
 
@@ -121,9 +127,11 @@ Keep this section concise. The focus should remain on the educational design and
 
 Explain that the game is currently playable from start to finish.
 
-Implemented features include tutorial, evidence vault, workspace, ARIA chat, terminal, claim validation, scoring, cross-evidence board, final report, and debrief.
+Implemented features include the main menu, tutorial, evidence vault, workspace, ARIA chat, terminal, claim validation, scoring, cross-evidence board, final report, and debrief.
 
 Mention that the project is a prototype but already demonstrates the main educational objective.
+
+Also mention that the hosted GitHub Pages version runs safely in scripted mode, while Live Gemini Flash can be enabled locally with a private `.env` file.
 
 ## 12. Limitations
 
@@ -133,6 +141,7 @@ Present limitations honestly:
 - Limited scripted response coverage.
 - Local-only save system.
 - No backend for verified classroom-wide result sharing.
+- Public static hosting cannot safely expose a Gemini API key.
 - Future expansion could add more scenarios and instructor tools.
 
 ## 13. Conclusion

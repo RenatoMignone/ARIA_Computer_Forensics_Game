@@ -10,7 +10,15 @@ The player is not asked to simply find one hidden answer. The real task is to bu
 
 ## Start Of The Game
 
-The game begins with a difficulty selection screen. The player can choose the level of challenge and then enter the investigation.
+The game begins with a simple ARIA main menu. From there, the player can start a new investigation, load a saved run, read a short how-to-play summary, or review the last debrief when one exists.
+
+Starting a new investigation opens the mode selection:
+
+- **Guided Run:** recommended first run, with visible claim text.
+- **Challenge Run:** hides claim text until validation and applies a 1.25x score multiplier.
+- **Final Exam:** disables hints, keeps the harder claim behavior, and applies a 1.5x score multiplier.
+
+After selecting a mode, the player chooses whether to use a 45-minute timer, a 30-minute timer, or no timer.
 
 A tutorial introduces the main interface:
 
@@ -22,6 +30,7 @@ A tutorial introduces the main interface:
 - The panel controls.
 - The claim validation system.
 - The final report flow.
+- The Investigator Handbook in the top bar.
 
 The tutorial also explains that interface sections can be temporarily hidden from the top-right panel controls when the player needs more workspace.
 
@@ -45,7 +54,7 @@ The core gameplay loop is:
 2. Inspect its content and metadata.
 3. Ask ARIA questions about the file.
 4. Identify claim tags in ARIA's answer.
-5. Validate each claim as verified or hallucinated.
+5. Validate each claim as verified or hallucinated after reviewing the related evidence.
 6. Add notes when useful.
 7. Compare the file with other evidence.
 8. Discover cross-evidence connections.
@@ -65,11 +74,15 @@ Each claim has a ground truth stored in the game data. The player must decide wh
 
 The player also chooses a confidence level. This encourages calibration: the player should not only decide what is true, but also think about how strongly the evidence supports the decision.
 
+The current implementation blocks validation until the related file has been reviewed through raw metadata or a terminal inspection command. This supports the educational goal by forcing the player back to the evidence before scoring a claim.
+
 ## Terminal Interaction
 
 The terminal gives the game a forensic investigation flavor. It supports command-style actions such as scanning evidence, checking hashes, inspecting metadata, validating claims, adding notes, connecting evidence, and submitting the report.
 
 The terminal reinforces the idea that forensic work is procedural. It also makes the game feel closer to a technical investigation environment.
+
+The Investigator Handbook contains a Terminal Commands section so the player can recover syntax and understand when each command is useful.
 
 ## Evidence Board
 

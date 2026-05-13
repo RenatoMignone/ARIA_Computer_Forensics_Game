@@ -267,6 +267,14 @@ export function ARIAChat() {
         if (!q) return;
         if (isGenerating) return; // guard: one request at a time
         
+        const validation = validateQuery(q);
+        if (validation.injectionAttempt) {
+            setInlineWarning(null);
+            setInput('');
+            askAria(q, state.selectedEvidenceId);
+            return;
+        }
+
         if (!state.selectedEvidenceId) {
             dispatch({
                 type: 'ADD_CHAT_MESSAGE',
@@ -281,7 +289,6 @@ export function ARIAChat() {
             return;
         }
 
-        const validation = validateQuery(q);
         if (!validation.valid) {
             if (validation.hard) {
                 // Hard block: spam / too short - reject entirely

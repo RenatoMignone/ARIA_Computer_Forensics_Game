@@ -7,7 +7,7 @@ import { LeaderboardEntry } from '../types/game';
  * Save schema version: increment this whenever SerializedGameState gains
  * required fields to ensure old local saves are safely rejected.
  */
-export const SAVE_SCHEMA_VERSION = 1;
+export const SAVE_SCHEMA_VERSION = 2;
 
 const initialState: GameState = {
     phase: 'difficulty',
@@ -57,6 +57,27 @@ const initialState: GameState = {
     errorReveal: null,
 };
 
+export function serializeGameState(state: GameState): SerializedGameState {
+    return {
+        SAVE_SCHEMA_VERSION,
+        score: state.score,
+        verdicts: state.verdicts,
+        allClaims: state.allClaims,
+        foundConnections: state.foundConnections,
+        difficulty: state.difficulty,
+        chainOfCustody: state.chainOfCustody,
+        chatHistory: state.chatHistory.slice(-30),
+        selectedEvidenceId: state.selectedEvidenceId,
+        terminalHistory: state.terminalHistory.slice(-200),
+        usedHints: state.usedHints,
+        notes: state.notes,
+        reviewedEvidenceIds: state.reviewedEvidenceIds,
+        claimDisplayOrder: state.claimDisplayOrder,
+        timerEndTime: state.timerEndTime,
+        liveAIFailed: state.liveAIFailed,
+    };
+}
+
 function autoSave(state: GameState): boolean {
     const raw = localStorage.getItem('aria_saves');
     if (!raw) return false;
@@ -80,19 +101,7 @@ function autoSave(state: GameState): boolean {
         newest.hallucinationsFound = halluFound;
         newest.connectionsFound = state.foundConnections.length;
         
-        const gameState: SerializedGameState = {
-            score: state.score,
-            verdicts: state.verdicts,
-            allClaims: state.allClaims,
-            foundConnections: state.foundConnections,
-            difficulty: state.difficulty,
-            chainOfCustody: state.chainOfCustody,
-            chatHistory: state.chatHistory.slice(-30),
-            selectedEvidenceId: state.selectedEvidenceId,
-            reviewedEvidenceIds: state.reviewedEvidenceIds,
-            SAVE_SCHEMA_VERSION,
-        };
-        newest.gameState = gameState;
+        newest.gameState = serializeGameState(state);
         
         localStorage.setItem('aria_saves', JSON.stringify(saves));
         return true;

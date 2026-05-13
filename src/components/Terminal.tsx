@@ -332,16 +332,19 @@ export function Terminal() {
         else if (cmd.startsWith('ask aria ')) {
             if (isGeneratingRef.current) {
                 writeLines([`\x1b[33m\u23f3 ARIA is processing… Please wait before sending another query.\x1b[0m`]);
-            } else if (!s.selectedEvidenceId) {
-                writeLines([
-                    `\x1b[33m[WARN] No evidence selected. Use 'inspect <filename>' first to set context.\x1b[0m`,
-                    `       \x1b[33mExample: inspect email_1.eml\x1b[0m`
-                ]);
             } else {
                 const question = cmd.slice(9).replace(/^["']|["']$/g, '');
-                
                 const validation = validateQuery(question);
-                if (!validation.valid) {
+
+                if (validation.injectionAttempt) {
+                    writeLines([`\x1b[31m[SECURITY FILTER] Prompt injection attempt detected. Penalty applied.\x1b[0m`]);
+                    askAria(question, s.selectedEvidenceId);
+                } else if (!s.selectedEvidenceId) {
+                    writeLines([
+                        `\x1b[33m[WARN] No evidence selected. Use 'inspect <filename>' first to set context.\x1b[0m`,
+                        `       \x1b[33mExample: inspect email_1.eml\x1b[0m`
+                    ]);
+                } else if (!validation.valid) {
                     writeLines([`\x1b[33m[WARN] ${validation.reason}\x1b[0m`]);
                 } else {
                     writeLines([`\x1b[36mRouting query to ARIA: "${question}"\x1b[0m`]);
@@ -459,17 +462,16 @@ export function Terminal() {
         else if (cmd === 'report') {
             const discoveredClaimCount = Object.keys(s.allClaims).length;
             const missingScriptedClaims = getMissingScriptedCoverage(s.allClaims);
-            const scriptedMode = import.meta.env.VITE_LIVE_AI !== 'true' || s.liveAIFailed;
             if (discoveredClaimCount === 0) {
                 writeLines([
                     `\x1b[31m[!] REPORT REJECTED: NO AI CLAIMS REVIEWED\x1b[0m`,
                     '\x1b[90mSelect evidence, ask ARIA about it, then validate the generated claim badges before submitting a report.\x1b[0m',
                 ]);
             }
-            else if (scriptedMode && missingScriptedClaims.length > 0) {
+            else if (missingScriptedClaims.length > 0) {
                 writeLines([
                     `\x1b[31m[!] REPORT REJECTED: CASE REVIEW INCOMPLETE\x1b[0m`,
-                    `\x1b[33m${missingScriptedClaims.length} scripted ARIA claim(s) have not been discovered yet.\x1b[0m`,
+                    `\x1b[33m${missingScriptedClaims.length} required ARIA claim(s) have not been discovered yet.\x1b[0m`,
                     '',
                     ...summarizeMissingCoverage(missingScriptedClaims),
                     '',
