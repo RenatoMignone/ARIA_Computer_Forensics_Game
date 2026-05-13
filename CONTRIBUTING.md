@@ -17,7 +17,7 @@ are original work. The AI integration uses Google Gemini 2.5 Flash via the
 
 ## Running the Project
 
-See `README.md` for full setup instructions. Quick start:
+See `README.md` and `docs/setup-and-api-key.md` for full setup instructions. Quick start:
 
 ```bash
 npm install

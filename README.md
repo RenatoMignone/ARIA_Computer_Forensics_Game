@@ -185,6 +185,9 @@ It shows score, tier, hallucinations found, calibration, final report details, l
 
 ```text
 AI_Game/
+  docs/
+    README.md
+    setup-and-api-key.md
   src/
     App.tsx
     main.tsx
@@ -193,6 +196,7 @@ AI_Game/
     components/
       ARIAChat.tsx
       AppShell.tsx
+      BootSequence.tsx
       ClaimBadge.tsx
       DebriefScreen.tsx
       DifficultyScreen.tsx
@@ -214,11 +218,19 @@ AI_Game/
       game.ts
   public/
     aria-logo.png
+  presentation/
+    README.md
+    docs/
   scripts/
     aggregate_results.mjs
+  .env.example
+  CONTRIBUTING.md
+  README.md
 ```
 
 ## Running The Project
+
+For the full setup process, including Gemini API key creation and `.env` configuration, see [`docs/setup-and-api-key.md`](docs/setup-and-api-key.md).
 
 Install dependencies:
 
@@ -250,7 +262,8 @@ Scripted mode works without an API key.
 To enable live Gemini mode, copy `.env.example` to `.env` and set:
 
 ```bash
-VITE_GEMINI_API_KEY=your_api_key_here
+VITE_LIVE_AI=true
+VITE_GEMINI_KEY=your_gemini_api_key_here
 ```
 
 Do not commit `.env`.
@@ -274,6 +287,8 @@ When adding new evidence, update the evidence data, ARIA claims, connections if 
 - Run `npm run build` before submitting or presenting the project.
 - Use scripted mode for reliable classroom demos.
 - Use live AI mode only as an optional extension, since generated output may vary.
+- Keep generated folders such as `node_modules/` and `dist/` out of Git.
+- Keep general project setup in `docs/` and presentation/report material in `presentation/`.
 
 ## Immediate Next Work
 
