@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, BookOpen, Circle, HelpCircle } from 'lucide-react';
+import { X, BookOpen, Circle, HelpCircle, Terminal as TerminalIcon } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 import { useState } from 'react';
 
@@ -25,9 +25,63 @@ const COLOR_KEY = [
     { color: 'bg-red-400', label: 'Hallucination', desc: 'Claim refuted because AI fabricated or erred' },
 ];
 
+const TERMINAL_COMMAND_GROUPS = [
+    {
+        title: 'Core Investigation Loop',
+        items: [
+            { command: 'scan', behavior: 'Lists every evidence file in the sealed vault.', when: 'Use at the start to orient yourself before opening files.' },
+            { command: 'inspect <file>', behavior: 'Shows raw metadata and display content, then marks that evidence as reviewed.', when: 'Required before validating any claim tied to that file.' },
+            { command: 'ask aria "<question>"', behavior: 'Sends a question to ARIA using the currently selected evidence file as context.', when: 'Use after selecting or inspecting evidence. Treat answers as leads, not truth.' },
+            { command: 'validate <CLAIM-ID> verified', behavior: 'Marks an ARIA claim as true. Terminal validations use medium confidence.', when: 'Only after comparing the claim against raw metadata.' },
+            { command: 'validate <CLAIM-ID> hallucination', behavior: 'Marks an ARIA claim as false or fabricated.', when: 'Use when ARIA invents metadata, inflates certainty, or draws an unsupported conclusion.' },
+            { command: 'report', behavior: 'Submits the investigation and opens the final debrief.', when: 'Available only after the case claim set has been discovered and validated.' },
+        ],
+    },
+    {
+        title: 'Evidence And Integrity Tools',
+        items: [
+            { command: 'hash verify <file>', behavior: 'Computes MD5 and SHA-256 hashes and confirms file integrity.', when: 'Use to support chain-of-custody reasoning and evidence authenticity.' },
+            { command: 'timeline', behavior: 'Shows ARIA’s reconstructed attack timeline.', when: 'Useful for orientation, but timestamps must be checked against raw evidence.' },
+            { command: 'grep <pattern> <file>', behavior: 'Filters an evidence file for matching lines.', when: 'Useful when hunting for a header, IP address, timestamp, encoder, or keyword.' },
+            { command: 'strings <file>', behavior: 'Extracts printable strings from a file.', when: 'Useful for media or PDF artifacts where hidden text may matter.' },
+            { command: 'cat <file>', behavior: 'Alias for inspecting a file.', when: 'Use if you prefer a familiar terminal command.' },
+        ],
+    },
+    {
+        title: 'Case Building And Learning',
+        items: [
+            { command: 'connect <f1> <f2> "<reason>"', behavior: 'Links two evidence files when your reason names the matching forensic artifact.', when: 'Use after finding shared IPs, timestamps, identities, or tool traces.' },
+            { command: 'hint <CLAIM-ID>', behavior: 'Gives a guided hint for a pending claim and applies a -5 score penalty.', when: 'Use when stuck. Disabled in Final Exam mode.' },
+            { command: 'notes list', behavior: 'Lists investigator annotations created in the evidence inspector.', when: 'Use before reporting to review your own reasoning.' },
+            { command: 'log show', behavior: 'Prints the chain-of-custody audit log.', when: 'Use to review evidence selections, validations, and forensic actions.' },
+            { command: 'help <command>', behavior: 'Shows detailed terminal help for supported commands such as inspect, validate, connect, hint, and report.', when: 'Use when you forget syntax or scoring impact.' },
+        ],
+    },
+    {
+        title: 'Special Utilities',
+        items: [
+            { command: 'trace <ip>', behavior: 'Runs a route trace to an IP address.', when: 'Useful for investigating suspicious network infrastructure.' },
+            { command: 'decode <base64>', behavior: 'Decodes a Base64 string.', when: 'Useful when an artifact contains encoded tool or creator information.' },
+            { command: 'timer start', behavior: 'Starts a 30-minute speed challenge timer.', when: 'Optional. Submit before time expires for the speed bonus.' },
+            { command: 'theme <name>', behavior: 'Changes terminal colors. Available names: default, matrix, blood.', when: 'Cosmetic only.' },
+        ],
+    },
+    {
+        title: 'Console Controls',
+        items: [
+            { command: 'ls / ls -la', behavior: 'Lists evidence files.', when: 'Equivalent to scan, with a small vault note for long listing variants.' },
+            { command: 'pwd', behavior: 'Shows the current forensic vault path.', when: 'Immersion and orientation.' },
+            { command: 'history', behavior: 'Shows recent terminal commands.', when: 'Useful after several checks.' },
+            { command: 'clear', behavior: 'Clears terminal output.', when: 'Use when the terminal gets noisy.' },
+            { command: 'whoami', behavior: 'Shows your read-only forensic investigator identity.', when: 'Immersion command.' },
+            { command: 'exit / sudo', behavior: 'Explains that the investigation is locked down and the vault is read-only.', when: 'Immersion commands; they do not progress the case.' },
+        ],
+    },
+];
+
 export function GlossaryModal() {
     const { state, dispatch } = useGame();
-    const [activeTab, setActiveTab] = useState<'glossary' | 'howtoplay'>('glossary');
+    const [activeTab, setActiveTab] = useState<'glossary' | 'howtoplay' | 'commands'>('glossary');
 
     return (
         <AnimatePresence>
@@ -49,17 +103,17 @@ export function GlossaryModal() {
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
                         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                         className="fixed inset-8 z-50 bg-[#0d1420] border border-[#1f2937] rounded-2xl overflow-hidden flex flex-col"
-                        style={{ maxWidth: 780, margin: 'auto' }}
+                        style={{ maxWidth: 920, margin: 'auto' }}
                     >
                         {/* Header */}
-                        <div className="flex items-center justify-between px-6 py-4 border-b border-[#1f2937]">
-                            <div className="flex items-center gap-6">
+                        <div className="flex flex-wrap items-center justify-between gap-4 px-6 py-4 border-b border-[#1f2937]">
+                            <div className="flex flex-wrap items-center gap-5">
                                 <button 
                                     onClick={() => setActiveTab('glossary')}
                                     className={`flex items-center gap-2 text-sm font-bold font-mono transition-colors pb-1 border-b-2 ${activeTab === 'glossary' ? 'text-white border-cyan-400' : 'text-[#64748b] border-transparent hover:text-slate-300'}`}
                                 >
                                     <BookOpen className="w-4 h-4" />
-                                    [ Forensic Glossary ]
+                                    [ Glossary ]
                                 </button>
                                 <button 
                                     onClick={() => setActiveTab('howtoplay')}
@@ -67,6 +121,13 @@ export function GlossaryModal() {
                                 >
                                     <HelpCircle className="w-4 h-4" />
                                     [ How to Play ]
+                                </button>
+                                <button
+                                    onClick={() => setActiveTab('commands')}
+                                    className={`flex items-center gap-2 text-sm font-bold font-mono transition-colors pb-1 border-b-2 ${activeTab === 'commands' ? 'text-white border-cyan-400' : 'text-[#64748b] border-transparent hover:text-slate-300'}`}
+                                >
+                                    <TerminalIcon className="w-4 h-4" />
+                                    [ Terminal Commands ]
                                 </button>
                             </div>
                             <button
@@ -134,8 +195,8 @@ export function GlossaryModal() {
                                             <li>ARIA responds with embedded [CLAIM-XXX] badges</li>
                                             <li>Click a badge and press VERIFY or HALLUCINATION</li>
                                             <li>Confirm your confidence level (Low / Medium / High)</li>
-                                            <li>Repeat for all 5 evidence files</li>
-                                            <li>Type <code className="text-cyan-300 bg-cyan-900/30 px-1 rounded">report</code> in the terminal when all claims are validated</li>
+                                            <li>Repeat from multiple angles for all 5 evidence files</li>
+                                            <li>Type <code className="text-cyan-300 bg-cyan-900/30 px-1 rounded">report</code> in the terminal when the full case claim set is discovered and validated</li>
                                         </ol>
                                     </div>
 
@@ -173,6 +234,40 @@ export function GlossaryModal() {
                                             <li><strong className="text-slate-300">False Correlation</strong>: temporal proximity is not causal link</li>
                                             <li><strong className="text-slate-300">Confidence Inflation</strong>: high certainty without methodology</li>
                                         </ul>
+                                    </div>
+                                </div>
+                            )}
+
+                            {activeTab === 'commands' && (
+                                <div className="space-y-6 font-mono">
+                                    <div className="bg-[#111827] border border-cyan-400/20 rounded-lg p-4">
+                                        <h3 className="text-cyan-300 font-bold text-sm uppercase tracking-widest mb-2">Terminal Commands</h3>
+                                        <p className="text-xs text-slate-400 leading-relaxed">
+                                            The terminal is not only decorative: it is where you inspect raw evidence, prove chain of custody, connect files, and submit the final report. ARIA can suggest leads, but commands force you back to the evidence.
+                                        </p>
+                                    </div>
+
+                                    {TERMINAL_COMMAND_GROUPS.map(group => (
+                                        <div key={group.title}>
+                                            <h3 className="text-xs font-bold text-[#64748b] uppercase tracking-widest mb-3">{group.title}</h3>
+                                            <div className="grid gap-3 md:grid-cols-2">
+                                                {group.items.map(item => (
+                                                    <div key={item.command} className="bg-[#111827] border border-[#1f2937] rounded-lg p-3">
+                                                        <code className="inline-block text-xs text-cyan-300 bg-cyan-950/40 border border-cyan-400/20 px-2 py-1 rounded mb-2">
+                                                            {item.command}
+                                                        </code>
+                                                        <p className="text-xs text-slate-300 leading-relaxed mb-1">{item.behavior}</p>
+                                                        <p className="text-[11px] text-slate-500 leading-relaxed">
+                                                            <span className="text-amber-300">When:</span> {item.when}
+                                                        </p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+
+                                    <div className="text-[10px] text-[#64748b] font-mono text-center pt-2">
+                                        Tip: inside the terminal, type <code className="text-cyan-300">help</code> or <code className="text-cyan-300">help validate</code> for live syntax.
                                     </div>
                                 </div>
                             )}

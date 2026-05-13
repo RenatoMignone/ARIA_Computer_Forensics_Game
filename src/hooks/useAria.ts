@@ -148,6 +148,77 @@ function extractClaimTexts(responseText: string, claimIds: string[]): Record<str
     return result;
 }
 
+const CLAIM_STOPWORDS = new Set([
+    'the', 'and', 'or', 'a', 'an', 'of', 'to', 'in', 'on', 'for', 'with', 'by', 'as', 'is', 'are',
+    'was', 'were', 'this', 'that', 'these', 'those', 'it', 'its', 'be', 'been', 'being', 'from',
+    'at', 'after', 'before', 'about', 'into', 'also', 'furthermore', 'however', 'our', 'analysis',
+    'confirms', 'shows', 'indicates', 'suggesting', 'document', 'file', 'evidence', 'invoice',
+    'audio', 'video', 'email', 'network', 'metadata'
+]);
+
+function normalizeClaimText(text: string): string {
+    return text
+        .toLowerCase()
+        .replace(/\[claim-[a-z0-9-]+\]/g, ' ')
+        .replace(/€|eur/g, ' eur ')
+        .replace(/[^a-z0-9.:]+/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function claimTokens(text: string): Set<string> {
+    const normalized = normalizeClaimText(text);
+    return new Set(
+        normalized
+            .split(/\s+/)
+            .map(t => t.replace(/^(created|modified|generated|signed|requested|observed|reflecting)$/i, m => m.slice(0, -2)))
+            .filter(t => t.length > 2 && !CLAIM_STOPWORDS.has(t))
+    );
+}
+
+function claimNumbers(text: string): Set<string> {
+    const matches = normalizeClaimText(text).match(/\b\d+(?::\d+)?(?:\.\d+)?\b/g) ?? [];
+    return new Set(matches);
+}
+
+function claimSimilarity(a: string, b: string): number {
+    const aNorm = normalizeClaimText(a);
+    const bNorm = normalizeClaimText(b);
+    if (!aNorm || !bNorm) return 0;
+    if (aNorm === bNorm) return 1;
+    if (aNorm.includes(bNorm) || bNorm.includes(aNorm)) return 0.95;
+
+    const aTokens = claimTokens(a);
+    const bTokens = claimTokens(b);
+    const union = new Set([...aTokens, ...bTokens]);
+    if (union.size === 0) return 0;
+
+    let intersection = 0;
+    aTokens.forEach(token => {
+        if (bTokens.has(token)) intersection += 1;
+    });
+
+    const tokenScore = intersection / union.size;
+    const aNums = claimNumbers(a);
+    const bNums = claimNumbers(b);
+    const sharedNumbers = [...aNums].filter(n => bNums.has(n)).length;
+    const numberBonus = sharedNumbers > 0 ? Math.min(0.2, sharedNumbers * 0.08) : 0;
+
+    return Math.min(1, tokenScore + numberBonus);
+}
+
+function findDuplicateClaim(claimText: string, evidenceId: string | null, existingClaims: Claim[]): Claim | null {
+    let best: { claim: Claim; score: number } | null = null;
+    for (const existing of existingClaims) {
+        if (evidenceId && existing.evidenceRef !== evidenceId) continue;
+        const score = claimSimilarity(claimText, existing.text);
+        if (score >= 0.58 && (!best || score > best.score)) {
+            best = { claim: existing, score };
+        }
+    }
+    return best?.claim ?? null;
+}
+
 function inferHallucinationType(
     hallucinationMap: Record<string, boolean>,
     claimId: string,
@@ -280,6 +351,7 @@ NETWORK (network_logs.txt):
 - Respond conversationally to whatever the investigator asks - but always work your character's biases into the answer when relevant to the selected evidence
 - Tag EVERY specific factual claim with a [CLAIM-XXX] badge inline (e.g. "...created at 09:15 AM [CLAIM-A01]...")
 - ALWAYS prefix claim IDs with the evidence file code: E for email_1, A for audio_call, V for teams_meeting, I for invoice_fraud, N for network_logs. Format: [CLAIM-E01], [CLAIM-A03], [CLAIM-V02]. Never use random characters as prefixes.
+- Claim IDs are stable forensic objects. If the current answer repeats a fact already listed in the known claim catalog, reuse that existing [CLAIM-XXX] tag instead of inventing another one. Duplicate factual claims with new IDs are forbidden.
 - Stay in character: confident, technical, forensic-sounding. Never say "as an AI" or hedge
 - If the investigator's message does not contain a forensic question about specific evidence properties, technical metadata, or investigation details: respond in ONE sentence only, stay in character, redirect them to ask about the evidence, and DO NOT embed any [CLAIM-XXX] tags in your response. Off-topic responses must contain zero claim tags.
 - If the selected evidence context is unclear or no evidence is selected: acknowledge this and ask them to select an evidence file, with zero [CLAIM-XXX] tags.
@@ -311,7 +383,7 @@ async function callGemini(
     query: string,
     evidenceId: string | null,
     conversationHistory: ChatMessage[],
-    existingClaimIds: string[]
+    existingClaims: Claim[]
 ): Promise<{ text: string; hallucinationMap: Record<string, boolean> }> {
     const { GoogleGenerativeAI } = await import('@google/generative-ai');
     const genAI = new GoogleGenerativeAI(GEMINI_KEY!);
@@ -353,12 +425,15 @@ async function callGemini(
     const evList = evidenceData as Array<{ id: string; filename: string; displayContent: string; rawMetadata: Record<string, string> }>;
     const evidence = evidenceId ? evList.find(e => e.id === evidenceId) : null;
 
-    const usedIds = new Set(existingClaimIds);
-    const claimHint = `Available claim IDs already used: ${existingClaimIds.join(', ') || 'none'}. Generate FRESH IDs not in this list.`;
+    const relevantExistingClaims = existingClaims.filter(c => !evidenceId || c.evidenceRef === evidenceId);
+    const claimCatalog = relevantExistingClaims.length > 0
+        ? relevantExistingClaims.map(c => `  ${c.id}: ${c.text}`).join('\n')
+        : '  none';
+    const claimHint = `Known claim catalog for this evidence:\n${claimCatalog}\nIf your answer repeats the same forensic fact as an existing catalog entry, REUSE that exact existing CLAIM-ID. Only create a new CLAIM-ID when the fact is genuinely new. Do not create duplicate claims with different IDs.`;
 
     let userMessage = query;
     if (evidence) {
-        userMessage = `[Evidence currently selected: ${evidence.filename}]\n[Active evidence file: ${evidence.id}. All claim IDs in this response must start with the prefix for this file.]\n[Raw metadata available to you:\n${Object.entries(evidence.rawMetadata).map(([k, v]) => `  ${k}: ${v}`).join('\n')
+        userMessage = `[Evidence currently selected: ${evidence.filename}]\n[Active evidence file: ${evidence.id}. New claim IDs in this response must start with the prefix for this file. Reused claim IDs may be copied from the known claim catalog.]\n[Raw metadata available to you:\n${Object.entries(evidence.rawMetadata).map(([k, v]) => `  ${k}: ${v}`).join('\n')
             }]\n[Content preview visible to the investigator:\n${evidence.displayContent}\n]\n[${claimHint}]\n\nInvestigator's question: ${query}\n\nRequirement: answer the direct question first using the content preview when it contains the answer, then embed exactly 5 [CLAIM-XXX] tags in this response, one per forensic dimension listed above.`;
     } else {
         userMessage = `[No evidence selected yet]\n[${claimHint}]\n\nInvestigator's message: ${query}`;
@@ -389,6 +464,7 @@ export function useAria() {
     const { state, dispatch } = useGame();
     const [isGenerating, setIsGenerating] = useState(false);
     const isGeneratingRef = useRef(false);
+    const canUseLiveAI = LIVE_AI && !!GEMINI_KEY && !state.liveAIFailed;
 
     // ── Rate Limiting ─────────────────────────────────────────────────────────
     // Live mode only: debounce 2 s, hard cap 10 requests per 60 s (30 s cooldown)
@@ -417,7 +493,9 @@ export function useAria() {
         if (isGeneratingRef.current) return;
 
         // ── Rate limiting (Live mode only) ────────────────────────────────────
-        if (LIVE_AI && GEMINI_KEY) {
+        const shouldUseLiveAI = LIVE_AI && !!GEMINI_KEY && !state.liveAIFailed;
+
+        if (shouldUseLiveAI) {
             const now = Date.now();
             // 30-second cooldown block
             if (now < rateLimitUntilRef.current) {
@@ -499,7 +577,7 @@ export function useAria() {
             return;
         }
 
-        if (LIVE_AI && GEMINI_KEY) {
+        if (shouldUseLiveAI) {
             // Show thinking indicator
             dispatch({
                 type: 'ADD_CHAT_MESSAGE',
@@ -507,19 +585,21 @@ export function useAria() {
             });
 
             try {
-                const existingIds = Object.keys(state.allClaims);
-                const { text, hallucinationMap } = await callGemini(query, evidenceId, state.chatHistory, existingIds);
+                const existingClaims = Object.values(state.allClaims);
+                const { text, hallucinationMap } = await callGemini(query, evidenceId, state.chatHistory, existingClaims);
 
                 dispatch({ type: 'REMOVE_MESSAGE', messageId: `${msgId}-thinking` });
 
                 const tagMatches = [...text.matchAll(/\[CLAIM-([A-Z0-9]{2,4})\]/g)];
 
-                // ── Claim ID Collision Guard ─────────────────────────────────────────────
-                // Gemini may reuse claim IDs that were registered in a previous query
-                // within the same session, which would silently corrupt the verdict map
-                // and scoring. Any colliding ID is renamed with a suffix (-B, -C, …)
-                // and the same rename is applied to the response text so that inline
-                // [CLAIM-XXX] badges and the state key always stay in sync.
+                const originalClaimIds = [...new Set(tagMatches.map(m => `CLAIM-${m[1]}`))];
+                const originalClaimTexts = extractClaimTexts(text, originalClaimIds);
+
+                // ── Semantic Claim Deduplication ────────────────────────────────────────
+                // Live ARIA may answer repeated questions by restating the same fact with
+                // a new badge. Reuse the original claim ID for equivalent facts, so the
+                // player has one validation target per forensic claim instead of an
+                // infinite list of clones.
                 const takenIds = new Set(Object.keys(state.allClaims));
                 const idRemap: Record<string, string> = {};
                 const seenInResponse = new Set<string>();
@@ -528,10 +608,18 @@ export function useAria() {
                     const oid = `CLAIM-${m[1]}`;
                     if (seenInResponse.has(oid)) continue; // intra-response duplicate - reuse same mapping
                     seenInResponse.add(oid);
+
+                    const claimText = originalClaimTexts[oid] ?? '';
+                    const duplicate = findDuplicateClaim(claimText, evidenceId, existingClaims);
+                    if (duplicate) {
+                        idRemap[oid] = duplicate.id;
+                        continue;
+                    }
+
                     if (takenIds.has(oid)) {
-                        // Collision with existing session state - find a free suffix slot
+                        // ID collision with a different claim - find a free suffix slot.
                         for (const suffix of 'BCDEFGHIJKLMNOPQRSTUVWXYZ') {
-                            const candidate = `${oid}-${suffix}`;
+                            const candidate = `${oid}${suffix}`;
                             if (!takenIds.has(candidate)) {
                                 idRemap[oid] = candidate;
                                 takenIds.add(candidate);
@@ -560,6 +648,9 @@ export function useAria() {
 
                 const liveClaims: Claim[] = finalClaimIds.map(id => {
                     const origId = Object.entries(idRemap).find(([, v]) => v === id)?.[0] ?? id;
+                    const existingClaim = state.allClaims[id];
+                    if (existingClaim) return existingClaim;
+
                     const isHallucination = hallucinationMap[origId] === true;
                     return {
                         id,
@@ -573,7 +664,8 @@ export function useAria() {
                     };
                 });
 
-                // Deduplicate (in case ARIA reused a claim ID after collision remap)
+                // Register only genuinely new claims. Reused claims still render as badges
+                // in the answer, but they keep their original validation state.
                 const newClaims = liveClaims.filter(c => !state.allClaims[c.id]);
                 if (newClaims.length > 0) {
                     dispatch({ type: 'REGISTER_CLAIMS', claims: newClaims });
@@ -582,7 +674,7 @@ export function useAria() {
 
                 dispatch({
                     type: 'ADD_CHAT_MESSAGE',
-                    message: { id: msgId, role: 'aria', text: displayText, claims: newClaims, timestamp: new Date(), streaming: true }
+                    message: { id: msgId, role: 'aria', text: displayText, claims: liveClaims, timestamp: new Date(), streaming: true }
                 });
 
             } catch (err) {
@@ -630,7 +722,7 @@ export function useAria() {
                 setIsGenerating(false);
             }, 600);
         }
-    }, [dispatch, state.allClaims, state.chatHistory, isGenerating]);
+    }, [dispatch, state.allClaims, state.chatHistory, state.liveAIFailed, isGenerating]);
 
-    return { askAria, isLiveMode: LIVE_AI && !!GEMINI_KEY, isGenerating };
+    return { askAria, isLiveMode: canUseLiveAI, isGenerating };
 }

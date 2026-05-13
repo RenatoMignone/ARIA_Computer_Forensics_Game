@@ -58,6 +58,7 @@ export function SaveModal({ isOpen, onClose }: SaveModalProps) {
             chainOfCustody: state.chainOfCustody,
             chatHistory: state.chatHistory.slice(-30),
             selectedEvidenceId: state.selectedEvidenceId,
+            reviewedEvidenceIds: state.reviewedEvidenceIds,
         };
 
         const newSave: SaveSlot = {

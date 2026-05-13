@@ -61,13 +61,12 @@ Implemented:
 - Debrief screen with report export and leaderboard.
 - Prompt injection and suspicious query handling in ARIA chat.
 
-Still needs polish:
+Submission notes:
 
-- Full manual playthrough QA from start to debrief.
-- UI and copy review for the classroom presentation.
-- Ongoing consistency checks between scoring, terminal help, and documentation.
-- Possible code splitting if the production bundle warning becomes important.
-- Optional expansion of scripted ARIA responses and evidence scenarios.
+- The game is ready to run in scripted mode for deterministic classroom evaluation.
+- Live Gemini mode is optional and intentionally documented as an extension.
+- `npm run build` passes; Vite reports a non-blocking large-bundle warning caused by the current single-page prototype bundle.
+- The scripted scenario is intentionally fixed at one complete case rather than a large set of randomly generated cases, so grading remains reproducible.
 
 ## Evidence Set
 
@@ -290,12 +289,12 @@ When adding new evidence, update the evidence data, ARIA claims, connections if 
 - Keep generated folders such as `node_modules/` and `dist/` out of Git.
 - Keep general project setup in `docs/` and presentation/report material in `presentation/`.
 
-## Immediate Next Work
+## Final Submission Checklist
 
-The next development pass should focus on playtesting and presentation polish:
+Before presenting or submitting the project:
 
-1. Run a complete scripted-mode playthrough from difficulty selection to debrief.
-2. Check that every scripted claim is discoverable from normal ARIA questions.
-3. Polish any UI or copy issues found during the playthrough.
-4. Decide whether to split the large production bundle.
-5. Expand the scenario only if the current case feels too short for the course demo.
+1. Run `npm install` if dependencies are not already installed.
+2. Copy `.env.example` to `.env`; keep `VITE_LIVE_AI=false` for the stable demo mode.
+3. Run `npm run build` and confirm it completes successfully.
+4. Start the game with `npm run dev` or preview the production build with `npm run preview`.
+5. Play the scripted case from boot screen to debrief, then export the final report if it is needed for the presentation.

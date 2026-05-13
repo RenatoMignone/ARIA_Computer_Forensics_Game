@@ -15,6 +15,26 @@ import { Evidence, AriaData } from '../types/game';
 const evidence = evidenceData as Evidence[];
 const aria = ariaData as AriaData;
 const connections = connectionsData as any[];
+const scriptedClaimIds = aria.responses.flatMap(r => r.claims.map(c => c.id));
+
+function getMissingScriptedCoverage(allClaims: Record<string, any>) {
+    return scriptedClaimIds.filter(id => !allClaims[id]);
+}
+
+function summarizeMissingCoverage(missingClaimIds: string[]) {
+    const byEvidence: Record<string, number> = {};
+    aria.responses.forEach(response => {
+        response.claims.forEach(claim => {
+            if (!missingClaimIds.includes(claim.id)) return;
+            byEvidence[claim.evidenceRef] = (byEvidence[claim.evidenceRef] || 0) + 1;
+        });
+    });
+
+    return Object.entries(byEvidence).map(([evidenceId, count]) => {
+        const filename = evidence.find(e => e.id === evidenceId)?.filename || evidenceId;
+        return `  \x1b[33m${filename.padEnd(22)}\x1b[0m ${count} claim(s) still undiscovered`;
+    });
+}
 
 export function Terminal() {
     const { state, dispatch } = useGame();
@@ -74,10 +94,10 @@ export function Terminal() {
             writeLines([
                 '\x1b[36mScanning evidence vault...\x1b[0m',
                 '',
-                'ID              FILENAME                  TYPE    SIZE',
+                'ID              FILENAME                  TYPE    STATUS',
                 '─'.repeat(60),
                 ...evidence.map(e =>
-                    `  \x1b[33m${e.id.padEnd(16)}\x1b[0m${e.filename.padEnd(26)}${e.type.padEnd(8)}[encrypted]`
+                    `  \x1b[33m${e.id.padEnd(16)}\x1b[0m${e.filename.padEnd(26)}${e.type.padEnd(8)}sealed`
                 ),
                 '',
                 `\x1b[32m${evidence.length} file(s) found in secure evidence vault.\x1b[0m`,
@@ -94,6 +114,7 @@ export function Terminal() {
                 ]);
             } else {
                 dispatch({ type: 'SELECT_EVIDENCE', evidenceId: ev.id });
+                dispatch({ type: 'MARK_EVIDENCE_REVIEWED', evidenceId: ev.id, source: 'terminal' });
                 if (stringsPrefix) {
                     writeLines([`\x1b[90m[strings] Extracting printable strings from ${ev.filename}...\x1b[0m`]);
                 }
@@ -179,6 +200,7 @@ export function Terminal() {
             if (!ev) {
                 writeLines([`\x1b[31mFile not found: ${target}\x1b[0m`]);
             } else {
+                dispatch({ type: 'MARK_EVIDENCE_REVIEWED', evidenceId: ev.id, source: 'terminal' });
                 writeLines([
                     `\x1b[36mComputing cryptographic hashes for: ${ev.filename}\x1b[0m`,
                     '',
@@ -224,6 +246,11 @@ export function Terminal() {
                     writeLines([
                         `\x1b[31mClaim not found: ${claimId}\x1b[0m`,
                         '\x1b[90mAsk ARIA about evidence files to generate claims first.\x1b[0m',
+                    ]);
+                } else if (!s.reviewedEvidenceIds.includes(claim.evidenceRef)) {
+                    writeLines([
+                        `\x1b[31mEvidence review required before validating ${claimId}.\x1b[0m`,
+                        `\x1b[90mRun inspect ${claim.evidenceRef} or open the file's Raw Metadata tab, then compare ARIA's claim against the evidence.\x1b[0m`,
                     ]);
                 } else if (s.verdicts[claimId] && s.verdicts[claimId] !== 'pending') {
                     const existing = s.verdicts[claimId];
@@ -430,7 +457,27 @@ export function Terminal() {
 
         // --- report ---
         else if (cmd === 'report') {
-            if (!allValidated(s.verdicts, s.allClaims)) {
+            const discoveredClaimCount = Object.keys(s.allClaims).length;
+            const missingScriptedClaims = getMissingScriptedCoverage(s.allClaims);
+            const scriptedMode = import.meta.env.VITE_LIVE_AI !== 'true' || s.liveAIFailed;
+            if (discoveredClaimCount === 0) {
+                writeLines([
+                    `\x1b[31m[!] REPORT REJECTED: NO AI CLAIMS REVIEWED\x1b[0m`,
+                    '\x1b[90mSelect evidence, ask ARIA about it, then validate the generated claim badges before submitting a report.\x1b[0m',
+                ]);
+            }
+            else if (scriptedMode && missingScriptedClaims.length > 0) {
+                writeLines([
+                    `\x1b[31m[!] REPORT REJECTED: CASE REVIEW INCOMPLETE\x1b[0m`,
+                    `\x1b[33m${missingScriptedClaims.length} scripted ARIA claim(s) have not been discovered yet.\x1b[0m`,
+                    '',
+                    ...summarizeMissingCoverage(missingScriptedClaims),
+                    '',
+                    '\x1b[90mAsk ARIA about each evidence file from multiple angles, then validate every claim badge before reporting.\x1b[0m',
+                    '\x1b[90mUseful prompts: authorship/authentication for email, speaker/synthesis for audio, edit/deepfake signs for video, invoice metadata/signature, and network anomalies/correlations.\x1b[0m',
+                ]);
+            }
+            else if (!allValidated(s.verdicts, s.allClaims)) {
                 const remaining = Object.values(s.allClaims).filter(c => !s.verdicts[c.id] || s.verdicts[c.id] === 'pending').length;
                 writeLines([
                     `\x1b[31m[!] REPORT REJECTED: CHAIN OF CUSTODY INCOMPLETE\x1b[0m`,
@@ -642,7 +689,7 @@ export function Terminal() {
                     '',
                     '  \x1b[33mreport\x1b[0m',
                     '',
-                    '\x1b[90mThe report is blocked until every generated ARIA claim is validated.\x1b[0m',
+                    '\x1b[90mIn scripted mode, the report is blocked until the full case claim set has been discovered and validated.\x1b[0m',
                     '\x1b[90mSubmitting the report awards the completion bonus once the case is ready.\x1b[0m',
                     '\x1b[90mIf the speed timer is still running, an extra +50 speed bonus applies.\x1b[0m',
                 ],

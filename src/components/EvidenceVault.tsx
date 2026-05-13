@@ -79,7 +79,7 @@ export function EvidenceVault() {
                         <div className="evidence-case-bar" aria-hidden="true">
                             <span style={{ width: `${progress}%` }} />
                         </div>
-                        <p>{totalClaims > 0 ? 'Validate every ARIA claim before reporting.' : 'Ask ARIA about a file to generate claims.'}</p>
+                        <p>{totalClaims > 0 ? 'Keep asking, validating, and connecting until the report unlocks.' : 'Ask ARIA about a file to generate claims.'}</p>
                     </div>
                     {/* File list */}
             <div className="flex-1 overflow-y-auto py-2">

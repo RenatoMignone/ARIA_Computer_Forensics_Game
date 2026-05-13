@@ -102,6 +102,7 @@ export function AppShell() {
     const hlChat = isTutorial && state.tutorialStep === 3;
     const hlTerminal = isTutorial && state.tutorialStep === 6;
     const hlPanelToggles = isTutorial && state.tutorialStep === 5;
+    const hlHandbook = isTutorial && state.tutorialStep === 7;
 
     const spotlightClasses = "z-[110] ring-4 ring-cyan-400 shadow-[0_0_50px_rgba(6,182,212,0.5)] relative pointer-events-none transition-all duration-300";
 
@@ -147,6 +148,7 @@ export function AppShell() {
                 showVault={showVault}
                 setShowVault={setShowVault}
                 highlightPanelToggles={hlPanelToggles}
+                highlightHandbook={hlHandbook}
             />
 
             {/* Main 3-panel area */}

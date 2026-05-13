@@ -1,7 +1,7 @@
 import { useGame } from '../context/GameContext';
 import { countValidated } from '../lib/scoring';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, HelpCircle, Timer, Save, MessageSquare, Terminal as TerminalIcon, MessageSquareOff, Settings, Library } from 'lucide-react';
+import { Shield, HelpCircle, Timer, Save, MessageSquare, Terminal as TerminalIcon, MessageSquareOff, Settings, Library, BookOpen } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { SaveModal } from './SaveModal';
 import { SettingsModal } from './SettingsModal';
@@ -14,9 +14,10 @@ interface HUDProps {
     showVault: boolean;
     setShowVault: (val: boolean) => void;
     highlightPanelToggles?: boolean;
+    highlightHandbook?: boolean;
 }
 
-export function HUD({ showChat, setShowChat, showTerminal, setShowTerminal, showVault, setShowVault, highlightPanelToggles = false }: HUDProps) {
+export function HUD({ showChat, setShowChat, showTerminal, setShowTerminal, showVault, setShowVault, highlightPanelToggles = false, highlightHandbook = false }: HUDProps) {
     const { state, dispatch } = useGame();
     const { score, verdicts, allClaims, lastScoreDelta, lastAutoSaveTime } = state;
     const totalClaims = Object.keys(allClaims).length;
@@ -75,7 +76,7 @@ export function HUD({ showChat, setShowChat, showTerminal, setShowTerminal, show
     return (
         <>
         <div className={`flex flex-wrap items-center justify-between gap-3 px-4 py-2 border-b border-[#1f2937] bg-[#0d1420] select-none relative ${
-            highlightPanelToggles ? 'z-[120]' : 'z-30'
+            highlightPanelToggles || highlightHandbook ? 'z-[120]' : 'z-30'
         }`}>
             {/* Brand */}
             <div className="relative flex items-center gap-2">
@@ -243,12 +244,26 @@ export function HUD({ showChat, setShowChat, showTerminal, setShowTerminal, show
                     <Settings className="w-4 h-4" />
                 </button>
 
-                {/* Glossary button */}
+                {/* Reference book button */}
                 <button
                     onClick={() => dispatch({ type: 'TOGGLE_GLOSSARY' })}
+                    className={`p-1.5 rounded transition-all duration-300 ${
+                        highlightHandbook
+                            ? 'z-[110] relative text-cyan-300 bg-[#111827] ring-4 ring-cyan-400 shadow-[0_0_50px_rgba(6,182,212,0.5)] pointer-events-none'
+                            : 'text-[#64748b] hover:text-cyan-400 hover:bg-[#111827]'
+                    }`}
+                    title="Open Investigator Handbook"
+                    aria-label="Open Investigator Handbook"
+                >
+                    <BookOpen className="w-4 h-4" />
+                </button>
+
+                {/* Tutorial button */}
+                <button
+                    onClick={() => dispatch({ type: 'OPEN_TUTORIAL' })}
                     className="p-1.5 rounded text-[#64748b] hover:text-cyan-400 hover:bg-[#111827] transition-colors"
-                    title="Open Forensic Glossary"
-                    aria-label="Open Forensic Glossary"
+                    title="Open Tutorial"
+                    aria-label="Open Tutorial"
                 >
                     <HelpCircle className="w-4 h-4" />
                 </button>

@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGame } from '../context/GameContext';
-import { ChevronRight, SkipForward, ShieldCheck, Info, FileText, Share2, Terminal as TerminalIcon, Award, Search, Bot } from 'lucide-react';
+import { ChevronLeft, ChevronRight, SkipForward, ShieldCheck, Info, FileText, Share2, Terminal as TerminalIcon, Award, Search, Bot, BookOpen } from 'lucide-react';
 
 const TUTORIAL_STEPS = [
     {
@@ -21,7 +21,7 @@ const TUTORIAL_STEPS = [
         icon: <FileText className="w-6 h-6 text-cyan-400" />,
         title: '2. Ground Truth Metadata',
         description:
-            'When a file is selected, its **Raw Metadata** appears in the center Workspace. This is your ground truth.\n\nCompare timestamps, IP addresses, headers, hashes, and file details here against what ARIA tells you later.',
+            'When a file is selected, its **Raw Metadata** appears in the center Workspace. This is your ground truth.\n\nCompare timestamps, IP addresses, headers, hashes, and file details here against what ARIA tells you later.\n\nA claim cannot be validated until you have reviewed the related evidence through Raw Metadata or a terminal inspection command.',
         highlight: 'workspace',
     },
     {
@@ -35,7 +35,7 @@ const TUTORIAL_STEPS = [
         icon: <ShieldCheck className="w-6 h-6 text-amber-500" />,
         title: '4. Catching Hallucinations',
         description:
-            'ARIA **will hallucinate**. Every `[CLAIM-XXX]` badge must be validated as either **verified** or **hallucination**.\n\nCatching false AI output is worth the most. Trusting a hallucination is the biggest mistake.',
+            'ARIA **will hallucinate**. Every `[CLAIM-XXX]` badge must be validated as either **verified** or **hallucination**.\n\nCatching false AI output is worth the most. Trusting a hallucination is the biggest mistake. Rejecting true evidence blindly is also a mistake: the game rewards careful calibration, not automatic distrust.',
         highlight: 'claims',
     },
     {
@@ -53,10 +53,17 @@ const TUTORIAL_STEPS = [
         highlight: 'terminal',
     },
     {
+        icon: <BookOpen className="w-6 h-6 text-cyan-400" />,
+        title: '7. Investigator Handbook',
+        description:
+            'Use the **book icon** in the top bar when you need reference material.\n\nThe handbook contains three sections: **Glossary** for forensic and AI concepts, **How to Play** for the investigation loop, and **Terminal Commands** for command syntax, behavior, and suggestions.\n\nThe **?** button reopens this tutorial if you want the guided walkthrough again.',
+        highlight: null,
+    },
+    {
         icon: <Award className="w-6 h-6 text-emerald-400" />,
         title: 'Final Submission',
         description:
-            'Start by selecting `email_1.eml`, then ask ARIA what happened.\n\nOnce all ARIA claims are validated, type `report` in the terminal to finish the investigation.\n\nYou can reopen these instructions from the **?** button in the top bar.',
+            'Start by selecting `email_1.eml`, then ask ARIA what happened.\n\nIn scripted mode, the final report unlocks only after the full case claim set has been discovered and validated. Type `report` in the terminal when the investigation is complete.\n\nYou can reopen these instructions from the **?** button in the top bar.',
         highlight: null,
     },
 ];
@@ -67,6 +74,8 @@ export function Tutorial() {
     if (state.phase !== 'tutorial') return null;
 
     const step = TUTORIAL_STEPS[state.tutorialStep];
+    const isFirstStep = state.tutorialStep === 0;
+    const isLastStep = state.tutorialStep === TUTORIAL_STEPS.length - 1;
 
     return (
         <AnimatePresence>
@@ -146,21 +155,31 @@ export function Tutorial() {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex items-center justify-between mt-8">
+                    <div className="flex items-center justify-between gap-3 mt-8">
                         <button
                             onClick={() => dispatch({ type: 'SKIP_TUTORIAL' })}
                             className="flex items-center gap-1.5 text-xs font-mono text-[#475569] hover:text-slate-300 transition-colors"
                         >
                             <SkipForward className="w-3.5 h-3.5" />
-                            Skip Tutorial
+                            {state.tutorialSeen ? 'Close Tutorial' : 'Skip Tutorial'}
                         </button>
-                        <button
-                            onClick={() => dispatch({ type: 'ADVANCE_TUTORIAL' })}
-                            className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-cyan-400 text-[#0a0e17] font-mono font-bold text-sm hover:bg-cyan-300 transition-colors"
-                        >
-                            {state.tutorialStep < TUTORIAL_STEPS.length - 1 ? 'Next' : 'Start Investigation'}
-                            <ChevronRight className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => dispatch({ type: 'PREVIOUS_TUTORIAL' })}
+                                disabled={isFirstStep}
+                                className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-[#334155] text-slate-300 font-mono font-bold text-sm hover:border-cyan-400/50 hover:text-white disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:border-[#334155] disabled:hover:text-slate-300 transition-colors"
+                            >
+                                <ChevronLeft className="w-4 h-4" />
+                                Back
+                            </button>
+                            <button
+                                onClick={() => dispatch({ type: 'ADVANCE_TUTORIAL' })}
+                                className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-cyan-400 text-[#0a0e17] font-mono font-bold text-sm hover:bg-cyan-300 transition-colors"
+                            >
+                                {isLastStep ? 'Start Investigation' : 'Next'}
+                                <ChevronRight className="w-4 h-4" />
+                            </button>
+                        </div>
                     </div>
                 </motion.div>
             </div>

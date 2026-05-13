@@ -7,6 +7,7 @@ export interface SerializedGameState {
     chainOfCustody: ChainEntry[];
     chatHistory: ChatMessage[];
     selectedEvidenceId: string | null;
+    reviewedEvidenceIds: string[];
     /** Schema migration guard: must match SAVE_SCHEMA_VERSION in GameContext. */
     SAVE_SCHEMA_VERSION?: number;
 }
@@ -126,6 +127,7 @@ export interface GameState {
     usedHints: Record<string, boolean>;
     foundConnections: string[];
     notes: Record<string, Record<string, string>>;
+    reviewedEvidenceIds: string[];
     /** Shuffled claim display order per evidence file, populated by REGISTER_CLAIMS. */
     claimDisplayOrder: Record<string, string[]>;
     timerEndTime: number | null;
@@ -153,7 +155,10 @@ export type GameAction =
     | { type: 'ADD_CHAT_MESSAGE'; message: ChatMessage }
     | { type: 'REGISTER_CLAIMS'; claims: Claim[] }
     | { type: 'FOCUS_EVIDENCE_CLAIMS'; evidenceId: string }
+    | { type: 'MARK_EVIDENCE_REVIEWED'; evidenceId: string; source: 'metadata' | 'terminal' }
+    | { type: 'OPEN_TUTORIAL' }
     | { type: 'ADVANCE_TUTORIAL' }
+    | { type: 'PREVIOUS_TUTORIAL' }
     | { type: 'SKIP_TUTORIAL' }
     | { type: 'SUBMIT_REPORT' }
     | { type: 'TOGGLE_GLOSSARY' }

@@ -20,6 +20,7 @@ export function ClaimBadge({ claim, compact = false }: ClaimBadgeProps) {
         : typeof verdict === 'string'
             ? verdict
             : verdict.verdict;
+    const evidenceReviewed = state.reviewedEvidenceIds.includes(claim.evidenceRef);
     const confidence = isPending
         ? null
         : typeof verdict === 'string'
@@ -41,12 +42,14 @@ export function ClaimBadge({ claim, compact = false }: ClaimBadgeProps) {
 
     const confirmVerdict = (conf: 'low' | 'medium' | 'high') => {
         if (!stagedVerdict) return;
+        if (!evidenceReviewed) return;
         dispatch({ type: 'VALIDATE_CLAIM', claimId: claim.id, verdict: stagedVerdict, confidence: conf, claim });
         setStagedVerdict(null);
     };
 
     const handleValidate = (v: 'verified' | 'hallucination') => {
         if (!isPending) return;
+        if (!evidenceReviewed) return;
         setStagedVerdict(v);
         setExpanded(true);
     };
@@ -117,7 +120,13 @@ export function ClaimBadge({ claim, compact = false }: ClaimBadgeProps) {
                         </AnimatePresence>
                     )}
 
-                    {isPending && !stagedVerdict && (
+                    {isPending && !evidenceReviewed && (
+                        <div className="mt-3 rounded border border-amber-700/40 bg-amber-950/25 px-3 py-2 text-[11px] font-mono text-amber-200">
+                            Review this file's Raw Metadata or run <code className="text-amber-100">inspect {claim.evidenceRef}</code> before choosing a verdict.
+                        </div>
+                    )}
+
+                    {isPending && !stagedVerdict && evidenceReviewed && (
                         <div className="flex gap-2 mt-3">
                             <button
                                 onClick={(e) => { e.stopPropagation(); handleValidate('verified'); }}

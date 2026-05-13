@@ -60,6 +60,11 @@ export function Workspace({ validationErrorPulse }: { validationErrorPulse?: boo
         }, 80);
     }, [state.workspaceFocusRequest, selectedEvidenceId]);
 
+    useEffect(() => {
+        if (!selectedEvidenceId || activeTab !== 'metadata') return;
+        dispatch({ type: 'MARK_EVIDENCE_REVIEWED', evidenceId: selectedEvidenceId, source: 'metadata' });
+    }, [activeTab, selectedEvidenceId, dispatch]);
+
     return (
         <div className={`flex-1 flex flex-col h-full bg-[#0a0e17] overflow-hidden ${validationErrorPulse ? 'validation-error-pulse' : ''}`}>
             {/* Header and Tabs */}

@@ -1,17 +1,17 @@
 import { Claim, Verdict } from '../types/game';
 
-// ── Scoring Anti-Exploit Analysis (Scripted Mode, 24 claims) ────────────────
+// ── Scoring Anti-Exploit Analysis (Scripted Mode, 28 claims) ────────────────
 //
-// Total scripted claims : 24
-// Hallucinated claims   : 13
-// True claims           : 11
+// Total scripted claims : 28
+// Hallucinated claims   : 14
+// True claims           : 14
 //
-// Max score (perfect player):
-//   13 × (+20) + 11 × (+10) + 50 (report) = 420 pts → Expert (≥ 150)
+// Claim + report score (perfect player, before connections/timer/difficulty):
+//   14 × (+20) + 14 × (+10) + 50 (report) = 470 pts → Expert (≥ 150)
 //
-// Blanket-skeptic score (mark ALL 24 as "hallucination"):
-//   Previous constants : 13 × (+20) + 11 × (−15) + 50 = 145 pts → Senior Analyst - EXPLOITABLE
-//   Revised  constants : 13 × (+20) + 11 × (−25) + 50 =  35 pts → AI-Dependent  ✓
+// Blanket-skeptic score (mark ALL 28 as "hallucination"):
+//   Previous constants : 14 × (+20) + 14 × (−15) + 50 = 120 pts → Senior Analyst - EXPLOITABLE
+//   Revised  constants : 14 × (+20) + 14 × (−25) + 50 = -20 pts → AI-Dependent
 //
 // Adjustment: increased the penalty for falsely rejecting a true claim from
 // −15 to −25 so that blanket skepticism falls below the Junior threshold (50).

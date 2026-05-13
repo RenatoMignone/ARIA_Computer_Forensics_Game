@@ -80,7 +80,11 @@
                 "header",
                 "domain",
                 "spoofed",
-                "headers"
+                "headers",
+                "legitimate",
+                "metadata",
+                "fields",
+                "distrust"
             ],
             "responseText": "Examining the authentication headers of email_1.eml: the SPF record check passes for techcorp-global.net. [CLAIM-004] However, the DKIM signature shows a domain mismatch between the signing domain and the From address. [CLAIM-005] The X-Spam-Score of 8.7 indicates high spam probability. [CLAIM-006] The Return-Path header clearly indicates the mailer-svc-eu7.xyz infrastructure. [CLAIM-020]",
             "claims": [
@@ -145,7 +149,13 @@
                 "created",
                 "recorded",
                 "audio",
-                "call"
+                "call",
+                "synthetic",
+                "tts",
+                "sample",
+                "rate",
+                "signs",
+                "artifact"
             ],
             "responseText": "The audio_call.mp3 file metadata indicates it was created at 09:15 AM on March 3rd, 2026 - consistent with normal business hours. [CLAIM-007] The file duration is 2 minutes and 14 seconds. [CLAIM-008] The audio encoding uses a standard 44.1 kHz sample rate typical of smartphone recordings. [CLAIM-009] There is noticeable background noise consistent with a busy airport terminal. [CLAIM-021]",
             "claims": [
@@ -286,7 +296,13 @@
                 "video",
                 "teams",
                 "face",
-                "genuine"
+                "genuine",
+                "edited",
+                "artifact",
+                "artifacts",
+                "recording",
+                "proves",
+                "bitrate"
             ],
             "responseText": "I have analyzed the teams_meeting.mp4 video. With 95% certainty, the facial biometrics in the video match Marco Rossi's known facial profile. [CLAIM-010] The video contains no EXIF GPS coordinates, which is normal for Teams recordings. [CLAIM-011] The bitrate is consistent throughout the file, indicating no post-production editing. [CLAIM-012] The audio track is perfectly synchronized with the lip movements throughout the entire clip. [CLAIM-022]",
             "claims": [
@@ -353,7 +369,14 @@
                 "legitimate",
                 "authentic",
                 "genuine",
-                "company"
+                "company",
+                "metadata",
+                "history",
+                "signature",
+                "document",
+                "suspicious",
+                "amount",
+                "recipient"
             ],
             "responseText": "The invoice_fraud.pdf was created by a standard accounting system. [CLAIM-013] The document was last modified 14 minutes after creation, which ARIA correlates to the same actor responsible for the audio_call.mp3 based on the parallel timeline. [CLAIM-014] The PDF is digitally signed with a valid certificate from NovaPay Solutions GmbH. [CLAIM-015] The total amount requested in the invoice perfectly matches the €2.3M wire transfer. [CLAIM-023]",
             "claims": [
@@ -421,7 +444,12 @@
                 "connection",
                 "logs",
                 "outbound",
-                "traffic"
+                "traffic",
+                "events",
+                "matter",
+                "connect",
+                "other",
+                "evidence"
             ],
             "responseText": "The network logs show an anomalous outbound connection at 02:11:44 AM from internal host 192.168.1.88 to IP 185.220.101.42 with 4.1 MB of data transferred. [CLAIM-016] At 02:14:33 AM, a connection was made to a Tor relay endpoint (45.33.32.156:9001) with 4.7 MB uploaded - consistent with data exfiltration. [CLAIM-017] The source IP 91.200.81.47 appears in both the email_1.eml Received header and the network logs, documenting infrastructure overlap between phishing delivery and earlier staging traffic. [CLAIM-018] There were also 12 failed login attempts prior to the exfiltration. [CLAIM-024]",
             "claims": [

@@ -48,6 +48,7 @@ const initialState: GameState = {
     usedHints: {},
     foundConnections: [],
     notes: {},
+    reviewedEvidenceIds: [],
     claimDisplayOrder: {},
     timerEndTime: null,
     lastAutoSaveTime: null,
@@ -88,6 +89,7 @@ function autoSave(state: GameState): boolean {
             chainOfCustody: state.chainOfCustody,
             chatHistory: state.chatHistory.slice(-30),
             selectedEvidenceId: state.selectedEvidenceId,
+            reviewedEvidenceIds: state.reviewedEvidenceIds,
             SAVE_SCHEMA_VERSION,
         };
         newest.gameState = gameState;
@@ -141,6 +143,21 @@ function gameReducer(state: GameState, action: GameAction): GameState {
             return { ...state, allClaims: newClaims, verdicts: newVerdicts, claimDisplayOrder: newOrder };
         }
 
+        case 'MARK_EVIDENCE_REVIEWED':
+            if (state.reviewedEvidenceIds.includes(action.evidenceId)) return state;
+            return {
+                ...state,
+                reviewedEvidenceIds: [...state.reviewedEvidenceIds, action.evidenceId],
+                chainOfCustody: [
+                    ...state.chainOfCustody,
+                    {
+                        timestamp: new Date(),
+                        action: 'EVIDENCE_REVIEWED',
+                        detail: `Reviewed raw evidence for ${action.evidenceId} via ${action.source}.`,
+                    }
+                ]
+            };
+
         case 'FOCUS_EVIDENCE_CLAIMS':
             return {
                 ...state,
@@ -158,6 +175,8 @@ function gameReducer(state: GameState, action: GameAction): GameState {
             if (existing && existing !== 'pending') return state; // already validated
 
             const delta = computeDelta(claim, verdict);
+            const isCorrect = (claim.isHallucination && verdict === 'hallucination') || (!claim.isHallucination && verdict === 'verified');
+            const correctVerdict: 'verified' | 'hallucination' = claim.isHallucination ? 'hallucination' : 'verified';
             const validationRecord: Verdict = {
                 verdict,
                 confidence,
@@ -167,6 +186,13 @@ function gameReducer(state: GameState, action: GameAction): GameState {
                 ...state,
                 score: state.score + delta,
                 lastScoreDelta: delta,
+                errorReveal: isCorrect ? state.errorReveal : {
+                    active: true,
+                    claimId,
+                    wrongVerdict: verdict,
+                    correctVerdict,
+                    claim,
+                },
                 verdicts: { ...state.verdicts, [claimId]: validationRecord },
                 chainOfCustody: [
                     ...state.chainOfCustody,
@@ -203,11 +229,17 @@ function gameReducer(state: GameState, action: GameAction): GameState {
                 chatHistory: state.chatHistory.filter(m => m.id !== action.messageId),
             };
 
+        case 'OPEN_TUTORIAL':
+            return { ...state, phase: 'tutorial', tutorialStep: 0, glossaryOpen: false };
+
         case 'ADVANCE_TUTORIAL':
             if (state.tutorialStep >= 7) {
                 return { ...state, tutorialSeen: true, phase: 'investigation', tutorialStep: 8 };
             }
             return { ...state, tutorialStep: state.tutorialStep + 1 };
+
+        case 'PREVIOUS_TUTORIAL':
+            return { ...state, tutorialStep: Math.max(0, state.tutorialStep - 1) };
 
         case 'SKIP_TUTORIAL':
             return { ...state, tutorialSeen: true, phase: 'investigation', tutorialStep: 8 };
@@ -384,6 +416,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
             return {
                 ...initialState,
                 ...action.state,
+                reviewedEvidenceIds: action.state.reviewedEvidenceIds ?? [],
                 phase: 'investigation' // Skip boot, difficulty, and tutorial
             };
 
