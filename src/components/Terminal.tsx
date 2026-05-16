@@ -16,6 +16,7 @@ const evidence = evidenceData as Evidence[];
 const aria = ariaData as AriaData;
 const connections = connectionsData as any[];
 const scriptedClaimIds = aria.responses.flatMap(r => r.claims.map(c => c.id));
+const LIVE_AI_CONFIGURED = import.meta.env.VITE_LIVE_AI === 'true' && !!import.meta.env.VITE_GEMINI_KEY;
 
 function getMissingScriptedCoverage(allClaims: Record<string, any>) {
     return scriptedClaimIds.filter(id => !allClaims[id]);
@@ -462,13 +463,14 @@ export function Terminal() {
         else if (cmd === 'report') {
             const discoveredClaimCount = Object.keys(s.allClaims).length;
             const missingScriptedClaims = getMissingScriptedCoverage(s.allClaims);
+            const requiresScriptedCoverage = !LIVE_AI_CONFIGURED || s.liveAIFailed;
             if (discoveredClaimCount === 0) {
                 writeLines([
                     `\x1b[31m[!] REPORT REJECTED: NO AI CLAIMS REVIEWED\x1b[0m`,
                     '\x1b[90mSelect evidence, ask ARIA about it, then validate the generated claim badges before submitting a report.\x1b[0m',
                 ]);
             }
-            else if (missingScriptedClaims.length > 0) {
+            else if (requiresScriptedCoverage && missingScriptedClaims.length > 0) {
                 writeLines([
                     `\x1b[31m[!] REPORT REJECTED: CASE REVIEW INCOMPLETE\x1b[0m`,
                     `\x1b[33m${missingScriptedClaims.length} required ARIA claim(s) have not been discovered yet.\x1b[0m`,

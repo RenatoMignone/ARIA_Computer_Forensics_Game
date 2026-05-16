@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play } from 'lucide-react';
+import { ARIA_LOGO_SRC } from '../lib/assets';
 
 const BOOT_LINES = [
     { text: 'Waking ARIA', delay: 420 },
@@ -66,7 +67,7 @@ export function BootSequence({ onComplete }: { onComplete: () => void }) {
 
                     <div className="boot-stage">
                         <div className="boot-title">
-                            <img src="/aria-logo.png" alt="" className="boot-logo" />
+                            <img src={ARIA_LOGO_SRC} alt="" className="boot-logo" />
                             <h1>ARIA</h1>
                             <p>Don't Trust the Machine</p>
                         </div>

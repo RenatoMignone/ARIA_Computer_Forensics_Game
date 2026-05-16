@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { SaveSlot, LeaderboardEntry } from '../types/game';
 import { ArrowLeft, BrainCircuit, CheckCircle2, Clock, FileSearch, MessageSquareText, Play, Trophy, X } from 'lucide-react';
 import { useAudio } from '../hooks/useAudio';
+import { ARIA_LOGO_SRC } from '../lib/assets';
 
 export function DifficultyScreen() {
     const { dispatch } = useGame();
@@ -302,7 +303,7 @@ export function DifficultyScreen() {
 
                     <main className="difficulty-stage" aria-labelledby="main-menu-title">
                         <section className="difficulty-hero">
-                            <img src="/aria-logo.png" alt="" className="difficulty-logo" />
+                            <img src={ARIA_LOGO_SRC} alt="" className="difficulty-logo" />
                             <h1 id="main-menu-title">ARIA</h1>
                             <p>AI-assisted evidence review</p>
                         </section>

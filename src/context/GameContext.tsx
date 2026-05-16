@@ -130,13 +130,15 @@ function gameReducer(state: GameState, action: GameAction): GameState {
             const newClaims = { ...state.allClaims };
             const newVerdicts = { ...state.verdicts };
             const newOrder = { ...state.claimDisplayOrder };
-            action.claims.forEach(c => {
+            const claimsToRegister = action.claims.filter(c => !state.allClaims[c.id]);
+
+            claimsToRegister.forEach(c => {
                 newClaims[c.id] = c;
                 if (!newVerdicts[c.id]) newVerdicts[c.id] = 'pending';
             });
             // Fisher-Yates shuffle new claims into per-evidence display order
             const byEvidence: Record<string, string[]> = {};
-            action.claims.forEach(c => {
+            claimsToRegister.forEach(c => {
                 if (!byEvidence[c.evidenceRef]) byEvidence[c.evidenceRef] = [];
                 byEvidence[c.evidenceRef].push(c.id);
             });
