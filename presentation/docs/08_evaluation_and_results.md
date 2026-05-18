@@ -1,124 +1,88 @@
-# 08 Evaluation And Results
+# 08 Current Status And Evaluation
 
-## Current Result
+## Current Status
 
-ARIA is a working game prototype that demonstrates the main idea of the project.
+ARIA is a playable prototype. A player can start an investigation, inspect evidence, question ARIA, validate claims, connect evidence, submit a report, and review a debrief.
 
-The player can complete an investigation from start to finish, validate AI claims, discover evidence connections, submit a final report, and receive a debrief.
-
-This makes the project suitable for a course presentation because it is not only a concept. It is an implemented interactive artifact.
+The project is ready to run in scripted mode for deterministic classroom evaluation. Live Gemini mode is an optional local extension.
 
 ## Implemented Features
 
-The current game includes:
-
-- Difficulty selection.
-- Game-style main menu.
-- Timer selection.
-- Tutorial flow.
-- Reopenable tutorial with forward and backward navigation.
-- Evidence vault.
-- Evidence workspace.
-- Metadata inspection.
-- ARIA chat in scripted mode.
-- Optional live AI mode.
-- Scripted fallback when live AI is unavailable.
-- Duplicate claim reuse for repeated live AI facts.
-- Claim validation.
+- Main menu, difficulty selection, and timer selection.
+- Guided Run, Challenge Run, and Final Exam modes.
+- Tutorial with reopenable navigation.
+- Evidence vault and workspace.
+- Raw metadata inspection.
+- Scripted ARIA chat.
+- Optional live AI mode with scripted fallback.
+- Duplicate live-claim reuse for repeated forensic facts.
+- Claim validation with confidence selection.
 - Evidence-review gate before validation.
-- Confidence selection.
-- Scoring.
-- Terminal commands.
+- Scoring and penalties.
+- Forensic terminal.
 - Investigator Handbook with glossary, how-to-play, and terminal command reference.
-- Investigation notes.
-- Cross-evidence connections.
-- Timer options.
+- Notes, cross-evidence connections, evidence board, and attack timeline.
 - Local save and resume.
-- Final report submission.
-- Debrief screen.
-- Report export.
+- Final report, debrief, and report export.
 - Accessibility-oriented settings such as high contrast and reduced effects.
 - Panel toggles for managing screen space.
 
-## Educational Results
+## Scoring Summary
 
-The implemented prototype successfully supports the project learning goals:
+| Action | Points |
+| --- | ---: |
+| Correctly flag a hallucination | +20 |
+| Correctly verify a true claim | +10 |
+| Accept a hallucination as true | -30 |
+| Reject a true claim as hallucinated | -25 |
+| Find a cross-evidence connection | +15 for the first 3 |
+| Trace the Tor exit-node IP in the terminal | +15 once |
+| Decode the hidden invoice creator payload | +20 once |
+| Use a hint | -5 |
+| Submit final report | +50 |
+| Submit before timer expires | +50 |
 
-- It creates a realistic investigation context.
-- It forces the player to inspect evidence rather than trust the assistant blindly.
-- It prevents claim validation before evidence review, which improves the intended learning loop.
-- It introduces several common forensic artifacts.
-- It makes AI hallucinations visible and measurable.
-- It provides feedback through scoring and debriefing.
-- It connects technical investigation with final reporting.
+Difficulty multipliers are applied at report submission:
 
-## Scoring Model
+| Difficulty | Multiplier |
+| --- | ---: |
+| Guided Run | 1.00 |
+| Challenge Run | 1.25 |
+| Final Exam | 1.50 |
 
-The scoring model is designed to reward evidence-based reasoning.
+## Educational Evaluation
 
-The player gains points for:
+The prototype supports the intended learning goals because it:
 
-- Correctly flagging hallucinations.
-- Correctly verifying true claims.
-- Finding cross-evidence relationships.
-- Submitting the final report.
-- Completing the investigation within timer constraints when timers are active.
+- Forces evidence inspection before claim validation.
+- Makes hallucinations visible and measurable.
+- Rewards correct verification and hallucination detection.
+- Penalizes both blind trust and blanket rejection.
+- Connects single artifacts into a case timeline.
+- Turns the final score into feedback through the debrief.
 
-The player loses points for:
+## Known Limitations
 
-- Accepting hallucinations as true.
-- Rejecting true claims as hallucinations.
-
-This structure teaches that both overtrust and excessive skepticism can be wrong.
-
-## Player Feedback
-
-The debrief is important because it converts gameplay into learning.
-
-It shows not only the score, but also how the player performed in relation to hallucination detection and claim verification.
-
-The feedback helps the player understand mistakes and reflect on the investigation process.
-
-## Strengths Of The Project
-
-The main strengths are:
-
-- A clear educational problem.
-- A focused and understandable scenario.
-- A playable implementation.
-- A strong connection between AI reliability and forensic reasoning.
-- Multiple evidence types.
-- A claim-based validation system.
-- A final debrief that reinforces learning.
-
-## Current Limitations
-
-The project is still a course prototype.
-
-Current limitations include:
-
-- The evidence set is limited to one scenario.
-- Scripted ARIA responses cover selected questions rather than every possible question.
-- The local save system works only on the same browser and device.
-- The game does not include a real backend for multiplayer, class comparison, or tamper-resistant result sharing.
-- The live AI mode is optional and not the primary assessment path.
-- The public GitHub Pages version cannot safely include a private Gemini API key, so live AI requires local execution.
+- One main scenario.
+- Scripted responses cover selected questions, not every possible user question.
+- Save data is local to the same browser and device.
+- No backend for tamper-resistant classroom submissions.
+- Live AI is optional and not part of the public hosted assessment path.
+- GitHub Pages cannot safely include a private Gemini API key.
+- The current single-page prototype can trigger a non-blocking Vite bundle-size warning.
 
 ## Future Improvements
 
-Possible future improvements include:
+Possible extensions:
 
 - Additional forensic scenarios.
-- More evidence files.
 - More scripted ARIA responses.
 - Expanded debrief explanations.
 - More detailed report grading.
-- Better bundle optimization.
+- Bundle-size optimization.
 - Instructor-facing result export.
-- A controlled server-side system for classroom submissions.
+- Server-side classroom submission flow.
 
-## Overall Evaluation
+## Evaluation Summary
 
-ARIA achieves its main objective: it demonstrates how a serious game can teach students to critically evaluate AI-assisted forensic analysis.
-
-The final value of the project is not only the solved case. The value is the reasoning habit that the game trains: verify first, conclude later.
+ARIA demonstrates how a serious game can teach critical use of AI in forensic analysis. Its strongest educational mechanism is the evidence-review gate combined with mixed true and hallucinated claims.

@@ -314,7 +314,7 @@ When adding new evidence, update the evidence data, ARIA claims, connections if 
 - Use scripted mode for reliable classroom demos.
 - Use live AI mode only as an optional extension, since generated output may vary.
 - Keep generated folders such as `node_modules/` and `dist/` out of Git.
-- Keep general project setup in `docs/` and presentation/report material in `presentation/`.
+- Keep general project setup in `docs/` and broader project context material in `presentation/`.
 
 ## Final Submission Checklist
 

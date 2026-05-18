@@ -1,8 +1,8 @@
-# ARIA Presentation Material
+# ARIA Project Context Material
 
-This folder contains the presentation material for **ARIA: AI-Assisted Forensic Investigation Game**, a project developed for the Computer Forensics course.
+This folder contains reusable context material for **ARIA: AI-Assisted Forensic Investigation Game**, a project developed for the Computer Forensics course.
 
-The goal of this material is to explain the project from an academic and practical point of view: why the game exists, what problem it addresses, how the game is designed, which forensic concepts it teaches, and what learning outcomes it aims to produce.
+The notes explain why the game exists, what problem it addresses, how the investigation is structured, which forensic concepts it teaches, and how the current implementation works. They are designed as a project knowledge base rather than presentation-only copy.
 
 ## Folder Structure
 
@@ -19,23 +19,25 @@ presentation/
     06_learning_outcomes.md
     07_technical_implementation.md
     08_evaluation_and_results.md
-    09_presentation_storyline.md
-    10_demo_script.md
+    09_context_map.md
+    10_project_runbook.md
 ```
 
 ## How To Use These Notes
 
-The files in `docs/` are ordered to form a complete narrative for the presentation.
+The files in `docs/` are ordered to form a complete context package for the project.
 
-They can be used to prepare:
+They can be used to understand or maintain:
 
-- The introduction of the project.
-- The explanation of the educational problem.
-- The description of the proposed game concept.
-- The walkthrough of the investigation scenario.
-- The explanation of the forensic and AI-related learning objectives.
-- The technical overview of the implementation.
-- The final discussion about outcomes, limits, and future improvements.
-- A practical live-demo script for the final presentation.
+- The project identity, scope, and source-of-truth boundaries.
+- The educational problem and design requirements.
+- The proposed serious-game solution.
+- The player journey and assessment loop.
+- The forensic scenario, evidence files, and cross-evidence links.
+- The AI hallucination model and claim-validation rules.
+- The learning outcomes and professional mindset.
+- The technical implementation and data layout.
+- The current status, limitations, and future work.
+- The practical runbook for local development, public deployment, and scenario updates.
 
-The material is written as source content for a final presentation, not as player-facing documentation.
+Operational setup, assessment, and deployment details remain in the root [`docs/`](../docs) folder.

@@ -1,54 +1,54 @@
 # 01 Problem Statement
 
-## The Educational Problem
+## Educational Gap
 
-Computer forensics requires careful reasoning, attention to detail, and a strong separation between evidence, inference, and speculation.
+Computer forensics requires students to combine many small observations into a defensible conclusion. Lectures and isolated tool exercises can teach individual artifacts, but they do not always train the full investigation workflow.
 
-Students often learn forensic procedures through lectures, isolated exercises, or tool demonstrations. These approaches are useful, but they can make the investigation process feel fragmented. A student may understand what a hash is, what metadata is, or what an email header is, but still struggle to combine those elements into a coherent investigative workflow.
+ARIA addresses this gap with a complete case where the player must inspect multiple evidence types, compare observations, and reason across artifacts.
 
-ARIA addresses this gap by creating a complete case scenario where the player must use multiple types of evidence together.
+## Modern Risk
 
-## The Modern Challenge
-
-AI systems are increasingly used to support technical work. In cybersecurity and digital forensics, this can include:
+AI assistants are increasingly used to support technical work, including:
 
 - Summarizing logs.
-- Explaining file metadata.
+- Explaining metadata.
 - Identifying suspicious artifacts.
-- Suggesting correlations between events.
+- Suggesting event correlations.
 - Drafting reports.
 
-However, AI systems can produce outputs that sound plausible while being wrong. This is especially risky in forensic work because a wrong conclusion can affect attribution, legal reasoning, incident response, and organizational decisions.
-
-The problem is not only that AI can be wrong. The deeper problem is that AI can be wrong in a convincing way.
+The risk is not only that AI can be wrong. The risk is that AI can be wrong while sounding precise, technical, and confident.
 
 ## Why This Matters In Forensics
 
-Forensic work is evidence-driven. Every conclusion should be traceable to an artifact, a timestamp, a hash, a header, a log entry, or another verifiable source.
+Forensic conclusions must be traceable to artifacts such as headers, timestamps, hashes, logs, metadata fields, or file contents.
 
-If an investigator accepts an unsupported claim because it sounds confident, the investigation becomes fragile. The final report may contain fabricated details, incorrect timelines, or invalid correlations.
+Unsupported AI claims can cause:
 
-In a real case, this could lead to:
+- Incorrect attribution.
+- Wrong timelines.
+- Misread metadata.
+- Trust in spoofed communication.
+- Confusion between correlation and proof.
+- Reports that cannot be defended.
 
-- Misidentifying the source of an attack.
-- Missing a true indicator of compromise.
-- Trusting a spoofed email.
-- Misreading metadata.
-- Confusing correlation with proof.
-- Producing a report that cannot be defended.
+## Project Problem
 
-## Specific Problem Addressed By ARIA
+ARIA focuses on **AI overtrust during forensic analysis**.
 
-ARIA focuses on the problem of **AI overtrust during forensic analysis**.
+The player receives helpful and flawed AI output. Each claim must be checked against raw evidence before it can be accepted. The game also avoids teaching blanket rejection by including true claims that deserve verification.
 
-The player is given an AI assistant that sometimes provides correct observations and sometimes introduces hallucinated claims. The player must verify each claim using raw evidence.
+## Design Requirement
 
-This transforms AI hallucination from an abstract concept into a practical forensic challenge.
+The learning system must make evidence review the central action. A good solution should:
 
-## Design Question
+- Require interaction with raw evidence before claim validation.
+- Represent AI output as individually checkable claims.
+- Reward correct verification and hallucination detection.
+- Penalize both blind trust and excessive skepticism.
+- Provide reflective feedback after the investigation.
 
-The project is built around one main design question:
+## Guiding Question
 
-**How can a game teach students to use AI support critically while preserving evidence-based forensic reasoning?**
+How can an interactive game teach students to use AI support critically while preserving evidence-based forensic reasoning?
 
-ARIA answers this question by combining game mechanics, simulated evidence, claim validation, scoring, feedback, and a final debrief.
+ARIA answers with a claim-validation loop: inspect evidence, ask ARIA, verify or reject claims, connect artifacts, submit a report, and review the debrief.

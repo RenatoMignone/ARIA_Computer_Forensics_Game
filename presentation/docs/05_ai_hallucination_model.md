@@ -1,98 +1,95 @@
 # 05 AI Hallucination Model
 
-## Purpose Of The Hallucination Model
+## Purpose
 
-ARIA intentionally produces a mix of correct and incorrect claims.
+ARIA intentionally produces both supported and unsupported claims. This makes AI reliability a practical task instead of an abstract warning.
 
-This design choice is central to the project. The player must learn that an AI assistant can be helpful and dangerous at the same time.
+The goal is calibrated trust: use the assistant for leads, then verify before accepting.
 
-The goal is not to present AI as useless. The goal is to show that AI output must be verified before it becomes part of a forensic conclusion.
+## Claim-Based Design
 
-## Claim-Based Interaction
+ARIA responses contain claim IDs such as `CLAIM-001`. Each claim is evaluated independently instead of asking the player to judge a full paragraph at once.
 
-ARIA responses contain explicit claim identifiers such as `CLAIM-001`.
+Each claim has:
 
-This makes the AI output easier to evaluate. Instead of asking the player to judge an entire paragraph at once, the game breaks the response into individual claims.
+- A unique ID.
+- Related evidence.
+- Claim text.
+- Ground truth: verified or hallucinated.
+- Hallucination type when applicable.
+- Feedback explanation.
+- Hint text.
+- Relevant metadata fields.
 
-Each claim can then be checked against the evidence.
+The canonical scripted claim catalog is stored in `src/data/aria_responses.json`.
 
-In live Gemini mode, claim identifiers are also treated as stable objects. If the assistant repeats the same forensic fact, the game attempts to reuse the existing claim ID instead of creating an infinite stream of duplicate badges. This keeps the learning task focused on evidence verification rather than badge management.
+## Claim Balance
 
-## Claim Types
+The current scripted scenario contains:
 
-The game includes both:
+| Category | Count |
+| --- | ---: |
+| Scripted ARIA responses | 7 |
+| Unique claims | 28 |
+| True claims | 14 |
+| Hallucinated claims | 14 |
 
-- True claims that are supported by evidence.
-- Hallucinated claims that are not supported by evidence.
+Balanced claims are important:
 
-This balance is important. If every AI claim were wrong, the player would simply learn to reject everything. If every claim were true, the player would learn to trust blindly.
-
-The correct behavior is selective trust based on verification.
+- If all claims were false, players would learn blanket rejection.
+- If all claims were true, players would learn blind trust.
+- Mixed claims force evidence-based judgment.
 
 ## Hallucination Categories
 
-ARIA includes several types of incorrect claims.
-
 ### False Attribution
 
-False attribution occurs when ARIA assigns responsibility or authorship without enough evidence.
+ARIA assigns responsibility or authorship without enough evidence.
 
-Example: claiming that the CEO authored an email based on writing style, even though the email authentication headers show spoofing indicators.
+Example: claiming the CEO authored an email based only on writing style while headers show spoofing indicators.
 
 ### Fabricated Metadata
 
-Fabricated metadata occurs when ARIA invents technical details that are not present in the evidence.
+ARIA invents details that are not present in the evidence.
 
-Example: claiming that an archive of prior emails exists, or that a media file contains airport background noise, when no evidence supports the statement.
+Example: claiming a prior email archive or background airport noise exists when no artifact supports it.
 
 ### Inverted Finding
 
-An inverted finding occurs when ARIA states the opposite of what the evidence says.
+ARIA states the opposite of the evidence.
 
-Example: saying that SPF passed when the raw metadata clearly says SPF failed.
+Example: saying SPF passed when raw metadata says SPF failed.
 
 ### Timestamp Error
 
-A timestamp error occurs when ARIA reports the wrong time or misinterprets a time value.
+ARIA reports or interprets time incorrectly.
 
-Example: stating that an audio file was created during business hours when its metadata shows creation at `02:14`.
+Example: claiming an audio file was created during business hours when metadata shows `02:14`.
 
 ### Confidence Inflation
 
-Confidence inflation occurs when ARIA attaches a strong percentage or certainty level to a conclusion without a valid methodology.
+ARIA gives strong certainty without methodology.
 
-Example: claiming 95 percent facial biometric certainty without a tool report, reference database, or error rate.
+Example: claiming biometric certainty without a tool report, reference database, or error rate.
 
-## Why These Errors Matter
+## Live AI Handling
 
-These hallucination types are dangerous because they resemble real forensic conclusions.
+In live Gemini mode, repeated forensic facts should reuse existing claim IDs when possible. This prevents duplicate badges and keeps attention on validation rather than claim proliferation.
 
-They include technical language, specific numbers, timestamps, and confident explanations. This makes them persuasive.
-
-The game teaches the player to ask:
-
-- Where is this claim supported?
-- Which evidence field proves it?
-- Is this a direct observation or an inference?
-- Is the confidence justified?
-- Could this be a plausible but unsupported detail?
+The live mode prompt receives the selected evidence, raw metadata, and a catalog of known claims for that evidence. If Gemini is unavailable, invalid, rate-limited, or exhausted, the app falls back to scripted responses.
 
 ## Verification Principle
 
-The core rule is:
+No AI claim should be accepted unless it can be traced to evidence.
 
-**No claim should be accepted unless it can be traced to evidence.**
+Valid support can come from:
 
-In the game, this means checking content, metadata, hashes, timestamps, logs, and cross-evidence links before validating a claim.
+- Content.
+- Raw metadata.
+- Headers.
+- Hashes.
+- Timestamps.
+- Logs.
+- Cross-evidence links.
 
-The interface reinforces this rule by blocking claim validation until the relevant evidence has been reviewed.
-
-In real forensic work, the same principle applies to reports, testimony, incident response documentation, and internal security decisions.
-
-## Educational Value
-
-The hallucination model turns abstract AI reliability concerns into concrete tasks.
-
-The player does not only hear that AI can hallucinate. The player experiences the risk by reading a plausible claim, checking the evidence, and discovering that the claim is unsupported.
-
-This makes the lesson memorable and operational.
+The interface reinforces this by blocking claim validation until the relevant evidence has been reviewed.

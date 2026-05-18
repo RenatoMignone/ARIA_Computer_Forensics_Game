@@ -2,112 +2,77 @@
 
 ## Player Role
 
-The player acts as a forensic investigator assigned to a corporate fraud case.
+The player is a forensic investigator assigned to a TechCorp fraud case. The goal is to evaluate evidence, test ARIA's claims, and produce a defensible report.
 
-The objective is to determine what happened, identify which evidence supports the case, and evaluate the reliability of ARIA's claims.
+## Start Flow
 
-The player is not asked to simply find one hidden answer. The real task is to build a defensible investigative process.
+The main menu supports:
 
-## Start Of The Game
+- New investigation.
+- Load saved run.
+- How-to-play summary.
+- Last debrief review when available.
 
-The game begins with a simple ARIA main menu. From there, the player can start a new investigation, load a saved run, read a short how-to-play summary, or review the last debrief when one exists.
+New investigations offer three modes:
 
-Starting a new investigation opens the mode selection:
+| Mode | Internal difficulty | Purpose |
+| --- | --- | --- |
+| Guided Run | `standard` | Best first run. Claim text remains visible while pending. |
+| Challenge Run | `hard` | Claim text is hidden until validation. Score multiplier is 1.25x. |
+| Final Exam | `expert` | Hard mode plus no hint command. Score multiplier is 1.5x. |
 
-- **Guided Run:** recommended first run, with visible claim text.
-- **Challenge Run:** hides claim text until validation and applies a 1.25x score multiplier.
-- **Final Exam:** disables hints, keeps the harder claim behavior, and applies a 1.5x score multiplier.
+The player then chooses a 45-minute timer, 30-minute timer, or no timer.
 
-After selecting a mode, the player chooses whether to use a 45-minute timer, a 30-minute timer, or no timer.
+## Interface Areas
 
-A tutorial introduces the main interface:
+- Left: evidence vault and cross-reference progress.
+- Center: workspace and evidence viewer.
+- Right: ARIA chat.
+- Bottom: forensic terminal.
+- Top bar: score, progress, difficulty, tutorial, handbook, and panel toggles.
 
-- The evidence vault.
-- The workspace.
-- The ARIA chat.
-- The forensic terminal.
-- The evidence board.
-- The panel controls.
-- The claim validation system.
-- The final report flow.
-- The Investigator Handbook in the top bar.
-
-The tutorial also explains that interface sections can be temporarily hidden from the top-right panel controls when the player needs more workspace.
-
-## Main Interface
-
-The investigation screen is divided into several areas:
-
-- The left side contains the evidence vault and cross-reference progress.
-- The central area contains the workspace and evidence viewer.
-- The right side contains the ARIA chat.
-- The bottom area contains the forensic terminal.
-- The top bar contains score, progress, tutorial state, difficulty, and panel toggles.
-
-The layout is designed to make the player feel like they are working inside an investigation environment, not only reading static documents.
+The tutorial introduces each area and can be reopened during play.
 
 ## Core Loop
 
-The core gameplay loop is:
-
-1. Select an evidence file.
-2. Inspect its content and metadata.
-3. Ask ARIA questions about the file.
-4. Identify claim tags in ARIA's answer.
-5. Validate each claim as verified or hallucinated after reviewing the related evidence.
-6. Add notes when useful.
-7. Compare the file with other evidence.
-8. Discover cross-evidence connections.
-9. Submit a final report.
+1. Select evidence.
+2. Inspect content and raw metadata.
+3. Ask ARIA about the selected file.
+4. Review claim badges in the response.
+5. Validate each claim as verified or hallucinated.
+6. Choose confidence.
+7. Add notes or inspect through the terminal.
+8. Connect related evidence on the board.
+9. Submit the final report.
 10. Review the debrief.
 
-This loop repeats across the evidence set and gradually builds the full case.
+## Claim Validation Rules
 
-## Claim Validation
+Claims have stored ground truth in the game data. The current implementation blocks validation until the related evidence has been reviewed through raw metadata or a terminal inspection command.
 
-ARIA responses include claim tags such as `CLAIM-001`.
+Evidence counts as reviewed when the player:
 
-Each claim has a ground truth stored in the game data. The player must decide whether the claim is:
+- Opens the Raw Metadata tab for that file.
+- Runs `inspect <file>` in the terminal.
+- Runs `hash verify <file>` in the terminal.
 
-- Verified by the evidence.
-- A hallucination.
+This gate is intentional. It prevents blind clicking and reinforces evidence-first reasoning.
 
-The player also chooses a confidence level. This encourages calibration: the player should not only decide what is true, but also think about how strongly the evidence supports the decision.
+## Terminal Role
 
-The current implementation blocks validation until the related file has been reviewed through raw metadata or a terminal inspection command. This supports the educational goal by forcing the player back to the evidence before scoring a claim.
+The terminal gives the investigation a procedural forensic feel. It supports command-style actions for scanning, inspecting, validating, note-taking, connecting evidence, hash verification, tracing suspicious infrastructure, decoding encoded metadata, and report submission.
 
-## Terminal Interaction
+The Investigator Handbook includes terminal command help so players can recover syntax during the game.
 
-The terminal gives the game a forensic investigation flavor. It supports command-style actions such as scanning evidence, checking hashes, inspecting metadata, validating claims, adding notes, connecting evidence, and submitting the report.
+## End State
 
-The terminal reinforces the idea that forensic work is procedural. It also makes the game feel closer to a technical investigation environment.
+The final report leads to a debrief with:
 
-The Investigator Handbook contains a Terminal Commands section so the player can recover syntax and understand when each command is useful.
-
-## Evidence Board
-
-The board supports cross-evidence reasoning. The player can connect files when there is a meaningful relationship between them.
-
-Examples include:
-
-- Matching an IP address in an email header with an IP in firewall logs.
-- Matching an audio creation timestamp with anomalous network activity.
-- Comparing document modification times with other case events.
-
-This encourages the player to move beyond single-file inspection and think in terms of a full timeline.
-
-## End Of The Game
-
-The player submits a final report when they believe the investigation is complete.
-
-The debrief screen shows:
-
-- Final score.
-- Performance tier.
-- Hallucinations found.
+- Final score and performance tier.
 - Correct and incorrect validations.
-- Calibration feedback.
+- Hallucinations found.
+- Confidence calibration feedback.
 - Final report details.
 - Export options.
 
-The debrief turns the play session into a learning moment by explaining what the player did well and where the reasoning failed.
+The debrief is part of the learning design. It converts the play session into reflection about evidence quality, AI reliability, and the player's confidence calibration.

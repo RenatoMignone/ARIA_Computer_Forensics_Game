@@ -1,42 +1,68 @@
 # 00 Project Context
 
-## Project Title
+## Project Identity
 
-**ARIA: AI-Assisted Forensic Investigation Game**
+**ARIA: AI-Assisted Forensic Investigation Game** is a browser-based serious game for a Computer Forensics course.
 
-ARIA is a browser-based serious game developed as a project for the Computer Forensics course.
+The player acts as a forensic investigator on a simulated corporate fraud case. They inspect digital evidence, question an AI assistant named ARIA, validate AI-generated claims, connect related artifacts, and submit a final report.
 
-The game places the player in the role of a forensic investigator assigned to a corporate fraud case. The player receives multiple digital evidence files, interacts with an AI assistant called ARIA, and must determine which AI-generated claims are supported by the evidence and which ones are hallucinated.
+## Core Thesis
+
+ARIA is built around one rule:
+
+**AI can assist an investigation, but forensic conclusions must be verified against evidence.**
+
+The fictional fraud case is the vehicle for that lesson. The deeper learning objective is to train the habit of separating artifact-backed findings, reasonable inference, and unsupported AI output.
 
 ## Academic Context
 
-The project belongs to the area of Computer Forensics and Cyber Crime Analysis. It combines digital investigation workflows with a modern problem that is increasingly relevant in cybersecurity: the use of AI systems during investigative work.
+The project sits at the intersection of:
 
-In real forensic contexts, analysts may use automated tools to summarize evidence, extract indicators, correlate events, or accelerate repetitive tasks. These tools can be useful, but they can also produce inaccurate conclusions, unsupported claims, or misleading confidence levels. This creates a practical challenge: investigators must learn how to use automation without surrendering their judgment to it.
+- Digital forensics and cyber crime analysis.
+- AI-assisted investigative workflows.
+- AI hallucination and overtrust risks.
+- Serious game design for applied learning.
 
-ARIA was designed around that challenge.
+In real forensic work, automated tools and AI assistants can summarize material, suggest leads, and accelerate triage. They can also produce plausible errors. ARIA turns that risk into a playable verification loop.
 
-## Core Idea
+## Project Scope
 
-The main idea of the project is simple:
+The current prototype focuses on one complete investigation scenario: an unauthorized EUR 2.3M transfer at TechCorp.
 
-**An AI assistant can help an investigation, but every claim must be verified against raw evidence.**
+The scenario includes five evidence files:
 
-The game turns this idea into an interactive learning experience. Instead of only explaining AI hallucinations in theory, the player is forced to identify them while working through a simulated forensic case.
+- `email_1.eml`
+- `audio_call.mp3`
+- `teams_meeting.mp4`
+- `invoice_fraud.pdf`
+- `network_logs.txt`
 
-## Project Purpose
+The game currently includes 7 scripted ARIA responses, 28 unique claims, 14 hallucinated claims, 14 true claims, and 3 valid cross-evidence connections.
 
-The purpose of ARIA is to create a practical and engaging environment where students can:
+## Source Of Truth
 
-- Inspect digital evidence.
-- Read metadata and technical artifacts.
-- Question AI-generated analysis.
-- Distinguish verified information from unsupported claims.
-- Build a chain of reasoning based on evidence.
-- Understand why forensic conclusions must be explainable and defensible.
+The main project documentation is split across:
 
-## Project Identity
+- [README.md](../../README.md): project overview, feature summary, scoring, structure, and run commands.
+- [docs/](../../docs): setup, gameplay, assessment, and deployment guides.
+- [src/data/](../../src/data): canonical scenario data, scripted AI responses, claim truth labels, and evidence connections.
+- [presentation/docs/](.): contextual notes about the project, learning design, scenario, and implementation rationale.
 
-ARIA is not only a game about solving a fraud case. It is also a training tool about critical thinking in AI-assisted investigations.
+These files should stay consistent with the application data and behavior. If the evidence set, scoring rules, claim catalog, or deployment mode changes, update this context folder as well.
 
-The central lesson is that speed and confidence are not the same as correctness. A forensic analyst must remain responsible for the final conclusion, even when an AI system appears authoritative.
+## Intended Learning Experience
+
+Students should practice:
+
+- Inspecting evidence content and raw metadata.
+- Checking hashes, headers, timestamps, encoders, logs, and payment details.
+- Comparing AI claims with artifacts.
+- Marking claims as verified or hallucinated.
+- Connecting evidence across files.
+- Building a defensible final report.
+
+## Design Position
+
+ARIA is not a chatbot demo and not a general-purpose forensic suite. It is a focused learning environment where the AI assistant is useful but intentionally unreliable.
+
+The player succeeds by using ARIA as a lead generator while allowing the evidence to decide which claims are accepted.
