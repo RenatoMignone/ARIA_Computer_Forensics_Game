@@ -251,7 +251,7 @@ export function Terminal() {
                 } else if (!s.reviewedEvidenceIds.includes(claim.evidenceRef)) {
                     writeLines([
                         `\x1b[31mEvidence review required before validating ${claimId}.\x1b[0m`,
-                        `\x1b[90mRun inspect ${claim.evidenceRef} or open the file's Raw Metadata tab, then compare ARIA's claim against the evidence.\x1b[0m`,
+                        `\x1b[90mRun inspect ${claim.evidenceRef}, then compare ARIA's claim against the evidence.\x1b[0m`,
                     ]);
                 } else if (s.verdicts[claimId] && s.verdicts[claimId] !== 'pending') {
                     const existing = s.verdicts[claimId];
@@ -487,7 +487,7 @@ export function Terminal() {
                     `\x1b[31m[!] REPORT REJECTED: CHAIN OF CUSTODY INCOMPLETE\x1b[0m`,
                     `\x1b[33mAwaiting investigator verification on ${remaining} AI-generated claim(s).\x1b[0m`,
                     '\x1b[90mSupervisory Protocol 402.B dictates that all ARIA outputs must be independently verified against raw evidence before a final verdict can be signed. AI outputs cannot be trusted inherently.\x1b[0m',
-                    '\x1b[90mHint: Use \x1b[0mvalidate <CLAIM-ID> verified|hallucination\x1b[90m for each remaining claim.\x1b[0m',
+                    '\x1b[90mHint: Use \x1b[0minspect <file>\x1b[90m, then \x1b[0mvalidate <CLAIM-ID> verified|hallucination\x1b[90m for each remaining claim.\x1b[0m',
                 ]);
             } else {
                 const bonus = s.timerEndTime && s.timerEndTime > Date.now() ? 50 : 0;
@@ -648,6 +648,7 @@ export function Terminal() {
                     '\x1b[36mCOMMAND: validate <CLAIM-ID> <verdict>\x1b[0m',
                     '',
                     'Mark an ARIA claim as verified or a hallucination.',
+                    'The source evidence must be inspected in the terminal first.',
                     '',
                     '  \x1b[33mvalidate CLAIM-001 verified\x1b[0m       - Confirm the claim is factually correct',
                     '  \x1b[33mvalidate CLAIM-001 hallucination\x1b[0m   - Flag the claim as AI-fabricated',

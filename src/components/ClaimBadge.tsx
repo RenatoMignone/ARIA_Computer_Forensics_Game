@@ -122,7 +122,7 @@ export function ClaimBadge({ claim, compact = false }: ClaimBadgeProps) {
 
                     {isPending && !evidenceReviewed && (
                         <div className="mt-3 rounded border border-amber-700/40 bg-amber-950/25 px-3 py-2 text-[11px] font-mono text-amber-200">
-                            Review this file's Raw Metadata or run <code className="text-amber-100">inspect {claim.evidenceRef}</code> before choosing a verdict.
+                            Verdict locked. Run <code className="text-amber-100">inspect {claim.evidenceRef}</code> in the terminal to review this evidence first.
                         </div>
                     )}
 

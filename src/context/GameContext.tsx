@@ -184,6 +184,19 @@ function gameReducer(state: GameState, action: GameAction): GameState {
             const { claimId, verdict, confidence, claim } = action;
             const existing = state.verdicts[claimId];
             if (existing && existing !== 'pending') return state; // already validated
+            if (!state.reviewedEvidenceIds.includes(claim.evidenceRef)) {
+                return {
+                    ...state,
+                    chainOfCustody: [
+                        ...state.chainOfCustody,
+                        {
+                            timestamp: new Date(),
+                            action: 'VALIDATION_BLOCKED',
+                            detail: `${claimId} validation blocked until ${claim.evidenceRef} is reviewed against raw evidence.`,
+                        }
+                    ]
+                };
+            }
 
             const delta = computeDelta(claim, verdict);
             const isCorrect = (claim.isHallucination && verdict === 'hallucination') || (!claim.isHallucination && verdict === 'verified');
