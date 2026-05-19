@@ -84,7 +84,7 @@ After meaningful changes, check this path:
 6. Validate one true claim and one hallucinated claim.
 7. Run terminal commands such as `scan`, `inspect email_1`, and `hash verify email_1`.
 8. Confirm that claim validation requires evidence review.
-9. Confirm that the report remains blocked until the case claim set is complete.
+9. Confirm that `report` warns when the case claim set is incomplete, and that `report confirm` submits early only after that warning.
 
 ## Updating Scenario Data
 

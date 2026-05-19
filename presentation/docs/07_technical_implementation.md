@@ -79,7 +79,7 @@ If live mode is unavailable, invalid, rate-limited, or exhausted, the game falls
 ## Current UX And Gameplay Safeguards
 
 - Claim validation requires evidence review first.
-- Scripted report flow requires the full case claim set before final submission.
+- Scripted report flow warns when the full case claim set is incomplete; the player can continue investigating or deliberately finish early with `report confirm`.
 - Live AI report flow avoids requiring scripted-only claim IDs.
 - Repeated claim registration avoids duplicating already known claim IDs in display order.
 - Suspicious prompt-injection attempts are detected and penalized.

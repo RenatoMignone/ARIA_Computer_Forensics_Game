@@ -34,8 +34,10 @@ This project is designed to support Computer Forensics and Cyber Crime Analysis 
 6. Ask ARIA questions about the evidence.
 7. Mark each ARIA claim as verified or hallucination only after reviewing the related evidence.
 8. Add notes and identify cross-evidence connections.
-9. Submit the final report from the terminal.
+9. Submit the final report from the terminal with `report` when the investigation is ready.
 10. Review the debrief, score, calibration, and exportable report.
+
+The game ends when the final report is submitted. If claims are missing or unvalidated, `report` warns the player first; `report confirm` deliberately submits early and carries unresolved claims into the debrief as not evaluated.
 
 ## Current Implementation Status
 

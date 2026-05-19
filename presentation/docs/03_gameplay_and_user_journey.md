@@ -43,17 +43,17 @@ The tutorial introduces each area and can be reopened during play.
 6. Choose confidence.
 7. Add notes or inspect through the terminal.
 8. Connect related evidence on the board.
-9. Submit the final report.
+9. Submit the final report, or intentionally submit early after an incomplete-investigation warning.
 10. Review the debrief.
 
 ## Claim Validation Rules
 
-Claims have stored ground truth in the game data. The current implementation blocks validation until the related evidence has been reviewed through raw metadata or a terminal inspection command.
+Claims have stored ground truth in the game data. The current implementation blocks validation until the related evidence has been reviewed through a terminal inspection command.
 
 Evidence counts as reviewed when the player:
 
-- Opens the Raw Metadata tab for that file.
 - Runs `inspect <file>` in the terminal.
+- Runs `cat <file>`, `strings <file>`, or `grep <text> <file>` in the terminal.
 - Runs `hash verify <file>` in the terminal.
 
 This gate is intentional. It prevents blind clicking and reinforces evidence-first reasoning.
@@ -65,6 +65,8 @@ The terminal gives the investigation a procedural forensic feel. It supports com
 The Investigator Handbook includes terminal command help so players can recover syntax during the game.
 
 ## End State
+
+The game ends when the player submits the final report from the terminal. If claims are missing or unvalidated, the terminal warns the player first and requires `report confirm` before ending early.
 
 The final report leads to a debrief with:
 

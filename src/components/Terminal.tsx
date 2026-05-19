@@ -6,7 +6,7 @@ import { useGame } from '../context/GameContext';
 import { useAria, validateQuery } from '../hooks/useAria';
 import { useToast } from '../hooks/useToast';
 import { useAudio } from '../hooks/useAudio';
-import { allValidated, computeDelta, connectionReward } from '../lib/scoring';
+import { computeDelta, connectionReward } from '../lib/scoring';
 import evidenceData from '../data/evidence.json';
 import ariaData from '../data/aria_responses.json';
 import connectionsData from '../data/connections.json';
@@ -460,39 +460,42 @@ export function Terminal() {
         }
 
         // --- report ---
-        else if (cmd === 'report') {
+        else if (cmd === 'report' || cmd === 'report confirm') {
             const discoveredClaimCount = Object.keys(s.allClaims).length;
             const missingScriptedClaims = getMissingScriptedCoverage(s.allClaims);
             const requiresScriptedCoverage = !LIVE_AI_CONFIGURED || s.liveAIFailed;
+            const pendingClaims = Object.values(s.allClaims).filter(c => !s.verdicts[c.id] || s.verdicts[c.id] === 'pending');
+            const canSubmitCleanly = (!requiresScriptedCoverage || missingScriptedClaims.length === 0) && pendingClaims.length === 0;
+            const isConfirmedEarlySubmission = cmd === 'report confirm';
             if (discoveredClaimCount === 0) {
                 writeLines([
                     `\x1b[31m[!] REPORT REJECTED: NO AI CLAIMS REVIEWED\x1b[0m`,
                     '\x1b[90mSelect evidence, ask ARIA about it, then validate the generated claim badges before submitting a report.\x1b[0m',
                 ]);
             }
-            else if (requiresScriptedCoverage && missingScriptedClaims.length > 0) {
+            else if (!canSubmitCleanly && !isConfirmedEarlySubmission) {
+                const remaining = pendingClaims.length;
                 writeLines([
-                    `\x1b[31m[!] REPORT REJECTED: CASE REVIEW INCOMPLETE\x1b[0m`,
-                    `\x1b[33m${missingScriptedClaims.length} required ARIA claim(s) have not been discovered yet.\x1b[0m`,
+                    `\x1b[33m[!] REPORT WARNING: INVESTIGATION INCOMPLETE\x1b[0m`,
+                    `\x1b[90mThe game ends when you submit the final report.\x1b[0m`,
+                    requiresScriptedCoverage && missingScriptedClaims.length > 0
+                        ? `\x1b[33m${missingScriptedClaims.length} required ARIA claim(s) have not been discovered yet.\x1b[0m`
+                        : '',
+                    remaining > 0
+                        ? `\x1b[33m${remaining} discovered AI claim(s) are still unvalidated.\x1b[0m`
+                        : '',
                     '',
-                    ...summarizeMissingCoverage(missingScriptedClaims),
+                    ...(requiresScriptedCoverage && missingScriptedClaims.length > 0 ? summarizeMissingCoverage(missingScriptedClaims) : []),
                     '',
                     '\x1b[90mAsk ARIA about each evidence file from multiple angles, then validate every claim badge before reporting.\x1b[0m',
-                    '\x1b[90mUseful prompts: authorship/authentication for email, speaker/synthesis for audio, edit/deepfake signs for video, invoice metadata/signature, and network anomalies/correlations.\x1b[0m',
-                ]);
-            }
-            else if (!allValidated(s.verdicts, s.allClaims)) {
-                const remaining = Object.values(s.allClaims).filter(c => !s.verdicts[c.id] || s.verdicts[c.id] === 'pending').length;
-                writeLines([
-                    `\x1b[31m[!] REPORT REJECTED: CHAIN OF CUSTODY INCOMPLETE\x1b[0m`,
-                    `\x1b[33mAwaiting investigator verification on ${remaining} AI-generated claim(s).\x1b[0m`,
-                    '\x1b[90mSupervisory Protocol 402.B dictates that all ARIA outputs must be independently verified against raw evidence before a final verdict can be signed. AI outputs cannot be trusted inherently.\x1b[0m',
-                    '\x1b[90mHint: Use \x1b[0minspect <file>\x1b[90m, then \x1b[0mvalidate <CLAIM-ID> verified|hallucination\x1b[90m for each remaining claim.\x1b[0m',
+                    '\x1b[90mTo finish anyway and open the debrief, type \x1b[0mreport confirm\x1b[90m. Unresolved claims will be listed as not evaluated.\x1b[0m',
                 ]);
             } else {
                 const bonus = s.timerEndTime && s.timerEndTime > Date.now() ? 50 : 0;
                 writeLines([
-                    '\x1b[32m✓ All claims validated. Generating forensic investigation report...\x1b[0m',
+                    canSubmitCleanly
+                        ? '\x1b[32m✓ All claims validated. Generating forensic investigation report...\x1b[0m'
+                        : '\x1b[33mSubmitting incomplete forensic report by investigator confirmation...\x1b[0m',
                     `\x1b[33mCalculating score + applying bonus...\x1b[0m`,
                     '\x1b[32mReport submitted. Opening debrief screen.\x1b[0m',
                 ]);
@@ -690,12 +693,14 @@ export function Terminal() {
                 report: [
                     '\x1b[36mCOMMAND: report\x1b[0m',
                     '',
-                    'Submit your investigation and proceed to the Debrief screen.',
+                    'Check whether your investigation is ready to submit and proceed to the Debrief screen.',
                     '',
                     '  \x1b[33mreport\x1b[0m',
+                    '  \x1b[33mreport confirm\x1b[0m',
                     '',
-                    '\x1b[90mIn scripted mode, the report is blocked until the full case claim set has been discovered and validated.\x1b[0m',
-                    '\x1b[90mSubmitting the report awards the completion bonus once the case is ready.\x1b[0m',
+                    '\x1b[90mThe game ends when the final report is submitted.\x1b[0m',
+                    '\x1b[90mIf claims are missing or unvalidated, report shows a warning first.\x1b[0m',
+                    '\x1b[90mUse report confirm only if you deliberately want to finish with an incomplete case.\x1b[0m',
                     '\x1b[90mIf the speed timer is still running, an extra +50 speed bonus applies.\x1b[0m',
                 ],
             };

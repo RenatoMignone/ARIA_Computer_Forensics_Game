@@ -21,7 +21,7 @@ const TUTORIAL_STEPS = [
         icon: <FileText className="w-6 h-6 text-cyan-400" />,
         title: '2. Ground Truth Metadata',
         description:
-            'When a file is selected, its **Raw Metadata** appears in the center Workspace. This is your ground truth.\n\nCompare timestamps, IP addresses, headers, hashes, and file details here against what ARIA tells you later.\n\nA claim cannot be validated until you have reviewed the related evidence through Raw Metadata or a terminal inspection command.',
+            'When a file is selected, its **Raw Metadata** appears in the center Workspace. This is your ground truth.\n\nCompare timestamps, IP addresses, headers, hashes, and file details here against what ARIA tells you later.\n\nA claim cannot be validated until you have reviewed the related evidence with a terminal inspection command such as `inspect email_1.eml`.',
         highlight: 'workspace',
     },
     {
@@ -63,7 +63,7 @@ const TUTORIAL_STEPS = [
         icon: <Award className="w-6 h-6 text-emerald-400" />,
         title: 'Final Submission',
         description:
-            'Start by selecting `email_1.eml`, then ask ARIA what happened.\n\nIn scripted mode, the final report unlocks only after the full case claim set has been discovered and validated. Type `report` in the terminal when the investigation is complete.\n\nYou can reopen these instructions from the **?** button in the top bar.',
+            'Start by selecting `email_1.eml`, then ask ARIA what happened.\n\nThe game ends when you submit the final forensic report from the terminal. Type `report` when you think the case is ready.\n\nIf claims are still missing or unvalidated, ARIA will warn you first. You can keep investigating, or deliberately finish early with `report confirm` and review the debrief with unresolved claims marked as not evaluated.\n\nYou can reopen these instructions from the **?** button in the top bar.',
         highlight: null,
     },
 ];

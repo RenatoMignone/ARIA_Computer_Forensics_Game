@@ -34,7 +34,8 @@ const TERMINAL_COMMAND_GROUPS = [
             { command: 'ask aria "<question>"', behavior: 'Sends a question to ARIA using the currently selected evidence file as context.', when: 'Use after selecting or inspecting evidence. Treat answers as leads, not truth.' },
             { command: 'validate <CLAIM-ID> verified', behavior: 'Marks an ARIA claim as true. Terminal validations use medium confidence.', when: 'Only after comparing the claim against raw metadata.' },
             { command: 'validate <CLAIM-ID> hallucination', behavior: 'Marks an ARIA claim as false or fabricated.', when: 'Use when ARIA invents metadata, inflates certainty, or draws an unsupported conclusion.' },
-            { command: 'report', behavior: 'Submits the investigation and opens the final debrief.', when: 'Available only after the case claim set has been discovered and validated.' },
+            { command: 'report', behavior: 'Checks whether the investigation is ready to submit and explains anything still missing.', when: 'Use when you think the case is ready to end.' },
+            { command: 'report confirm', behavior: 'Submits an incomplete investigation and opens the final debrief.', when: 'Use only after the warning if you intentionally want to finish early.' },
         ],
     },
     {
@@ -196,7 +197,8 @@ export function GlossaryModal() {
                                             <li>Click a badge and press VERIFY or HALLUCINATION</li>
                                             <li>Confirm your confidence level (Low / Medium / High)</li>
                                             <li>Repeat from multiple angles for all 5 evidence files</li>
-                                            <li>Type <code className="text-cyan-300 bg-cyan-900/30 px-1 rounded">report</code> in the terminal when the full case claim set is discovered and validated</li>
+                                            <li>Type <code className="text-cyan-300 bg-cyan-900/30 px-1 rounded">report</code> in the terminal when you are ready to end the game</li>
+                                            <li>If the case is incomplete, choose between continuing the investigation or typing <code className="text-cyan-300 bg-cyan-900/30 px-1 rounded">report confirm</code> to submit early</li>
                                         </ol>
                                     </div>
 

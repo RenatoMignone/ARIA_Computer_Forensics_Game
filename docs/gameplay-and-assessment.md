@@ -12,7 +12,7 @@ ARIA is designed around one repeated action pattern:
 4. Read the generated claim badges.
 5. Validate each claim against evidence.
 6. Connect related evidence when a shared artifact is found.
-7. Submit the final report after the case is complete.
+7. Submit the final report when the case is complete, or deliberately submit early after an incomplete-investigation warning.
 
 The game should not reward blind trust in ARIA. It should also not reward rejecting every AI answer automatically. The target behavior is calibrated verification.
 
@@ -57,12 +57,12 @@ The handbook is important for the educational part of the game because it explai
 
 ## Evidence Review Gate
 
-A claim cannot be validated until the related evidence has been reviewed.
+A claim cannot be validated until the related evidence has been reviewed with a terminal inspection command.
 
 Evidence counts as reviewed when the player:
 
-- Opens the Raw Metadata tab for that file.
 - Runs `inspect <file>` in the terminal.
+- Runs `cat <file>`, `strings <file>`, or `grep <text> <file>` in the terminal.
 - Runs `hash verify <file>` in the terminal.
 
 This gate exists to prevent a weak gameplay pattern where the player asks ARIA repeated questions and validates badges without inspecting evidence.
@@ -95,9 +95,10 @@ Important commands include:
 - `validate <CLAIM-ID> verified`: confirm a supported claim.
 - `validate <CLAIM-ID> hallucination`: reject an unsupported claim.
 - `connect <f1> <f2> "<reason>"`: register a valid cross-evidence relationship.
-- `report`: submit the final investigation.
+- `report`: check whether the final investigation is ready to submit.
+- `report confirm`: submit anyway after an incomplete-investigation warning.
 
-The report command is intentionally blocked until the required claims have been discovered and validated.
+The game ends when the final report is submitted. If required claims are missing or discovered claims are still unvalidated, `report` warns the player first instead of ending immediately. The player can continue investigating or intentionally finish early with `report confirm`; unresolved claims appear in the debrief as not evaluated.
 
 ## Scoring Summary
 
@@ -122,7 +123,7 @@ Difficulty multipliers are applied at report submission:
 
 ## End of the Game
 
-The game ends when the player submits the final report from the terminal.
+The game ends when the player submits the final report from the terminal. A complete investigation can submit directly with `report`; an incomplete one requires the explicit `report confirm` command after the warning.
 
 The debrief screen shows:
 
