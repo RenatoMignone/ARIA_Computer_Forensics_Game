@@ -1,0 +1,46 @@
+\chapter{Context and Problem Statement}
+
+\section{Project Context}
+
+ARIA, short for AI-Assisted Research and Investigation Assistant, is a serious game about digital forensics and AI reliability. The player is placed in the role of an analyst investigating a corporate fraud incident at TechCorp. The case combines email spoofing, social engineering, synthetic audio, deepfake-style video indicators, suspicious invoice metadata, and network activity.
+
+The project was developed as an individual extended homework for the Computer Forensics and Cyber Crime Analysis course. Its goal is not to replace a forensic suite, but to create a focused training environment where students practice the mental discipline required when AI tools are introduced into an investigation.
+
+\section{Project Availability}
+
+The public repository and hosted build are available at:
+
+\begin{itemize}[leftmargin=*]
+  \item Repository: \url{https://github.com/RenatoMignone/ARIA_Computer_Forensics_Game}
+  \item Hosted game: \url{https://renatomignone.github.io/ARIA_Computer_Forensics_Game/}
+\end{itemize}
+
+\section{Why This Game Exists}
+
+In 2026, large language models and AI agents are no longer exotic tools. They are used to summarize documents, interpret logs, draft incident reports, explain metadata, generate investigation leads, and automate small technical tasks. This makes them attractive in digital forensics because they can reduce friction and help a student move through unfamiliar evidence faster.
+
+The problem is that the same fluency that makes these systems useful also makes their mistakes dangerous. An AI assistant can produce a confident explanation, invent a missing detail, invert a technical finding, or connect two artifacts more strongly than the evidence allows. In normal productivity work this may be annoying; in a forensic setting it can break \textbf{traceability}, damage the final report, or turn speculation into an apparently authoritative conclusion.
+
+ARIA exists to train the habit that modern analysts increasingly need: use AI for assistance, but do not outsource judgment to it. The game lets the player experience the convenience of AI support while forcing every important statement back through raw evidence. In this sense, the player is not learning only about one TechCorp fraud case; they are practicing how to remain professionally skeptical when AI systems are embedded in everyday investigative work.
+
+\section{Educational Gap}
+
+Computer forensics teaching often separates individual technical skills: reading email headers, checking file metadata, interpreting logs, or reconstructing a timeline. These exercises are useful, but an investigation also requires connecting many small observations into a defensible conclusion. A second challenge is more recent: students are increasingly exposed to AI assistants that can summarize evidence, suggest leads, and draft explanations, but can also fabricate details while sounding precise.
+
+ARIA addresses this gap by joining the two problems. It asks the player to perform a complete mini-investigation while an AI assistant gives both supported and unsupported statements. The intended habit is simple: AI can accelerate analysis, but evidence decides what enters the final report.
+
+\section{Forensic Risk}
+
+In a forensic context, an unsupported AI statement is not just a minor mistake. It can produce wrong attribution, inaccurate timelines, misread metadata, or conclusions that cannot be defended. A report based on confident but unverified language may look coherent while failing the basic requirement of \textbf{traceability to artifacts}.
+
+The game therefore focuses on the risk of \textbf{AI overtrust}. It also avoids the opposite simplification: the correct lesson is not to reject every AI output automatically. Some AI claims are true and should be verified. The player is rewarded for calibrated judgment, not cynicism.
+
+\section{Guiding Question}
+
+The design question behind the project is:
+
+\begin{quote}
+How can an interactive game teach students to use AI support critically while preserving evidence-based forensic reasoning?
+\end{quote}
+
+ARIA answers through a claim-validation loop. The player inspects evidence, asks ARIA for analysis, validates individual claim badges as either verified or hallucinated, identifies cross-evidence links, and submits a final report that is evaluated in a debrief.

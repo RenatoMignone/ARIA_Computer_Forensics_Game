@@ -1,0 +1,97 @@
+\documentclass[11pt,a4paper,openany]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{pifont}
+\usepackage{float}
+\usepackage{tcolorbox}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{xurl}
+
+\makeatletter
+\renewcommand\chapter{\@startsection{chapter}{0}{\z@}%
+  {-3.5ex \@plus -1ex \@minus -.2ex}%
+  {2.3ex \@plus .2ex}%
+  {\normalfont\Huge\bfseries}}
+\makeatother
+
+\geometry{margin=1in}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  urlcolor=blue,
+  pdftitle={ARIA: AI-Assisted Forensic Investigation Game},
+  pdfauthor={Renato Mignone},
+  pdfsubject={Computer Forensics and Cyber Crime Analysis - Serious Game Report},
+  pdfkeywords={computer forensics, serious game, AI hallucination, digital evidence, forensic training}
+}
+
+\graphicspath{{resources/images/}}
+\setlength{\parskip}{0.45em}
+\setlength{\parindent}{0pt}
+\renewcommand{\arraystretch}{1.18}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+\title{ARIA: AI-Assisted Forensic Investigation Game}
+\author{Renato Mignone}
+\date{June 2026}
+
+\begin{document}
+
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+  \centering
+  \vspace*{0.5cm}
+  \includegraphics[width=0.4\textwidth]{resources/images/polito_logo.png}
+
+  \vspace{1.5cm}
+  {\LARGE Politecnico di Torino \par}
+  \vspace{0.4cm}
+  {\large Computer Forensics and Cyber Crime Analysis \par}
+
+  \vspace{1.2cm}
+  {\LARGE\bfseries ARIA: AI-Assisted Forensic Investigation Game\par}
+  \vspace{0.4cm}
+  {\large Serious Game Report\par}
+
+  \vspace{1.5cm}
+  {\Large\bfseries Renato Mignone\par}
+  \vspace{0.2cm}
+  {\large Matricola: s336973\par}
+
+  \vfill
+  {\large June 2026\par}
+\end{titlepage}
+\hypersetup{pageanchor=true}
+\pagenumbering{roman}
+\begingroup
+\small
+\setlength{\parskip}{0pt}
+\tableofcontents
+\endgroup
+\clearpage
+\pagenumbering{arabic}
+
+\input{sections/00_abstract}
+\input{sections/01_context_and_problem}
+\input{sections/02_solution_design}
+\input{sections/03_forensic_scenario}
+\input{sections/04_technical_implementation}
+\input{sections/05_evaluation}
+\input{sections/06_conclusion}
+
+\end{document}

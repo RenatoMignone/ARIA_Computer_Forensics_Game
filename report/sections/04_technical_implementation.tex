@@ -1,0 +1,75 @@
+\chapter{Technical Implementation}
+
+\section{Technology Stack}
+
+ARIA is implemented as a browser-based single-page application. The main technologies are:
+
+\begin{itemize}[leftmargin=*]
+  \item React 19 and TypeScript 5.9 for the application logic and UI.
+  \item Vite 7 for development, bundling, and static deployment.
+  \item Tailwind CSS 4 for styling.
+  \item xterm.js for the in-game forensic terminal.
+  \item Framer Motion for interface transitions.
+  \item Lucide React for icons.
+  \item Optional Google Gemini integration for local live AI mode.
+\end{itemize}
+
+\section{Main Application Components}
+
+The interface is organized into several panels and screens:
+
+\begin{itemize}[leftmargin=*]
+  \item The boot sequence, main menu, difficulty selection, timer selection, and tutorial introduce the case.
+  \item The evidence vault lists case files and shows investigation progress.
+  \item The workspace displays selected evidence, raw metadata, notes, and claim references.
+  \item The ARIA chat panel returns scripted or live AI responses with claim badges.
+  \item The terminal supports command-style investigation actions.
+  \item The evidence board and attack timeline help the player reason across artifacts.
+  \item The debrief screen reports score, errors, hallucinations found, calibration, and exportable report details.
+\end{itemize}
+
+The scenario is mostly \textbf{data-driven}. Evidence artifacts, scripted ARIA responses, claim truth labels, hints, feedback, valid cross-evidence links, and timeline feedback are stored as structured project data. This keeps the case content inspectable and makes future scenario expansion possible without rewriting the interface.
+
+Figure~\ref{fig:workspace-initial} shows the initial investigation workspace after selecting the email evidence. The layout keeps three investigation surfaces visible at the same time: the evidence vault on the left, the file content and metadata in the center, and the ARIA chat on the right. The terminal is kept at the bottom because it represents the raw-evidence workflow that the player must use before a claim can be accepted or rejected.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.96\textwidth]{aria_workspace_initial.png}
+  \caption{Investigation workspace after selecting the first evidence file.}
+  \label{fig:workspace-initial}
+\end{figure}
+
+Figure~\ref{fig:claim-review} shows the same workspace after ARIA has generated claim badges. The claim list is deliberately placed next to the raw metadata panel rather than inside a separate quiz screen. This reinforces the intended behavior: every AI statement is judged only after the player has compared it with the underlying artifact.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.96\textwidth]{aria_claim_review.png}
+  \caption{Claim review state with generated ARIA claims and the evidence review gate.}
+  \label{fig:claim-review}
+\end{figure}
+
+\section{Game State and Reducer}
+
+The main game state tracks the current phase, difficulty, timer, score, selected evidence, discovered claims, verdicts, reviewed evidence IDs, notes, found connections, terminal history, chat history, chain of custody, save data, and debrief information.
+
+The reducer applies score updates, claim validation, evidence review, hint penalties, report submission, connection registration, suspicious prompt handling, and save/load behavior. This centralization makes the scoring and assessment behavior auditable.
+
+\section{Scripted and Live AI Modes}
+
+Scripted mode is the \textbf{default and recommended classroom mode}. It is deterministic and safe for public hosting because it does not require a private API key and has known claim truth labels.
+
+Live Gemini mode is an optional local extension. When enabled through environment variables, the application sends the selected evidence content, raw metadata, and a catalog of known claims for that evidence to Gemini. The prompt asks the model to reuse known claim IDs when it repeats existing forensic facts. If live mode is unavailable, invalid, rate-limited, or exhausted, the application falls back to scripted behavior.
+
+\section{Prompt-Injection Safeguard}
+
+Because the project deals with AI-assisted investigation, the prototype also includes a basic prompt-injection filter. Suspicious attempts to bypass the assistant role, ignore instructions, reveal hidden prompts, or manipulate the game are rejected and penalized. This is not meant to be a complete security solution, but it reinforces another realistic lesson: analysts must treat AI interaction itself as part of the system under control.
+
+\section{Deployment}
+
+The project can be built with:
+
+\begin{verbatim}
+npm run build
+\end{verbatim}
+
+The public deployment is intended to run in scripted mode. This avoids exposing a Gemini key in client-side JavaScript and keeps the classroom demo reproducible. The game is hosted at \url{https://renatomignone.github.io/ARIA_Computer_Forensics_Game/}, while the source repository is available at \url{https://github.com/RenatoMignone/ARIA_Computer_Forensics_Game}.

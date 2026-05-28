@@ -1,0 +1,8 @@
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+
+ARIA is a browser-based serious game developed for the Computer Forensics and Cyber Crime Analysis course. The player acts as a forensic investigator assigned to a simulated business email compromise and corporate fraud case involving an unauthorized EUR 2.3M wire transfer. During the investigation, the player examines five digital evidence artifacts, questions an AI assistant, validates AI-generated claims, connects related evidence, and submits a final report.
+
+The central educational objective is to train \textbf{calibrated trust} in AI-assisted investigative workflows. ARIA is intentionally useful but unreliable: it provides both correct observations and plausible hallucinations. The game therefore converts the abstract warning that ``AI can be wrong'' into an operational exercise where each AI claim must be accepted or rejected only after inspecting raw evidence such as email headers, media metadata, PDF metadata, hashes, timestamps, and network logs.
+
+The current prototype is implemented as a React and TypeScript single-page application. It supports deterministic scripted gameplay for classroom evaluation and an optional local Gemini-backed mode for experimentation. The main contribution of the project is a complete \textbf{evidence-first} game loop: inspect, ask, verify, connect, report, and debrief.

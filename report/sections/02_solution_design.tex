@@ -1,0 +1,104 @@
+\chapter{Solution Design}
+
+\section{Core Idea}
+
+ARIA is built around one rule: AI may assist the investigation, but every conclusion must be verified against evidence. The assistant is presented as useful enough to be tempting, yet unreliable enough that blind trust is punished. The game mechanics are therefore not decorative; they create situated practice around the learning objective.
+
+The game translates this principle into individual \textbf{claim badges}. Instead of asking the player to judge an entire AI paragraph, ARIA tags checkable statements such as \texttt{CLAIM-001}. Each claim has a stored ground truth, a related evidence artifact, feedback, a hint, and relevant metadata fields. This makes AI reliability measurable inside the gameplay loop.
+
+\section{Main Gameplay Loop}
+
+The investigation follows a repeated evidence-first pattern:
+
+\begin{enumerate}[leftmargin=*]
+  \item Select an evidence file from the vault.
+  \item Inspect its visible content and raw metadata.
+  \item Ask ARIA a focused forensic question.
+  \item Read the generated claim badges.
+  \item Validate each claim as \texttt{verified} or \texttt{hallucination}.
+  \item Record confidence and notes.
+  \item Connect related evidence when a shared artifact is found.
+  \item Submit the final report and review the debrief.
+\end{enumerate}
+
+\section{Interface Flow}
+
+The interface is designed to make the player enter the activity as an investigator rather than as a generic quiz participant. The main menu frames ARIA as an AI-assisted evidence review tool and immediately establishes the central theme of the game: the machine is useful, but it must not be trusted blindly.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.96\textwidth]{aria_main_menu.png}
+  \caption{ARIA main menu and case framing.}
+  \label{fig:main-menu}
+\end{figure}
+
+Before the investigation starts, the player selects a game mode and then chooses whether to enable a timer. This separation is intentional: difficulty changes the information available to the player, while the timer changes the pressure under which the same forensic reasoning must be performed. The menu therefore presents assessment constraints before the case begins, instead of changing them silently during play.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.96\textwidth]{aria_mode_selection.png}
+  \caption{Difficulty selection screen used before starting the investigation.}
+  \label{fig:mode-selection}
+\end{figure}
+
+\section{Game Modes}
+
+The prototype supports three difficulty modes, shown in Table~\ref{tab:difficulty}.
+
+\begin{table}[H]
+\centering
+\caption{Difficulty modes}
+\label{tab:difficulty}
+\begin{tabularx}{\textwidth}{lllY}
+\toprule
+Mode & Internal value & Multiplier & Purpose \\
+\midrule
+Guided Run & \texttt{standard} & 1.00 & Recommended first run; claim text remains visible while pending. \\
+Challenge Run & \texttt{hard} & 1.25 & Claim text is hidden until validation, increasing reliance on evidence review. \\
+Final Exam & \texttt{expert} & 1.50 & Hard mode with no hint command, intended for assessment-style play. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The negative values are intentionally asymmetric. Accepting a hallucination is the most dangerous failure because it lets an unsupported statement enter the investigation as fact. Rejecting a true claim is also penalized heavily, however, because the learning goal is \textbf{calibrated trust}, not automatic distrust. In the scripted scenario, this prevents a simple exploit where the player marks every AI statement as hallucinated and still obtains a good result.
+
+Players may also choose a 45-minute timer, a 30-minute timer, or no timer. Finishing before an active timer expires grants a speed bonus.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.96\textwidth]{aria_timer_choice.png}
+  \caption{Timer choice prompt: optional pressure is configured separately from difficulty.}
+  \label{fig:timer-choice}
+\end{figure}
+
+\section{Evidence Review Gate}
+
+The most important safeguard is the \textbf{evidence review gate}. A claim cannot be validated until the related evidence has been reviewed through the terminal with commands such as \texttt{inspect}, \texttt{cat}, \texttt{strings}, \texttt{grep}, or \texttt{hash verify}. This prevents a weak strategy where the player only asks ARIA questions and clicks claim verdicts without touching the artifacts.
+
+This mechanic aligns the interface with the learning objective. The scoring system does not merely ask whether the player knows the correct answer; it requires interaction with the source material before accepting or rejecting AI output.
+
+\section{Scoring Model}
+
+The score rewards correct verification and penalizes both blind trust and blanket rejection. The main scoring events are listed in Table~\ref{tab:scoring}.
+
+\begin{table}[H]
+\centering
+\caption{Scoring events}
+\label{tab:scoring}
+\begin{tabularx}{\textwidth}{Yr}
+\toprule
+Action & Points \\
+\midrule
+Correctly flag a hallucination & +20 \\
+Correctly verify a true claim & +10 \\
+Accept a hallucination as true & -30 \\
+Reject a true claim as hallucinated & -25 \\
+Find a cross-evidence connection & +15 for each of the first 3 \\
+Trace the Tor exit-node IP in the terminal & +15 once \\
+Decode the hidden invoice creator payload & +20 once \\
+Use a hint & -5 \\
+Submit the final report & +50 \\
+Submit before the timer expires & +50 \\
+\bottomrule
+\end{tabularx}
+\end{table}

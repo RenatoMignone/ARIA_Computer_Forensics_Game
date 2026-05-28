@@ -1,0 +1,55 @@
+\chapter{Evaluation and Current Status}
+
+\section{Implemented Prototype}
+
+The current prototype is \textbf{playable end to end}. A player can start a new investigation, choose difficulty and timer settings, inspect evidence, question ARIA, validate claims, record notes, identify cross-evidence links, submit a report, and review the debrief.
+
+Implemented features include:
+
+\begin{itemize}[leftmargin=*]
+  \item Main menu, difficulty selection, timer selection, and tutorial.
+  \item Evidence vault, workspace, raw metadata viewer, and notes.
+  \item Scripted ARIA chat and optional live AI mode with fallback.
+  \item Claim registration, claim validation, and confidence selection.
+  \item Evidence review gate before validation.
+  \item Terminal commands for inspection, hashing, validation, connection checks, tracing, decoding, notes, and report submission.
+  \item Scoring, penalties, difficulty multipliers, and performance tiers.
+  \item Investigator Handbook with glossary, how-to-play material, and terminal command reference.
+  \item Save/resume, final debrief, leaderboard entry, and report export.
+  \item Accessibility-oriented settings such as high contrast and reduced effects.
+\end{itemize}
+
+\section{Assessment Alignment}
+
+ARIA supports the intended learning goals because the core mechanic requires the player to verify AI statements against raw artifacts. The evidence review gate enforces this mechanically, while the scoring model gives immediate consequences for \textbf{overtrust} and \textbf{overrejection}.
+
+The final debrief is also part of the assessment. It turns the game session into reflection by showing correct and incorrect validations, hallucinations found, confidence calibration, final score, and report quality. This is important because the purpose of the game is not only to reach the correct answer, but to understand why an answer is defensible.
+
+\section{Assessment Artifacts}
+
+At the end of a run, ARIA can export both a human-readable investigation report and a structured JSON report. These artifacts include the final score, difficulty, mode, claim-by-claim verdicts, hallucination types, confidence choices, discovered cross-evidence links, chain-of-custody events, calibration data, and student notes.
+
+This export layer is important for classroom use because it turns gameplay into inspectable evidence of the student's reasoning process. The repository also includes a small aggregation script that can combine multiple exported JSON reports into a class-level summary, including score statistics, hallucination-detection rates, and calibration metrics. In its current form this remains a local/offline workflow, but it shows how the prototype could support instructor-side review without changing the core game loop.
+
+\section{Build and Reproducibility}
+
+The game is designed to be reproducible in scripted mode. The evidence set, claim catalog, truth labels, feedback, and valid connections are stored in versioned JSON files. This makes the public demo and classroom assessment stable.
+
+The project documentation reports that the current build passes with \texttt{npm run build}. Vite may emit a non-blocking bundle-size warning because the prototype is a single-page interactive application with several UI and terminal libraries.
+
+\section{Known Limitations}
+
+The main limitations are:
+
+\begin{itemize}[leftmargin=*]
+  \item The prototype currently contains one complete investigation scenario.
+  \item Scripted ARIA responses cover selected questions rather than every possible user question.
+  \item Live AI mode is useful for experimentation but not suitable as the primary public assessment path because outputs can vary.
+  \item Save data is local to the same browser and device.
+  \item There is no backend for tamper-resistant classroom submission.
+  \item Report grading is currently based on game state and debrief behavior rather than instructor-side analytics.
+\end{itemize}
+
+\section{Future Work}
+
+Possible extensions include additional scenarios, a larger scripted claim catalog, instructor-facing result export, server-side classroom submissions, richer report grading, and bundle-size optimization. The current data-driven structure should make scenario expansion feasible without rewriting the whole interface.

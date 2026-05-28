@@ -1,0 +1,60 @@
+\chapter{Scenario and Learning Outcomes}
+
+\section{Case Summary}
+
+The scenario concerns an unauthorized EUR 2.3M wire transfer at TechCorp. The attacker appears to impersonate Marco Rossi, the company's CEO, and pressures Luca Ferrari, the CFO, to process an urgent payment. The incident is intentionally designed as a plausible \textbf{multi-artifact fraud}: the visible story seems coherent, but the underlying metadata reveals inconsistencies and signs of manipulation.
+
+\section{Evidence Set}
+
+The current game contains five evidence artifacts. Their forensic role is summarized in Table~\ref{tab:evidence}.
+
+\begin{longtable}{p{0.22\textwidth}p{0.18\textwidth}p{0.50\textwidth}}
+\caption{Scenario evidence set}
+\label{tab:evidence}\\
+\toprule
+File & Type & Forensic purpose \\
+\midrule
+\endfirsthead
+\toprule
+File & Type & Forensic purpose \\
+\midrule
+\endhead
+\texttt{email\_1.eml} & Email & Spoofed executive payment request. Relevant fields include SPF failure, DKIM domain mismatch, suspicious Return-Path, originating IP \texttt{91.200.81.47}, and high spam/phishing indicators. \\
+\texttt{audio\_call.mp3} & Audio & Synthetic voice call. Metadata includes a creation timestamp at \texttt{2026-03-03T02:14:33Z}, 22050 Hz sample rate, TTS-like encoder traces, and synthetic background noise. \\
+\texttt{teams\_meeting.mp4} & Video & Purported CEO confirmation call. Indicators include OBS Studio encoder metadata, missing GPS value, bitrate anomalies around the facial region, thumbnail mismatch, and compression artifacts. \\
+\texttt{invoice\_fraud.pdf} & PDF & Suspicious invoice matching the requested amount and IBAN. Metadata shows AutoDoc AI Writer, no digital signature, short modification interval, and a base64-encoded creator field. \\
+\texttt{network\_logs.txt} & Log & Firewall activity connecting an unregistered workstation to suspicious infrastructure, including \texttt{91.200.81.47}, Tor-related endpoints, and anomalous outbound traffic. \\
+\bottomrule
+\end{longtable}
+
+\section{Cross-Evidence Reasoning}
+
+The scenario is not solved by a single artifact. The player must connect multiple observations:
+
+\begin{itemize}[leftmargin=*]
+  \item The IP address \texttt{91.200.81.47} appears in both the email headers and the network logs.
+  \item The audio creation timestamp aligns with suspicious outbound activity around 02:14 UTC.
+  \item The invoice creation and modification times are close to outbound activity from an unregistered workstation.
+\end{itemize}
+
+These links teach a careful distinction between correlation and proof. For example, a shared IP address can support infrastructure correlation, but it should not be overclaimed as a definitive identity attribution unless the evidence supports that conclusion.
+
+\section{AI Hallucination Model}
+
+ARIA's scripted scenario contains 7 assistant responses and 28 unique claims. The claim set is intentionally balanced: \textbf{14 true claims and 14 hallucinated claims}. This avoids two bad lessons. If every claim were false, the player would learn to reject ARIA automatically. If every claim were true, the player would learn blind trust.
+
+The hallucinations are grouped into recurring failure modes:
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{False attribution:} assigning authorship or responsibility without enough evidence.
+  \item \textbf{Fabricated metadata:} inventing fields or observations not present in the artifact.
+  \item \textbf{Inverted finding:} stating the opposite of the raw evidence.
+  \item \textbf{Timestamp error:} misreporting or misinterpreting time evidence.
+  \item \textbf{Confidence inflation:} making a strong claim without a defensible method.
+\end{itemize}
+
+\section{Learning Outcomes}
+
+After playing, a successful student should be able to explain which AI claims were supported, which were hallucinated, and which artifacts justified each decision. The intended skills include reading email authentication fields, inspecting media and PDF metadata, checking hashes, interpreting firewall logs, comparing timestamps, constructing a simple incident timeline, and producing a defensible final report.
+
+The broader professional habit is evidence discipline: use AI as a lead generator, not as an authority.
