@@ -1,7 +1,7 @@
 TEX=pdflatex
 OUT_DIR=out
 MAIN=main.tex
-JOBNAME=ARIA_Report_Mignone
+JOBNAME=aria-report-mignone-s336973
 PDF=$(JOBNAME).pdf
 
 .PHONY: compile clean
